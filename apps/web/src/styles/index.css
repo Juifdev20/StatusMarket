@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-sable-chaud text-encre-nuit font-sans antialiased;
+  }
+  .dark body {
+    @apply bg-encre-nuit text-sable-chaud;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn bg-vert-marche text-white hover:bg-vert-marche/90;
+  }
+  .btn-cta {
+    @apply btn bg-ambre-pagne text-encre-nuit hover:bg-ambre-pagne/90;
+  }
+  .btn-danger {
+    @apply btn bg-corail-alerte text-white hover:bg-corail-alerte/90;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-encre-nuit hover:bg-encre-nuit/5 dark:text-sable-chaud dark:hover:bg-white/5;
+  }
+  .btn-outline {
+    @apply btn border border-brume text-encre-nuit hover:bg-encre-nuit/5 dark:text-sable-chaud dark:hover:bg-white/5;
+  }
+  .card {
+    @apply rounded-2xl bg-white dark:bg-encre-nuit/80 border border-brume/30 shadow-sm;
+  }
+  .input {
+    @apply w-full rounded-xl border border-brume/40 bg-white dark:bg-encre-nuit/60 px-4 py-2.5 text-sm outline-none transition-colors focus:border-vert-marche focus:ring-2 focus:ring-vert-marche/20;
+  }
+  .label {
+    @apply block text-sm font-medium text-encre-nuit dark:text-sable-chaud mb-1.5;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+}
