@@ -153,8 +153,8 @@ function PaymentForm({ plan, sellerId, onClose }: {
 
   if (done) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-        <div className="card max-w-sm p-6 text-center" onClick={(e) => e.stopPropagation()}>
+      <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 md:items-center md:p-4" onClick={onClose}>
+        <div className="card max-h-[90vh] w-full max-w-sm overflow-y-auto rounded-b-none md:rounded-2xl p-4 md:p-6 text-center" onClick={(e) => e.stopPropagation()}>
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-vert-marche/10">
             <Check size={24} className="text-vert-marche" />
           </div>
@@ -167,8 +167,8 @@ function PaymentForm({ plan, sellerId, onClose }: {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 md:items-center" onClick={onClose}>
-      <div className="card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-b-none md:rounded-2xl p-6" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 md:items-center md:p-4" onClick={onClose}>
+      <div className="card max-h-[90vh] w-full max-w-md overflow-y-auto rounded-b-none md:rounded-2xl p-4 md:p-6" onClick={(e) => e.stopPropagation()}>
         <h2 className="font-serif text-lg font-bold mb-4">Paiement — Plan {plan.name}</h2>
         <div className="card bg-sable-chaud dark:bg-encre-nuit/40 p-3 mb-4">
           <p className="text-xs text-brume">Effectuez votre paiement ({plan.price_usd}$) via Mobile Money ou virement, puis soumettez la preuve ci-dessous.</p>

@@ -1,6 +1,5 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, X, Package } from 'lucide-react';
-import { api } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import type { Store, Product, Category } from '../../types';
@@ -18,16 +17,21 @@ export function ProductsPage() {
     if (!profile) return;
     (async () => {
       try {
-        const stores = await api.getMyShops();
-        const myStore = (stores || [])[0] as Store | undefined;
+        const { data: storeData } = await supabase
+          .from('stores')
+          .select('*')
+          .eq('owner_id', profile.id)
+          .order('created_at', { ascending: false })
+          .maybeSingle();
+        const myStore = storeData as Store | null;
         if (myStore) {
           setStore(myStore);
           const [prodRes, catRes] = await Promise.all([
-            api.getProducts(myStore.id),
-            api.getCategories(myStore.id),
+            supabase.from('products').select('*, category:categories(*)').eq('store_id', myStore.id).order('created_at', { ascending: false }),
+            supabase.from('categories').select('*').eq('store_id', myStore.id).order('name'),
           ]);
-          setProducts((prodRes || []) as Product[]);
-          setCategories((catRes || []) as Category[]);
+          setProducts((prodRes.data || []) as Product[]);
+          setCategories((catRes.data || []) as Category[]);
         }
       } finally {
         setLoading(false);
@@ -37,18 +41,18 @@ export function ProductsPage() {
 
   const loadProducts = async () => {
     if (!store) return;
-    const res = await api.getProducts(store.id);
-    setProducts((res || []) as Product[]);
+    const { data } = await supabase
+      .from('products')
+      .select('*, category:categories(*)')
+      .eq('store_id', store.id)
+      .order('created_at', { ascending: false });
+    setProducts((data || []) as Product[]);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Supprimer ce produit ?')) return;
-    try {
-      await api.deleteProduct(id);
-      await loadProducts();
-    } catch {
-      // ignored
-    }
+    await supabase.from('products').delete().eq('id', id);
+    await loadProducts();
   };
 
   if (loading) {
@@ -56,7 +60,12 @@ export function ProductsPage() {
   }
 
   if (!store) {
-    return <p className="text-center text-brume py-20">Créez d'abord votre boutique.</p>;
+    return (
+      <div className="flex flex-col items-center py-20 text-center">
+        <Package size={48} className="text-brume mb-4" />
+        <p className="text-brume mb-4">Créez d'abord votre boutique pour gérer vos produits.</p>
+      </div>
+    );
   }
 
   return (
@@ -158,22 +167,18 @@ function ProductForm({ store, categories, product, onClose, onSaved }: {
       is_available: isAvailable,
       stock: parseInt(stock) || 0,
     };
-    try {
-      if (product) {
-        await api.updateProduct(product.id, payload);
-      } else {
-        await api.createProduct(payload);
-      }
-      setSaving(false);
-      onSaved();
-    } catch {
-      setSaving(false);
+    if (product) {
+      await supabase.from('products').update(payload).eq('id', product.id);
+    } else {
+      await supabase.from('products').insert(payload);
     }
+    setSaving(false);
+    onSaved();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 md:items-center" onClick={onClose}>
-      <div className="card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-b-none md:rounded-2xl p-6" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 md:items-center md:p-4" onClick={onClose}>
+      <div className="card max-h-[90vh] w-full max-w-md overflow-y-auto rounded-b-none md:rounded-2xl p-4 md:p-6" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-serif text-lg font-bold">{product ? 'Modifier' : 'Nouveau'} produit</h2>
           <button onClick={onClose}><X size={20} /></button>

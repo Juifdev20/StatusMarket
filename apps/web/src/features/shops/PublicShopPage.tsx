@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Search, Home, ShoppingCart, MessageCircle, ArrowLeft, Package, Plus, Flag } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { StatusRing } from '../../components/StatusRing';
 import { PWAInstallPrompt } from '../../components/PWAInstallPrompt';
 import { ReportModal } from '../../components/ReportModal';
 import type { Store, Product, Category } from '../../types';
@@ -113,23 +112,25 @@ export function PublicShopPage() {
           <Link to="/" className="mb-4 flex items-center gap-1 text-sm text-brume hover:text-vert-marche">
             <ArrowLeft size={16} /> StatusMarket
           </Link>
-          <div className="flex items-center gap-4">
-            <StatusRing progress={100} size={64} color="#158F73">
-              {store.logo_url ? (
-                <img src={store.logo_url} alt={store.name} className="h-full w-full rounded-full object-cover" />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-vert-marche rounded-full text-white font-bold text-lg">
-                  {store.name.charAt(0).toUpperCase()}
-                </div>
-              )}
-            </StatusRing>
-            <div>
-              <h1 className="font-serif text-xl font-bold text-encre-nuit dark:text-sable-chaud">{store.name}</h1>
-              {store.description && <p className="text-sm text-brume mt-0.5">{store.description}</p>}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-vert-marche/30 bg-vert-marche">
+                {store.logo_url ? (
+                  <img src={store.logo_url} alt={store.name} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-white font-bold text-2xl">
+                    {store.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0">
+                <h1 className="font-serif text-xl font-bold text-encre-nuit dark:text-sable-chaud">{store.name}</h1>
+                {store.description && <p className="text-sm text-brume mt-0.5 break-words">{store.description}</p>}
+              </div>
             </div>
             <button
               onClick={() => setShowReport(true)}
-              className="ml-auto flex items-center gap-1 rounded-full bg-corail-alerte/10 px-3 py-1 text-xs font-medium text-corail-alerte"
+              className="self-start sm:mt-0 flex items-center gap-1 rounded-full bg-corail-alerte/10 px-3 py-1 text-xs font-medium text-corail-alerte shrink-0"
             >
               <Flag size={14} /> Signaler
             </button>

@@ -21,8 +21,8 @@ export function ReportModal({ targetType, targetId, onClose }: { targetType: str
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="card w-full max-w-md p-6">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 md:items-center md:p-4" onClick={onClose}>
+      <div className="card max-h-[90vh] w-full max-w-md overflow-y-auto rounded-b-none md:rounded-2xl p-6" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-serif text-lg font-bold flex items-center gap-2"><Flag size={18} /> Signaler</h2>
           <button onClick={onClose} className="btn-ghost p-1"><X size={18} /></button>
