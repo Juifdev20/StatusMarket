@@ -5,7 +5,7 @@ import { useAuth } from '../auth/authContext';
 import type { Store, Product } from '../../types';
 
 export function StatusGenerator() {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [store, setStore] = useState<Store | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -15,24 +15,45 @@ export function StatusGenerator() {
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
-    if (!profile) return;
+    const ownerId = profile?.id || user?.id;
+    if (!ownerId) return;
+    setLoading(true);
+    setFetchError(null);
+    let isMounted = true;
     (async () => {
-      const { data: s } = await supabase.from('stores').select('*').eq('owner_id', profile.id).maybeSingle();
-      if (s) {
-        setStore(s as Store);
-        const { data: prods } = await supabase
-          .from('products')
-          .select('*')
-          .eq('store_id', s.id)
-          .eq('is_available', true)
-          .order('created_at', { ascending: false });
-        if (prods) setProducts(prods as Product[]);
+      try {
+        const { data: s, error } = await supabase.from('stores').select('*').eq('owner_id', ownerId).order('created_at', { ascending: false }).limit(1).maybeSingle();
+        if (!isMounted) return;
+        if (error) {
+          console.error('Error fetching store:', error);
+          setFetchError(error.message || 'Erreur de chargement de la boutique');
+          return;
+        }
+        const myStore = s ? (s as Store) : null;
+        setStore(myStore);
+        if (myStore) {
+          const { data: prods } = await supabase
+            .from('products')
+            .select('*')
+            .eq('store_id', myStore.id)
+            .eq('is_available', true)
+            .order('created_at', { ascending: false });
+          if (isMounted && prods) setProducts(prods as Product[]);
+        }
+      } catch (err: any) {
+        if (!isMounted) return;
+        setFetchError(err?.message || 'Erreur de chargement de la boutique');
+        console.error('Error fetching store:', err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-      setLoading(false);
     })();
-  }, [profile]);
+    return () => { isMounted = false; };
+  }, [profile?.id, user?.id, refresh]);
 
   const selectedProducts = products.filter((p) => selectedIds.includes(p.id));
 
@@ -93,6 +114,15 @@ export function StatusGenerator() {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-vert-marche border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="flex flex-col items-center py-20 text-center px-4">
+        <p className="text-corail-alerte mb-4 text-sm text-center">{fetchError}</p>
+        <button onClick={() => setRefresh(r => r + 1)} className="btn-primary text-xs">Réessayer</button>
       </div>
     );
   }

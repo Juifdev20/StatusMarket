@@ -5,39 +5,62 @@ import { useAuth } from '../auth/authContext';
 import type { Store, Product, Category } from '../../types';
 
 export function ProductsPage() {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [store, setStore] = useState<Store | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
-    if (!profile) return;
+    const ownerId = profile?.id || user?.id;
+    if (!ownerId) return;
+    setLoading(true);
+    setFetchError(null);
+    let isMounted = true;
     (async () => {
       try {
-        const { data: storeData } = await supabase
+        const { data: storeData, error: storeError } = await supabase
           .from('stores')
           .select('*')
-          .eq('owner_id', profile.id)
+          .eq('owner_id', ownerId)
           .order('created_at', { ascending: false })
+          .limit(1)
           .maybeSingle();
-        const myStore = storeData as Store | null;
+        if (!isMounted) return;
+        if (storeError) {
+          console.error('Error fetching store:', storeError);
+          setFetchError(storeError.message || 'Erreur de chargement de la boutique');
+          return;
+        }
+        const myStore = storeData ? (storeData as Store) : null;
+        setStore(myStore);
         if (myStore) {
-          setStore(myStore);
           const [prodRes, catRes] = await Promise.all([
             supabase.from('products').select('*, category:categories(*)').eq('store_id', myStore.id).order('created_at', { ascending: false }),
             supabase.from('categories').select('*').eq('store_id', myStore.id).order('name'),
           ]);
-          setProducts((prodRes.data || []) as Product[]);
-          setCategories((catRes.data || []) as Category[]);
+          if (isMounted) {
+            setProducts((prodRes.data || []) as Product[]);
+            setCategories((catRes.data || []) as Category[]);
+          }
+        } else {
+          setProducts([]);
+          setCategories([]);
         }
+      } catch (err: any) {
+        if (!isMounted) return;
+        setFetchError(err?.message || 'Erreur de chargement de la boutique');
+        console.error('Error fetching store:', err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     })();
-  }, [profile]);
+    return () => { isMounted = false; };
+  }, [profile?.id, user?.id, refresh]);
 
   const loadProducts = async () => {
     if (!store) return;
@@ -57,6 +80,16 @@ export function ProductsPage() {
 
   if (loading) {
     return <div className="flex min-h-[40vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-vert-marche border-t-transparent" /></div>;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="flex flex-col items-center py-20 text-center px-4">
+        <Package size={48} className="text-corail-alerte mb-4" />
+        <p className="text-corail-alerte mb-4 text-sm">{fetchError}</p>
+        <button onClick={() => setRefresh(r => r + 1)} className="btn-primary text-xs">Réessayer</button>
+      </div>
+    );
   }
 
   if (!store) {
@@ -177,7 +210,7 @@ function ProductForm({ store, categories, product, onClose, onSaved }: {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 md:items-center md:p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 p-0 md:items-center md:p-4" onClick={onClose}>
       <div className="card h-[100dvh] w-full max-w-md flex flex-col rounded-b-none md:h-auto md:max-h-[85vh] md:rounded-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="border-b border-brume/10 p-4 md:p-6 flex items-center justify-between">
           <h2 className="font-serif text-lg font-bold">{product ? 'Modifier' : 'Nouveau'} produit</h2>
