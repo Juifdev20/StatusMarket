@@ -28,7 +28,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq('id', userId)
       .single();
     if (!error && data) {
-      setProfile(data as Profile);
+      const profileData = data as Profile;
+      const { data: userData } = await supabase.auth.getUser();
+      const metadataRole = userData?.user?.user_metadata?.role;
+      if (metadataRole === 'SELLER' && profileData.role === 'CLIENT') {
+        await supabase.from('profiles').update({ role: 'SELLER' }).eq('id', userId);
+        profileData.role = 'SELLER';
+      }
+      setProfile(profileData);
+    } else if (error && error.code === 'PGRST116') {
+      const { data: userData } = await supabase.auth.getUser();
+      const fullName = userData?.user?.user_metadata?.full_name || '';
+      const role = userData?.user?.user_metadata?.role || 'SELLER';
+      const { data: newProfile } = await supabase
+        .from('profiles')
+        .insert({ id: userId, full_name: fullName, role })
+        .select('*')
+        .single();
+      if (newProfile) setProfile(newProfile as Profile);
     }
   }, []);
 
@@ -72,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } },
+      options: { data: { full_name: fullName, role: 'SELLER' } },
     });
     return { error: error?.message ?? null };
   };
