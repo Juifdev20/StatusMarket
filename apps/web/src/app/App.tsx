@@ -6,6 +6,8 @@ import { AdminLayout } from '../layouts/AdminLayout';
 
 import { CartPage } from '../features/cart/CartPage';
 import { LandingPage } from '../features/shops/LandingPage';
+import { CategoryBrowsePage } from '../features/shops/CategoryBrowsePage';
+import { CategoriesListPage } from '../features/shops/CategoriesListPage';
 import { PublicShopPage } from '../features/shops/PublicShopPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { AccountPage } from '../features/auth/AccountPage';
@@ -43,6 +45,8 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/connexion" element={<LoginPage />} />
           <Route path="/boutique/:slug" element={<PublicShopPage />} />
+          <Route path="/categorie/:slug" element={<CategoryBrowsePage />} />
+          <Route path="/categories" element={<CategoriesListPage />} />
           <Route path="/pub/:slug" element={<PublicationPage />} />
           <Route path="/panier" element={<CartPage />} />
 

@@ -38,6 +38,14 @@ export interface Store {
   logo_url: string | null;
   description: string | null;
   whatsapp_number: string | null;
+  city: string | null;
+  quartier: string | null;
+  avenue: string | null;
+  numero_porte: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  map_link: string | null;
+  store_front_image_url: string | null;
   is_active: boolean;
   is_suspended: boolean;
   created_at: string;
@@ -53,22 +61,36 @@ export interface Category {
   updated_at: string;
 }
 
+export interface GlobalCategory {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+}
+
 export interface Product {
   id: string;
   store_id: string;
   category_id: string | null;
+  global_category_id: string | null;
   name: string;
   description: string | null;
   price: number;
+  discount_price: number | null;
   currency: string;
   image_url: string | null;
   images: string[];
   is_available: boolean;
+  is_promoted: boolean;
   stock: number;
   created_at: string;
   updated_at: string;
   category?: Category | null;
-  store?: { name?: string | null } | null;
+  global_category?: GlobalCategory | null;
+  store?: { name?: string | null; slug?: string | null; logo_url?: string | null; city?: string | null } | null;
 }
 
 export interface Report {
@@ -162,6 +184,25 @@ export interface Notification {
   created_at: string;
 }
 
+export interface Favorite {
+  id: string;
+  user_id: string;
+  product_id: string | null;
+  store_id: string | null;
+  created_at: string;
+}
+
+export interface Review {
+  id: string;
+  user_id: string;
+  store_id: string | null;
+  product_id: string | null;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface PlatformSettings {
   id: number;
   trial_duration_days: number;
@@ -179,6 +220,7 @@ export interface StatusPost {
   cover_image_url: string | null;
   image_url: string | null;
   caption: string | null;
+  share_message: string | null;
   store_link: string;
   views: number;
   created_at: string;

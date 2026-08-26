@@ -116,6 +116,12 @@ export function PublicationPage() {
           </div>
         )}
 
+        {post.share_message && (
+          <div className="card p-4 mb-6 bg-vert-marche/5">
+            <p className="text-sm text-brume italic">"{post.share_message}"</p>
+          </div>
+        )}
+
         <div className="mb-4">
           <h2 className="font-serif text-lg font-bold">
             {products.length} produit{products.length > 1 ? 's' : ''} disponible{products.length > 1 ? 's' : ''}

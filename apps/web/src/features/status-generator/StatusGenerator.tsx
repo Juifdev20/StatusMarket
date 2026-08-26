@@ -11,6 +11,7 @@ export function StatusGenerator() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
+  const [shareMessage, setShareMessage] = useState('Découvrez mes produits sur StatusMarket !');
   const [publishing, setPublishing] = useState(false);
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -60,10 +61,25 @@ export function StatusGenerator() {
   const toggleProduct = (id: string) => {
     setSelectedIds((prev) => {
       const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
-      if (next.length === 0) setCoverImage(null);
-      else if (!coverImage) {
-        const p = products.find((x) => x.id === id);
-        if (p?.image_url) setCoverImage(p.image_url);
+      if (next.length === 0) {
+        setCoverImage(null);
+      } else if (next.length === 1) {
+        // Auto-set cover to the single selected product's image
+        const p = products.find((x) => x.id === next[0]);
+        setCoverImage(p?.image_url || null);
+      } else if (!prev.includes(id)) {
+        // Selecting a new product: only auto-set if no cover yet
+        if (!coverImage) {
+          const p = products.find((x) => x.id === id);
+          if (p?.image_url) setCoverImage(p.image_url);
+        }
+      } else if (coverImage) {
+        // Deselecting: if the cover was from the deselected product, reset
+        const removed = products.find((x) => x.id === id);
+        if (removed?.image_url === coverImage) {
+          const remaining = products.filter((x) => next.includes(x.id) && x.image_url);
+          setCoverImage(remaining.length > 0 ? remaining[0].image_url! : null);
+        }
       }
       return next;
     });
@@ -84,6 +100,7 @@ export function StatusGenerator() {
         product_ids: selectedIds,
         cover_image_url: coverImage,
         caption: caption.trim() || null,
+        share_message: shareMessage.trim() || null,
         store_link: `${window.location.origin}/boutique/${store.slug}`,
       })
       .select('slug')
@@ -101,7 +118,7 @@ export function StatusGenerator() {
 
   const shareUrl = publishedSlug ? `${window.location.origin}/pub/${publishedSlug}` : '';
   const whatsappShareUrl = publishedSlug
-    ? `https://wa.me/?text=${encodeURIComponent(`Découvrez mes produits sur StatusMarket ! ${shareUrl}`)}`
+    ? `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${shareUrl}`)}`
     : '';
 
   const handleCopy = () => {
@@ -176,6 +193,7 @@ export function StatusGenerator() {
               setSelectedIds([]);
               setCoverImage(null);
               setCaption('');
+              setShareMessage('Découvrez mes produits sur StatusMarket !');
             }}
             className="btn-outline w-full"
           >
@@ -271,6 +289,17 @@ export function StatusGenerator() {
               onChange={(e) => setCaption(e.target.value)}
               className="input"
               placeholder="Promo du jour ! Nouveautés disponibles..."
+            />
+          </div>
+
+          <div className="card p-4">
+            <label className="label">4. Message de partage WhatsApp</label>
+            <p className="text-xs text-brume mb-2">Ce message accompagnera le lien lorsque vous partagez sur WhatsApp.</p>
+            <textarea
+              value={shareMessage}
+              onChange={(e) => setShareMessage(e.target.value)}
+              className="input min-h-[60px] resize-y"
+              placeholder="Découvrez mes produits sur StatusMarket !"
             />
           </div>
 

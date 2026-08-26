@@ -1,13 +1,16 @@
 import { useState, FormEvent, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth, getHomeRoute } from './authContext';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useAuth } from './authContext';
+import { supabase } from '../../lib/supabase';
 import { StatusRing } from '../../components/StatusRing';
 import { Store, MessageCircle, TrendingUp, Shield } from 'lucide-react';
 
 export function LoginPage() {
   const { signIn, signUp, profile } = useAuth();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [searchParams] = useSearchParams();
+  const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
+  const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -15,9 +18,25 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (profile) {
-      navigate(getHomeRoute(profile.role), { replace: true });
-    }
+    if (!profile) return;
+    (async () => {
+      if (profile.role === 'SELLER') {
+        const { data } = await supabase
+          .from('stores')
+          .select('id')
+          .eq('owner_id', profile.id)
+          .maybeSingle();
+        if (!data) {
+          navigate('/vendeur/boutique/nouvelle', { replace: true });
+        } else {
+          navigate('/vendeur', { replace: true });
+        }
+      } else if (profile.role === 'SUPER_ADMIN') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
+    })();
   }, [profile, navigate]);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -37,8 +56,7 @@ export function LoginPage() {
         setError(error);
         setLoading(false);
       } else {
-        setError('Compte créé. Vérifiez votre email si une confirmation est requise, puis connectez-vous.');
-        setMode('login');
+        setError('Compte créé avec succès ! Redirection...');
         setLoading(false);
       }
     }

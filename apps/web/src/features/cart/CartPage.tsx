@@ -48,6 +48,10 @@ export function CartPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!store || items.length === 0) return;
+    if (!customer.phone.trim() || !customer.address.trim()) {
+      alert('Le numéro de téléphone et l\'adresse complète sont obligatoires pour la livraison.');
+      return;
+    }
     setSubmitting(true);
 
     const { data: orderData } = await supabase.from('orders').insert({
@@ -55,7 +59,7 @@ export function CartPage() {
       customer_name: customer.name || null,
       customer_phone: customer.phone,
       customer_email: customer.email || null,
-      address: customer.address || null,
+      address: customer.address,
       notes: customer.notes || null,
       total,
       currency,
@@ -149,11 +153,11 @@ export function CartPage() {
                 <input value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} className="input" placeholder="Votre nom" />
               </div>
               <div>
-                <label className="label">Adresse</label>
-                <input value={customer.address} onChange={(e) => setCustomer({ ...customer, address: e.target.value })} className="input" placeholder="Votre adresse" />
+                <label className="label">Adresse complète *</label>
+                <input required value={customer.address} onChange={(e) => setCustomer({ ...customer, address: e.target.value })} className="input" placeholder="Quartier, avenue, numéro de porte..." />
               </div>
               <div>
-                <label className="label">Email</label>
+                <label className="label">Email <span className="text-brume font-normal">(optionnel)</span></label>
                 <input type="email" value={customer.email} onChange={(e) => setCustomer({ ...customer, email: e.target.value })} className="input" placeholder="vous@exemple.com" />
               </div>
               <div>

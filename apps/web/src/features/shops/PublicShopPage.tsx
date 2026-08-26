@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Search, Home, ShoppingCart, MessageCircle, ArrowLeft, Package, Plus, Flag } from 'lucide-react';
+import { Search, Home, ShoppingCart, MessageCircle, ArrowLeft, Package, Plus, Flag, MapPin, ExternalLink } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { PWAInstallPrompt } from '../../components/PWAInstallPrompt';
 import { ReportModal } from '../../components/ReportModal';
-import type { Store, Product, Category } from '../../types';
+import type { Store, Product, Category, GlobalCategory } from '../../types';
 
 export function PublicShopPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -13,6 +13,8 @@ export function PublicShopPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeGlobalCategory, setActiveGlobalCategory] = useState<string | null>(null);
+  const [globalCategories, setGlobalCategories] = useState<GlobalCategory[]>([]);
   const [showReport, setShowReport] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,12 +49,25 @@ export function PublicShopPage() {
       setStore(storeData as Store);
 
       const [prodRes, catRes] = await Promise.all([
-        supabase.from('products').select('*, category:categories(*)').eq('store_id', storeData.id).eq('is_available', true).order('created_at', { ascending: false }),
+        supabase.from('products').select('*, category:categories(*), global_category:global_categories(*)').eq('store_id', storeData.id).eq('is_available', true).order('created_at', { ascending: false }),
         supabase.from('categories').select('*').eq('store_id', storeData.id).order('name'),
       ]);
 
-      if (prodRes.data) setProducts(prodRes.data as Product[]);
-      if (catRes.data) setCategories(catRes.data as Category[]);
+      if (prodRes.error) {
+        console.error('Product fetch error:', prodRes.error);
+      } else if (prodRes.data) {
+        setProducts(prodRes.data as Product[]);
+        console.log('Products loaded:', prodRes.data.length, prodRes.data);
+      }
+
+      if (catRes.error) {
+        console.error('Category fetch error:', catRes.error);
+      } else if (catRes.data) {
+        setCategories(catRes.data as Category[]);
+      }
+
+      const { data: gcatData } = await supabase.from('global_categories').select('*').eq('is_active', true).order('sort_order');
+      if (gcatData) setGlobalCategories(gcatData as GlobalCategory[]);
       setLoading(false);
     })();
   }, [slug]);
@@ -60,7 +75,8 @@ export function PublicShopPage() {
   const filteredProducts = products.filter((p) => {
     const matchesSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || (p.description?.toLowerCase().includes(search.toLowerCase()) ?? false);
     const matchesCategory = !activeCategory || p.category_id === activeCategory;
-    return matchesSearch && matchesCategory;
+    const matchesGlobalCategory = !activeGlobalCategory || p.global_category_id === activeGlobalCategory;
+    return matchesSearch && matchesCategory && matchesGlobalCategory;
   });
 
   const whatsappLink = (product: Product) => {
@@ -126,6 +142,27 @@ export function PublicShopPage() {
               <div className="min-w-0">
                 <h1 className="font-serif text-xl font-bold text-encre-nuit dark:text-sable-chaud">{store.name}</h1>
                 {store.description && <p className="text-sm text-brume mt-0.5 break-words">{store.description}</p>}
+                {store.city && (
+                  <p className="text-xs text-brume mt-1 flex items-center gap-1">
+                    <MapPin size={10} />
+                    {[store.city, store.quartier, store.avenue, store.numero_porte].filter(Boolean).join(', ')}
+                  </p>
+                )}
+                {(store.map_link || (store.latitude && store.longitude)) && (
+                  <a
+                    href={store.map_link || `https://www.google.com/maps/search/?api=1&query=${store.latitude},${store.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-flex items-center gap-1 rounded-full bg-vert-marche/10 px-2 py-1 text-xs font-medium text-vert-marche"
+                  >
+                    <ExternalLink size={10} /> Voir sur Maps
+                  </a>
+                )}
+                {store.store_front_image_url && (
+                  <div className="mt-3 h-24 w-full max-w-[180px] overflow-hidden rounded-lg border border-brume/20">
+                    <img src={store.store_front_image_url} alt="Dev" className="h-full w-full object-cover" />
+                  </div>
+                )}
               </div>
             </div>
             <button
@@ -150,6 +187,26 @@ export function PublicShopPage() {
             className="input pl-10"
           />
         </div>
+
+        {globalCategories.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            <button
+              onClick={() => setActiveGlobalCategory(null)}
+              className={`badge shrink-0 ${!activeGlobalCategory ? 'bg-vert-marche text-white' : 'bg-white dark:bg-encre-nuit/60 text-brume border border-brume/30'}`}
+            >
+              Toutes catégories
+            </button>
+            {globalCategories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveGlobalCategory(cat.id)}
+                className={`badge shrink-0 ${activeGlobalCategory === cat.id ? 'bg-vert-marche text-white' : 'bg-white dark:bg-encre-nuit/60 text-brume border border-brume/30'}`}
+              >
+                {cat.icon} {cat.name}
+              </button>
+            ))}
+          </div>
+        )}
 
         {categories.length > 0 && (
           <div className="flex gap-2 overflow-x-auto pb-2">
@@ -183,20 +240,34 @@ export function PublicShopPage() {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {filteredProducts.map((product) => (
               <div key={product.id} className="card overflow-hidden">
-                <div className="aspect-square bg-sable-chaud dark:bg-encre-nuit/40">
+                <div className="aspect-square bg-sable-chaud dark:bg-encre-nuit/40 relative">
                   {product.image_url ? (
-                    <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" loading="lazy" />
+                    <img src={product.image_url} alt={product.name || 'Produit'} className="h-full w-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                      <Package size={32} className="text-brume" />
+                    <div className="flex h-full w-full flex-col items-center justify-center text-brume">
+                      <Package size={32} />
+                      <span className="text-[10px] mt-1">Image manquante</span>
                     </div>
                   )}
                 </div>
                 <div className="p-3">
-                  <h3 className="text-sm font-semibold text-encre-nuit dark:text-sable-chaud line-clamp-2">{product.name}</h3>
-                  <p className="mt-1 font-mono text-base font-semibold text-vert-marche">
-                    {product.price} {product.currency}
-                  </p>
+                  <h3 className="text-sm font-semibold text-encre-nuit dark:text-sable-chaud line-clamp-2">
+                    {product.name || 'Produit sans nom'}
+                  </h3>
+                  {product.price ? (
+                    product.discount_price && product.discount_price < product.price ? (
+                      <div className="mt-1 flex items-center gap-1.5">
+                        <span className="font-mono text-base font-semibold text-corail-alerte">{product.discount_price} {product.currency}</span>
+                        <span className="font-mono text-xs text-brume line-through">{product.price}</span>
+                      </div>
+                    ) : (
+                      <p className="mt-1 font-mono text-base font-semibold text-vert-marche">
+                        {product.price} {product.currency}
+                      </p>
+                    )
+                  ) : (
+                    <p className="mt-1 text-xs text-corail-alerte">Prix non défini</p>
+                  )}
                   <div className="flex gap-2 mt-2">
                     <a
                       href={whatsappLink(product)}

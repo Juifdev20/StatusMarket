@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
-import { Home, Package, CirclePlus, ShoppingBag, User, LogOut, Menu, X, Store, Tag, Newspaper } from 'lucide-react';
+import { Home, Package, CirclePlus, ShoppingBag, User, LogOut, Menu, X, Store as StoreIcon, Tag, Newspaper, ExternalLink } from 'lucide-react';
 import { BottomNav } from '../components/BottomNav';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { NotificationsDropdown } from '../components/NotificationsDropdown';
 import { useAuth } from '../features/auth/authContext';
+import { supabase } from '../lib/supabase';
+import type { Store } from '../types';
 
 const navItems = [
   { to: '/vendeur', icon: Home, label: 'Tableau de bord', end: true },
@@ -20,6 +22,19 @@ export function VendorLayout() {
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [store, setStore] = useState<Store | null>(null);
+
+  useEffect(() => {
+    if (!profile) return;
+    (async () => {
+      const { data } = await supabase
+        .from('stores')
+        .select('slug, name')
+        .eq('owner_id', profile.id)
+        .maybeSingle();
+      if (data) setStore(data as Store);
+    })();
+  }, [profile]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -32,7 +47,7 @@ export function VendorLayout() {
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r border-brume/30 bg-white dark:bg-encre-nuit/80 lg:block">
         <div className="flex h-16 items-center gap-3 border-b border-brume/30 px-6">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-vert-marche/10">
-            <Store size={18} className="text-vert-marche" />
+            <StoreIcon size={18} className="text-vert-marche" />
           </div>
           <div>
             <span className="font-serif text-lg font-bold text-vert-marche leading-none">StatusMarket</span>
@@ -132,9 +147,20 @@ export function VendorLayout() {
         <div className="flex items-center gap-2">
           <NotificationsDropdown />
           <ThemeToggle />
-          <Link to="/" className="text-sm text-brume hover:text-vert-marche transition-colors hidden sm:block">
-            Voir le site
-          </Link>
+          {store ? (
+            <a
+              href={`/boutique/${store.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-brume hover:text-vert-marche transition-colors hidden sm:flex items-center gap-1"
+            >
+              <ExternalLink size={14} /> Voir ma boutique
+            </a>
+          ) : (
+            <Link to="/" className="text-sm text-brume hover:text-vert-marche transition-colors hidden sm:block">
+              Voir le site
+            </Link>
+          )}
         </div>
       </header>
 

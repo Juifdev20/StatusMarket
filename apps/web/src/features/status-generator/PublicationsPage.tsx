@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Share2, Eye, Trash2, Plus, ExternalLink, Image as ImageIcon } from 'lucide-react';
+import { Share2, Eye, Trash2, Plus, ExternalLink, Image as ImageIcon, Store as StoreIcon } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import type { Store, StatusPost } from '../../types';
@@ -14,10 +14,17 @@ export function PublicationsPage() {
   useEffect(() => {
     if (!profile) return;
     (async () => {
-      const { data: stores } = await supabase.from('stores').select('*').eq('owner_id', profile.id).single();
-      if (stores) {
-        setStore(stores as Store);
-        await loadPosts(stores.id);
+      const { data: s, error } = await supabase
+        .from('stores')
+        .select('*')
+        .eq('owner_id', profile.id)
+        .maybeSingle();
+      if (error) {
+        console.error('Error fetching store for publications:', error);
+      } else if (s) {
+        const storeData = s as Store;
+        setStore(storeData);
+        await loadPosts(storeData.id);
       }
       setLoading(false);
     })();
@@ -47,7 +54,16 @@ export function PublicationsPage() {
   }
 
   if (!store) {
-    return <p className="text-center text-brume py-20">Créez d'abord votre boutique.</p>;
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center px-4">
+        <StoreIcon size={48} className="text-brume mb-4" />
+        <h2 className="font-serif text-xl font-bold mb-2">Aucune boutique</h2>
+        <p className="text-sm text-brume mb-6">Créez d'abord votre boutique pour gérer vos publications.</p>
+        <a href="/vendeur/boutique/nouvelle" className="btn-cta">
+          <Plus size={18} /> Créer ma boutique
+        </a>
+      </div>
+    );
   }
 
   return (

@@ -16,7 +16,20 @@ export function SellerDashboard() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoError, setLogoError] = useState<string | null>(null);
+  const [storeFrontUploading, setStoreFrontUploading] = useState(false);
+  const [storeFrontError, setStoreFrontError] = useState<string | null>(null);
+  const [locationDraft, setLocationDraft] = useState({
+    city: '',
+    quartier: '',
+    avenue: '',
+    numero_porte: '',
+    map_link: '',
+    latitude: '',
+    longitude: '',
+  });
+  const [savingLocation, setSavingLocation] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const storeFrontRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!profile) return;
@@ -43,7 +56,18 @@ export function SellerDashboard() {
   }, [profile]);
 
   useEffect(() => {
-    if (store) setLogoUrl(store.logo_url || null);
+    if (store) {
+      setLogoUrl(store.logo_url || null);
+      setLocationDraft({
+        city: store.city || '',
+        quartier: store.quartier || '',
+        avenue: store.avenue || '',
+        numero_porte: store.numero_porte || '',
+        map_link: store.map_link || '',
+        latitude: store.latitude?.toString() || '',
+        longitude: store.longitude?.toString() || '',
+      });
+    }
   }, [store]);
 
   const handleLogoUpload = async (file: File) => {
@@ -67,6 +91,46 @@ export function SellerDashboard() {
       }
     }
     setLogoUploading(false);
+  };
+
+  const handleStoreFrontUpload = async (file: File) => {
+    if (!profile || !store) return;
+    setStoreFrontUploading(true);
+    setStoreFrontError(null);
+    const ext = file.name.split('.').pop();
+    const fileName = `store-fronts/${profile.id}/${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from('product-images').upload(fileName, file);
+    if (upErr) {
+      setStoreFrontError('Erreur lors du téléchargement de la photo.');
+    } else {
+      const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
+      const url = data.publicUrl;
+      const { error: updateErr } = await supabase.from('stores').update({ store_front_image_url: url }).eq('id', store.id);
+      if (updateErr) {
+        setStoreFrontError('Erreur lors de la mise à jour de la photo.');
+      } else {
+        setStore({ ...store, store_front_image_url: url });
+      }
+    }
+    setStoreFrontUploading(false);
+  };
+
+  const handleSaveLocation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!store) return;
+    setSavingLocation(true);
+    const payload = {
+      city: locationDraft.city.trim() || null,
+      quartier: locationDraft.quartier.trim() || null,
+      avenue: locationDraft.avenue.trim() || null,
+      numero_porte: locationDraft.numero_porte.trim() || null,
+      map_link: locationDraft.map_link.trim() || null,
+      latitude: locationDraft.latitude ? parseFloat(locationDraft.latitude) : null,
+      longitude: locationDraft.longitude ? parseFloat(locationDraft.longitude) : null,
+    };
+    const { error } = await supabase.from('stores').update(payload).eq('id', store.id);
+    if (!error) setStore({ ...store, ...payload });
+    setSavingLocation(false);
   };
 
   if (loading) {
@@ -256,6 +320,126 @@ export function SellerDashboard() {
               </div>
             </div>
           </div>
+
+          <form onSubmit={handleSaveLocation} className="card p-4">
+            <h2 className="font-semibold mb-3">Localisation</h2>
+            <div className="space-y-3">
+              <div>
+                <label className="label">Ville <span className="text-brume font-normal">(optionnel)</span></label>
+                <input
+                  type="text"
+                  value={locationDraft.city}
+                  onChange={(e) => setLocationDraft({ ...locationDraft, city: e.target.value })}
+                  className="input"
+                  placeholder="Beni, Butembo, Goma..."
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label">Quartier <span className="text-brume font-normal">(optionnel)</span></label>
+                  <input
+                    type="text"
+                    value={locationDraft.quartier}
+                    onChange={(e) => setLocationDraft({ ...locationDraft, quartier: e.target.value })}
+                    className="input"
+                    placeholder="Ex: Mabanga"
+                  />
+                </div>
+                <div>
+                  <label className="label">Avenue <span className="text-brume font-normal">(optionnel)</span></label>
+                  <input
+                    type="text"
+                    value={locationDraft.avenue}
+                    onChange={(e) => setLocationDraft({ ...locationDraft, avenue: e.target.value })}
+                    className="input"
+                    placeholder="Ex: Av. Independence"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="label">Numéro de porte <span className="text-brume font-normal">(optionnel)</span></label>
+                <input
+                  type="text"
+                  value={locationDraft.numero_porte}
+                  onChange={(e) => setLocationDraft({ ...locationDraft, numero_porte: e.target.value })}
+                  className="input"
+                  placeholder="Ex: N°12"
+                />
+              </div>
+
+              <div>
+                <label className="label">Lien Google Maps <span className="text-brume font-normal">(optionnel)</span></label>
+                <input
+                  type="url"
+                  value={locationDraft.map_link}
+                  onChange={(e) => setLocationDraft({ ...locationDraft, map_link: e.target.value })}
+                  className="input"
+                  placeholder="https://maps.google.com/..."
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label">Latitude <span className="text-brume font-normal">(optionnel)</span></label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={locationDraft.latitude}
+                    onChange={(e) => setLocationDraft({ ...locationDraft, latitude: e.target.value })}
+                    className="input"
+                    placeholder="0.0000000"
+                  />
+                </div>
+                <div>
+                  <label className="label">Longitude <span className="text-brume font-normal">(optionnel)</span></label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={locationDraft.longitude}
+                    onChange={(e) => setLocationDraft({ ...locationDraft, longitude: e.target.value })}
+                    className="input"
+                    placeholder="0.0000000"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="label">Photo de la devanture <span className="text-brume font-normal">(optionnel)</span></label>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => storeFrontRef.current?.click()}
+                    disabled={storeFrontUploading}
+                    className="btn-outline text-xs flex items-center gap-2"
+                  >
+                    <Upload size={14} /> {storeFrontUploading ? 'Téléchargement...' : 'Changer la photo'}
+                  </button>
+                  {store.store_front_image_url ? (
+                    <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 border-vert-marche">
+                      <img src={store.store_front_image_url} alt="Dev" className="h-full w-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="flex h-14 w-20 shrink-0 items-center justify-center rounded-lg bg-brume/10 text-brume text-xs text-center">
+                      Aucune photo
+                    </div>
+                  )}
+                </div>
+                {storeFrontError && <p className="text-xs text-corail-alerte mt-1">{storeFrontError}</p>}
+                <input
+                    ref={storeFrontRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleStoreFrontUpload(file);
+                    }}
+                  />
+              </div>
+            </div>
+            <button type="submit" disabled={savingLocation} className="btn-primary w-full mt-4">
+              {savingLocation ? 'Enregistrement...' : 'Enregistrer'}
+            </button>
+            <p className="text-xs text-brume mt-2">Ces informations aident les clients à vous trouver sur la page d'accueil.</p>
+          </form>
 
           <div className="card p-4">
             <h2 className="font-semibold mb-3">Actions rapides</h2>

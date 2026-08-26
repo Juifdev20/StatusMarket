@@ -2,13 +2,14 @@ import { useEffect, useState, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, X, Package } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
-import type { Store, Product, Category } from '../../types';
+import type { Store, Product, Category, GlobalCategory } from '../../types';
 
 export function ProductsPage() {
   const { profile, user } = useAuth();
   const [store, setStore] = useState<Store | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [globalCategories, setGlobalCategories] = useState<GlobalCategory[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,13 +40,15 @@ export function ProductsPage() {
         const myStore = storeData ? (storeData as Store) : null;
         setStore(myStore);
         if (myStore) {
-          const [prodRes, catRes] = await Promise.all([
-            supabase.from('products').select('*, category:categories(*)').eq('store_id', myStore.id).order('created_at', { ascending: false }),
+          const [prodRes, catRes, gcatRes] = await Promise.all([
+            supabase.from('products').select('*, category:categories(*), global_category:global_categories(*)').eq('store_id', myStore.id).order('created_at', { ascending: false }),
             supabase.from('categories').select('*').eq('store_id', myStore.id).order('name'),
+            supabase.from('global_categories').select('*').eq('is_active', true).order('sort_order'),
           ]);
           if (isMounted) {
             setProducts((prodRes.data || []) as Product[]);
             setCategories((catRes.data || []) as Category[]);
+            setGlobalCategories((gcatRes.data || []) as GlobalCategory[]);
           }
         } else {
           setProducts([]);
@@ -66,7 +69,7 @@ export function ProductsPage() {
     if (!store) return;
     const { data } = await supabase
       .from('products')
-      .select('*, category:categories(*)')
+      .select('*, category:categories(*), global_category:global_categories(*)')
       .eq('store_id', store.id)
       .order('created_at', { ascending: false });
     setProducts((data || []) as Product[]);
@@ -127,8 +130,16 @@ export function ProductsPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{p.name}</p>
-                <p className="font-mono text-xs text-vert-marche">{p.price} {p.currency}</p>
-                {p.category && <span className="badge bg-brume/20 text-brume mt-1">{p.category.name}</span>}
+                {p.discount_price && p.discount_price < p.price ? (
+                  <div className="flex items-center gap-1">
+                    <span className="font-mono text-xs text-corail-alerte">{p.discount_price} {p.currency}</span>
+                    <span className="font-mono text-[10px] text-brume line-through">{p.price}</span>
+                  </div>
+                ) : (
+                  <p className="font-mono text-xs text-vert-marche">{p.price} {p.currency}</p>
+                )}
+                {p.global_category && <span className="badge bg-vert-marche/10 text-vert-marche mt-1">{p.global_category.icon} {p.global_category.name}</span>}
+                {p.category && <span className="badge bg-brume/20 text-brume mt-1 ml-1">{p.category.name}</span>}
               </div>
               <div className="flex gap-1">
                 <button onClick={() => { setEditing(p); setShowForm(true); }} className="btn-ghost p-2">
@@ -147,6 +158,7 @@ export function ProductsPage() {
         <ProductForm
           store={store}
           categories={categories}
+          globalCategories={globalCategories}
           product={editing}
           onClose={() => setShowForm(false)}
           onSaved={() => { setShowForm(false); loadProducts(); }}
@@ -156,9 +168,10 @@ export function ProductsPage() {
   );
 }
 
-function ProductForm({ store, categories, product, onClose, onSaved }: {
+function ProductForm({ store, categories, globalCategories, product, onClose, onSaved }: {
   store: Store;
   categories: Category[];
+  globalCategories: GlobalCategory[];
   product: Product | null;
   onClose: () => void;
   onSaved: () => void;
@@ -168,9 +181,12 @@ function ProductForm({ store, categories, product, onClose, onSaved }: {
   const [price, setPrice] = useState(product?.price?.toString() ?? '');
   const [currency, setCurrency] = useState(product?.currency ?? 'USD');
   const [categoryId, setCategoryId] = useState(product?.category_id ?? '');
+  const [globalCategoryId, setGlobalCategoryId] = useState(product?.global_category_id ?? '');
   const [imageUrl, setImageUrl] = useState(product?.image_url ?? '');
   const [isAvailable, setIsAvailable] = useState(product?.is_available ?? true);
   const [stock, setStock] = useState(product?.stock?.toString() ?? '0');
+  const [discountPrice, setDiscountPrice] = useState(product?.discount_price?.toString() ?? '');
+  const [isPromoted, setIsPromoted] = useState(product?.is_promoted ?? false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -192,9 +208,12 @@ function ProductForm({ store, categories, product, onClose, onSaved }: {
     const payload = {
       store_id: store.id,
       category_id: categoryId || null,
+      global_category_id: globalCategoryId || null,
       name,
       description: description || null,
       price: parseFloat(price),
+      discount_price: discountPrice ? parseFloat(discountPrice) : null,
+      is_promoted: isPromoted,
       currency,
       image_url: imageUrl || null,
       is_available: isAvailable,
@@ -241,6 +260,15 @@ function ProductForm({ store, categories, product, onClose, onSaved }: {
             </div>
             <div>
               <label className="label">Catégorie</label>
+              <select value={globalCategoryId} onChange={(e) => setGlobalCategoryId(e.target.value)} className="input">
+                <option value="">Choisir une catégorie...</option>
+                {globalCategories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">Sous-catégorie (optionnel)</label>
               <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="input">
                 <option value="">Aucune</option>
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -264,6 +292,20 @@ function ProductForm({ store, categories, product, onClose, onSaved }: {
                   <option value="no">Non</option>
                 </select>
               </div>
+            </div>
+            <div>
+              <label className="label">Prix promo (optionnel)</label>
+              <input type="number" step="0.01" value={discountPrice} onChange={(e) => setDiscountPrice(e.target.value)} className="input" placeholder="Laisser vide si pas de promo" />
+              {discountPrice && parseFloat(discountPrice) > 0 && parseFloat(discountPrice) < parseFloat(price) && (
+                <p className="text-xs text-corail-alerte mt-1">Promo: -{Math.round((1 - parseFloat(discountPrice) / parseFloat(price)) * 100)}%</p>
+              )}
+            </div>
+            <div>
+              <label className="label">Mettre en avant (promotion)</label>
+              <select value={isPromoted ? 'yes' : 'no'} onChange={(e) => setIsPromoted(e.target.value === 'yes')} className="input">
+                <option value="no">Non</option>
+                <option value="yes">Oui</option>
+              </select>
             </div>
           </div>
           <div className="sticky bottom-0 border-t border-brume/10 bg-inherit p-4 md:p-6 flex gap-2">
