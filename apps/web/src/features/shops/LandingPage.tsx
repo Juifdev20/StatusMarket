@@ -453,19 +453,6 @@ export function LandingPage() {
         )}
       </main>
 
-      <footer className="border-t border-brume/30 bg-white dark:bg-encre-nuit/50 px-4 py-8">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 md:flex-row">
-          <div className="flex items-center gap-2">
-            <Store size={18} className="text-vert-marche" />
-            <span className="font-serif font-bold text-sm">StatusMarket</span>
-          </div>
-          <p className="text-xs text-brume">Ta boutique, un seul lien.</p>
-          <div className="flex gap-4 text-xs text-brume">
-            <a href="#" className="hover:text-vert-marche">Aide</a>
-            <a href="#" className="hover:text-vert-marche">Confidentialité</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

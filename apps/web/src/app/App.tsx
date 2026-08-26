@@ -28,6 +28,9 @@ import { AdminReportsPage } from '../features/admin/AdminReportsPage';
 import { AdminPaymentsPage } from '../features/admin/AdminPaymentsPage';
 import { AdminSubscriptionsPage } from '../features/admin/AdminSubscriptionsPage';
 import { AdminSettingsPage } from '../features/admin/AdminSettingsPage';
+import { Footer } from '../components/Footer';
+import { HelpPage } from '../features/pages/HelpPage';
+import { PrivacyPage } from '../features/pages/PrivacyPage';
 import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 
 function RootRedirect() {
@@ -49,6 +52,8 @@ export default function App() {
           <Route path="/categories" element={<CategoriesListPage />} />
           <Route path="/pub/:slug" element={<PublicationPage />} />
           <Route path="/panier" element={<CartPage />} />
+          <Route path="/aide" element={<HelpPage />} />
+          <Route path="/confidentialite" element={<PrivacyPage />} />
 
           {/* Seller routes */}
           <Route path="/vendeur" element={
@@ -87,6 +92,7 @@ export default function App() {
           {/* Fallback */}
           <Route path="*" element={<RootRedirect />} />
         </Routes>
+        <Footer />
         <PWAInstallPrompt />
       </BrowserRouter>
     </AuthProvider>
