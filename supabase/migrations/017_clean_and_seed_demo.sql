@@ -113,7 +113,7 @@ SELECT
   p.price,
   p.currency,
   p.image_url,
-  ARRAY[p.image_url],
+  to_jsonb(ARRAY[p.image_url]),
   true,
   p.is_promoted,
   p.stock
