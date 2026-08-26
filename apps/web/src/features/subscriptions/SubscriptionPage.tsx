@@ -154,13 +154,17 @@ function PaymentForm({ plan, sellerId, onClose }: {
   if (done) {
     return (
       <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 md:items-center md:p-4" onClick={onClose}>
-        <div className="card max-h-[90vh] w-full max-w-sm overflow-y-auto rounded-b-none md:rounded-2xl p-4 md:p-6 text-center" onClick={(e) => e.stopPropagation()}>
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-vert-marche/10">
-            <Check size={24} className="text-vert-marche" />
+        <div className="card max-h-[85vh] w-full max-w-sm flex flex-col rounded-b-none md:rounded-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="p-4 md:p-6 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-vert-marche/10">
+              <Check size={24} className="text-vert-marche" />
+            </div>
+            <h2 className="font-serif text-lg font-bold">Preuve soumise !</h2>
+            <p className="text-sm text-brume mt-2">Votre paiement est en attente de validation par l'administrateur.</p>
           </div>
-          <h2 className="font-serif text-lg font-bold">Preuve soumise !</h2>
-          <p className="text-sm text-brume mt-2">Votre paiement est en attente de validation par l'administrateur.</p>
-          <button onClick={onClose} className="btn-primary mt-4 w-full">Fermer</button>
+          <div className="mt-auto border-t border-brume/10 p-4 md:p-6">
+            <button onClick={onClose} className="btn-primary w-full">Fermer</button>
+          </div>
         </div>
       </div>
     );
@@ -168,23 +172,27 @@ function PaymentForm({ plan, sellerId, onClose }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 md:items-center md:p-4" onClick={onClose}>
-      <div className="card max-h-[90vh] w-full max-w-md overflow-y-auto rounded-b-none md:rounded-2xl p-4 md:p-6" onClick={(e) => e.stopPropagation()}>
-        <h2 className="font-serif text-lg font-bold mb-4">Paiement — Plan {plan.name}</h2>
-        <div className="card bg-sable-chaud dark:bg-encre-nuit/40 p-3 mb-4">
-          <p className="text-xs text-brume">Effectuez votre paiement ({plan.price_usd}$) via Mobile Money ou virement, puis soumettez la preuve ci-dessous.</p>
+      <div className="card max-h-[85vh] w-full max-w-md flex flex-col rounded-b-none md:rounded-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="border-b border-brume/10 p-4 md:p-6">
+          <h2 className="font-serif text-lg font-bold">Paiement — Plan {plan.name}</h2>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="label">Référence / ID de transaction</label>
-            <input required value={reference} onChange={(e) => setReference(e.target.value)} className="input" placeholder="EX123456789" />
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+            <div className="card bg-sable-chaud dark:bg-encre-nuit/40 p-3">
+              <p className="text-xs text-brume">Effectuez votre paiement ({plan.price_usd}$) via Mobile Money ou virement, puis soumettez la preuve ci-dessous.</p>
+            </div>
+            <div>
+              <label className="label">Référence / ID de transaction</label>
+              <input required value={reference} onChange={(e) => setReference(e.target.value)} className="input" placeholder="EX123456789" />
+            </div>
+            <div>
+              <label className="label">Capture d'écran du paiement</label>
+              <input type="file" accept="image/*" required onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} className="input" />
+              {uploading && <p className="text-xs text-brume mt-1">Upload en cours...</p>}
+              {proofUrl && <img src={proofUrl} alt="Preuve" className="mt-2 h-20 w-20 rounded-lg object-cover" />}
+            </div>
           </div>
-          <div>
-            <label className="label">Capture d'écran du paiement</label>
-            <input type="file" accept="image/*" required onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} className="input" />
-            {uploading && <p className="text-xs text-brume mt-1">Upload en cours...</p>}
-            {proofUrl && <img src={proofUrl} alt="Preuve" className="mt-2 h-20 w-20 rounded-lg object-cover" />}
-          </div>
-          <div className="flex gap-2 pt-2">
+          <div className="sticky bottom-0 border-t border-brume/10 bg-inherit p-4 md:p-6 flex gap-2">
             <button type="button" onClick={onClose} className="btn-ghost flex-1">Annuler</button>
             <button type="submit" disabled={submitting || !proofUrl} className="btn-primary flex-1">
               {submitting ? 'Envoi...' : 'Soumettre'}

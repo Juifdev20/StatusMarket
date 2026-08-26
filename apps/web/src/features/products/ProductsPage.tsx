@@ -178,60 +178,62 @@ function ProductForm({ store, categories, product, onClose, onSaved }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 md:items-center md:p-4" onClick={onClose}>
-      <div className="card max-h-[90vh] w-full max-w-md overflow-y-auto rounded-b-none md:rounded-2xl p-4 md:p-6" onClick={(e) => e.stopPropagation()}>
-        <div className="mb-4 flex items-center justify-between">
+      <div className="card max-h-[85vh] w-full max-w-md flex flex-col rounded-b-none md:rounded-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="border-b border-brume/10 p-4 md:p-6 flex items-center justify-between">
           <h2 className="font-serif text-lg font-bold">{product ? 'Modifier' : 'Nouveau'} produit</h2>
-          <button onClick={onClose}><X size={20} /></button>
+          <button onClick={onClose} className="btn-ghost p-1"><X size={20} /></button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="label">Nom</label>
-            <input required value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="Nom du produit" />
-          </div>
-          <div>
-            <label className="label">Description</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="input min-h-[80px]" placeholder="Description du produit" />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
             <div>
-              <label className="label">Prix</label>
-              <input required type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} className="input" placeholder="0.00" />
+              <label className="label">Nom</label>
+              <input required value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="Nom du produit" />
             </div>
             <div>
-              <label className="label">Devise</label>
-              <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="input">
-                <option value="USD">USD</option>
-                <option value="CDF">CDF</option>
+              <label className="label">Description</label>
+              <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="input min-h-[80px]" placeholder="Description du produit" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="label">Prix</label>
+                <input required type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} className="input" placeholder="0.00" />
+              </div>
+              <div>
+                <label className="label">Devise</label>
+                <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="input">
+                  <option value="USD">USD</option>
+                  <option value="CDF">CDF</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="label">Catégorie</label>
+              <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="input">
+                <option value="">Aucune</option>
+                {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
-          </div>
-          <div>
-            <label className="label">Catégorie</label>
-            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="input">
-              <option value="">Aucune</option>
-              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="label">Image</label>
-            <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} className="input" />
-            {uploading && <p className="text-xs text-brume mt-1">Upload en cours...</p>}
-            {imageUrl && <img src={imageUrl} alt="Aperçu" className="mt-2 h-20 w-20 rounded-lg object-cover" />}
-          </div>
-          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label">Stock</label>
-              <input type="number" value={stock} onChange={(e) => setStock(e.target.value)} className="input" />
+              <label className="label">Image</label>
+              <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} className="input" />
+              {uploading && <p className="text-xs text-brume mt-1">Upload en cours...</p>}
+              {imageUrl && <img src={imageUrl} alt="Aperçu" className="mt-2 h-20 w-20 rounded-lg object-cover" />}
             </div>
-            <div>
-              <label className="label">Disponible</label>
-              <select value={isAvailable ? 'yes' : 'no'} onChange={(e) => setIsAvailable(e.target.value === 'yes')} className="input">
-                <option value="yes">Oui</option>
-                <option value="no">Non</option>
-              </select>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="label">Stock</label>
+                <input type="number" value={stock} onChange={(e) => setStock(e.target.value)} className="input" />
+              </div>
+              <div>
+                <label className="label">Disponible</label>
+                <select value={isAvailable ? 'yes' : 'no'} onChange={(e) => setIsAvailable(e.target.value === 'yes')} className="input">
+                  <option value="yes">Oui</option>
+                  <option value="no">Non</option>
+                </select>
+              </div>
             </div>
           </div>
-          <div className="flex gap-2 pt-2">
+          <div className="sticky bottom-0 border-t border-brume/10 bg-inherit p-4 md:p-6 flex gap-2">
             <button type="button" onClick={onClose} className="btn-ghost flex-1">Annuler</button>
             <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? 'Enregistrement...' : 'Enregistrer'}</button>
           </div>
