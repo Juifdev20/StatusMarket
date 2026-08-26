@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Package, Store, TrendingUp, CreditCard, Plus, ExternalLink, Share2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Package, Store, TrendingUp, CreditCard, Plus, ExternalLink, Share2, ShoppingBag, ArrowRight, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { StatusRing } from '../../components/StatusRing';
@@ -13,6 +13,10 @@ export function SellerDashboard() {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [storeViews, setStoreViews] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!profile) return;
@@ -37,6 +41,33 @@ export function SellerDashboard() {
       setLoading(false);
     })();
   }, [profile]);
+
+  useEffect(() => {
+    if (store) setLogoUrl(store.logo_url || null);
+  }, [store]);
+
+  const handleLogoUpload = async (file: File) => {
+    if (!profile || !store) return;
+    setLogoUploading(true);
+    setLogoError(null);
+    const ext = file.name.split('.').pop();
+    const fileName = `logos/${profile.id}/${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from('product-images').upload(fileName, file);
+    if (upErr) {
+      setLogoError('Erreur lors du téléchargement du logo.');
+    } else {
+      const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
+      const url = data.publicUrl;
+      const { error: updateErr } = await supabase.from('stores').update({ logo_url: url }).eq('id', store.id);
+      if (updateErr) {
+        setLogoError('Erreur lors de la mise à jour du logo.');
+      } else {
+        setStore({ ...store, logo_url: url });
+        setLogoUrl(url);
+      }
+    }
+    setLogoUploading(false);
+  };
 
   if (loading) {
     return (
@@ -190,6 +221,40 @@ export function SellerDashboard() {
                 <Link to="/vendeur/abonnement" className="btn-primary text-xs">Améliorer mon plan</Link>
               </div>
             )}
+          </div>
+
+          <div className="card p-4">
+            <h2 className="font-semibold mb-3">Logo de la boutique</h2>
+            <div className="flex items-start gap-3">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Logo" className="h-16 w-16 rounded-full object-cover border-2 border-vert-marche/30" />
+              ) : (
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-vert-marche text-white font-bold text-2xl">
+                  {store.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleLogoUpload(file);
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  disabled={logoUploading}
+                  className="btn-outline text-xs w-full flex items-center justify-center gap-2"
+                >
+                  <Upload size={14} /> {logoUploading ? 'Téléchargement...' : 'Changer le logo'}
+                </button>
+                {logoError && <p className="text-xs text-corail-alerte mt-2 break-words">{logoError}</p>}
+              </div>
+            </div>
           </div>
 
           <div className="card p-4">
