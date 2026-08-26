@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Share2, Check, Image as ImageIcon, Link as LinkIcon, Copy, Download } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { supabase, supabaseUrl } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { generateStatusImage } from '../../utils/statusImage';
 import type { Store, Product } from '../../types';
@@ -118,13 +118,16 @@ export function StatusGenerator() {
     setPublishing(false);
   };
 
+  const ogShareUrl = publishedSlug && supabaseUrl
+    ? `${supabaseUrl.replace(/\/$/, '')}/functions/v1/pub-og?slug=${publishedSlug}`
+    : '';
   const shareUrl = publishedSlug ? `${window.location.origin}/pub/${publishedSlug}` : '';
   const whatsappShareUrl = publishedSlug
-    ? `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${shareUrl}`)}`
+    ? `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${ogShareUrl || shareUrl}`)}`
     : '';
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(shareUrl);
+    navigator.clipboard.writeText(ogShareUrl || shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -180,7 +183,7 @@ export function StatusGenerator() {
           </div>
           <h2 className="font-serif text-xl font-bold">Publication créée !</h2>
           <p className="text-sm text-brume">
-            Votre statut est prêt. Partagez ce lien sur WhatsApp — une photo de couverture accompagnera automatiquement le lien.
+            WhatsApp affichera automatiquement une image de couverture avec le lien cliquable. Copiez ce lien dans votre statut WhatsApp.
           </p>
 
           {coverImage && (
@@ -193,7 +196,7 @@ export function StatusGenerator() {
             <LinkIcon size={16} className="text-brume shrink-0" />
             <input
               readOnly
-              value={shareUrl}
+              value={ogShareUrl || shareUrl}
               className="flex-1 bg-transparent text-sm outline-none truncate"
             />
             <button onClick={handleCopy} className="text-vert-marche hover:text-vert-marche/80">
@@ -207,7 +210,7 @@ export function StatusGenerator() {
             rel="noopener noreferrer"
             className="btn-cta w-full"
           >
-            <Share2 size={18} /> Partager le lien
+            <Share2 size={18} /> Partager sur WhatsApp
           </a>
 
           <button

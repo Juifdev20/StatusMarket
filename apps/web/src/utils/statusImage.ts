@@ -88,7 +88,7 @@ export async function generateStatusImage({
     try {
       const img = await loadImage(coverImage);
       const imgW = CANVAS_WIDTH - PADDING * 4;
-      const imgH = imgW * 1;
+      const imgH = imgW * 0.75;
       const x = (CANVAS_WIDTH - imgW) / 2;
       ctx.save();
       ctx.beginPath();
@@ -96,7 +96,7 @@ export async function generateStatusImage({
       ctx.clip();
       ctx.drawImage(img, x, imageY, imgW, imgH);
       ctx.restore();
-      imageY += imgH + 80;
+      imageY += imgH + 60;
     } catch {
       // fallback if image fails to load
     }
@@ -109,15 +109,33 @@ export async function generateStatusImage({
   const maxWidth = CANVAS_WIDTH - PADDING * 4;
   const lastY = wrapText(ctx, shareMessage, CANVAS_WIDTH / 2, imageY, maxWidth, 64);
 
-  // Link
-  const linkY = Math.max(lastY + 120, CANVAS_HEIGHT - 220);
-  ctx.fillStyle = '#158F73';
-  ctx.font = '36px Inter, sans-serif';
-  ctx.fillText('Scanne ou clique ici', CANVAS_WIDTH / 2, linkY);
+  // QR code
+  const qrSize = 360;
+  const qrX = (CANVAS_WIDTH - qrSize) / 2;
+  const qrY = Math.max(lastY + 80, CANVAS_HEIGHT - 560);
+  try {
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(shareUrl)}`;
+    const qrImg = await loadImage(qrUrl);
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(qrX, qrY, qrSize, qrSize, 24);
+    ctx.clip();
+    ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+    ctx.restore();
+  } catch {
+    // QR code failed
+  }
 
-  ctx.fillStyle = '#1F2937';
+  // Link
+  const linkY = qrY + qrSize + 70;
+  ctx.fillStyle = '#6B7280';
   ctx.font = '28px "IBM Plex Mono", monospace';
-  wrapText(ctx, shareUrl, CANVAS_WIDTH / 2, linkY + 60, maxWidth, 42);
+  wrapText(ctx, shareUrl, CANVAS_WIDTH / 2, linkY, maxWidth, 42);
+
+  // Scan hint
+  ctx.fillStyle = '#158F73';
+  ctx.font = '32px Inter, sans-serif';
+  ctx.fillText('Scanne ce QR code pour voir les produits', CANVAS_WIDTH / 2, linkY + 80);
 
   return canvas.toDataURL('image/png');
 }
