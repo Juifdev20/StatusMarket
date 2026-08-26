@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Share2, Check, Image as ImageIcon, Link as LinkIcon, Copy, Download } from 'lucide-react';
-import { supabase, supabaseUrl } from '../../lib/supabase';
+import { Share2, Check, Image as ImageIcon, Link as LinkIcon, Copy } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
-import { generateStatusImage } from '../../utils/statusImage';
 import type { Store, Product } from '../../types';
 
 export function StatusGenerator() {
@@ -16,7 +15,6 @@ export function StatusGenerator() {
   const [publishing, setPublishing] = useState(false);
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [generatingImage, setGeneratingImage] = useState(false);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [refresh, setRefresh] = useState(0);
@@ -118,39 +116,15 @@ export function StatusGenerator() {
     setPublishing(false);
   };
 
-  const ogShareUrl = publishedSlug && supabaseUrl
-    ? `${supabaseUrl.replace(/\/$/, '')}/functions/v1/pub-og?slug=${publishedSlug}`
-    : '';
   const shareUrl = publishedSlug ? `${window.location.origin}/pub/${publishedSlug}` : '';
   const whatsappShareUrl = publishedSlug
-    ? `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${ogShareUrl || shareUrl}`)}`
+    ? `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${shareUrl}`)}`
     : '';
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(ogShareUrl || shareUrl);
+    navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleDownloadImage = async () => {
-    if (!store || !publishedSlug) return;
-    setGeneratingImage(true);
-    try {
-      const dataUrl = await generateStatusImage({
-        coverImage,
-        shareMessage: shareMessage || 'Découvrez mes produits sur StatusMarket !',
-        shareUrl,
-        storeName: store.name,
-      });
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = `statusmarket-${publishedSlug}.png`;
-      link.click();
-    } catch (err) {
-      console.error('Image generation error:', err);
-    } finally {
-      setGeneratingImage(false);
-    }
   };
 
   if (loading) {
@@ -183,7 +157,7 @@ export function StatusGenerator() {
           </div>
           <h2 className="font-serif text-xl font-bold">Publication créée !</h2>
           <p className="text-sm text-brume">
-            WhatsApp affichera automatiquement une image de couverture avec le lien cliquable. Copiez ce lien dans votre statut WhatsApp.
+            Votre statut est prêt. Partagez ce lien sur WhatsApp — une photo de couverture accompagnera automatiquement le lien.
           </p>
 
           {coverImage && (
@@ -196,7 +170,7 @@ export function StatusGenerator() {
             <LinkIcon size={16} className="text-brume shrink-0" />
             <input
               readOnly
-              value={ogShareUrl || shareUrl}
+              value={shareUrl}
               className="flex-1 bg-transparent text-sm outline-none truncate"
             />
             <button onClick={handleCopy} className="text-vert-marche hover:text-vert-marche/80">
@@ -212,20 +186,6 @@ export function StatusGenerator() {
           >
             <Share2 size={18} /> Partager sur WhatsApp
           </a>
-
-          <button
-            onClick={handleDownloadImage}
-            disabled={generatingImage}
-            className="btn-primary w-full"
-          >
-            {generatingImage ? (
-              <>Génération...</>
-            ) : (
-              <>
-                <Download size={18} /> Télécharger l'image pour le statut
-              </>
-            )}
-          </button>
 
           <button
             onClick={() => {
