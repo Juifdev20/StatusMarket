@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Share2, Check, Image as ImageIcon, Link as LinkIcon, Copy } from 'lucide-react';
+import { Share2, Check, Image as ImageIcon, Link as LinkIcon, Copy, Download } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
+import { generateStatusImage } from '../../utils/statusImage';
 import type { Store, Product } from '../../types';
 
 export function StatusGenerator() {
@@ -15,6 +16,7 @@ export function StatusGenerator() {
   const [publishing, setPublishing] = useState(false);
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [generatingImage, setGeneratingImage] = useState(false);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [refresh, setRefresh] = useState(0);
@@ -127,6 +129,27 @@ export function StatusGenerator() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDownloadImage = async () => {
+    if (!store || !publishedSlug) return;
+    setGeneratingImage(true);
+    try {
+      const dataUrl = await generateStatusImage({
+        coverImage,
+        shareMessage: shareMessage || 'Découvrez mes produits sur StatusMarket !',
+        shareUrl,
+        storeName: store.name,
+      });
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `statusmarket-${publishedSlug}.png`;
+      link.click();
+    } catch (err) {
+      console.error('Image generation error:', err);
+    } finally {
+      setGeneratingImage(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
@@ -184,8 +207,22 @@ export function StatusGenerator() {
             rel="noopener noreferrer"
             className="btn-cta w-full"
           >
-            <Share2 size={18} /> Partager sur WhatsApp
+            <Share2 size={18} /> Partager le lien
           </a>
+
+          <button
+            onClick={handleDownloadImage}
+            disabled={generatingImage}
+            className="btn-primary w-full"
+          >
+            {generatingImage ? (
+              <>Génération...</>
+            ) : (
+              <>
+                <Download size={18} /> Télécharger l'image pour le statut
+              </>
+            )}
+          </button>
 
           <button
             onClick={() => {
