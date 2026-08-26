@@ -9,6 +9,7 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>
 );
 
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
-}
+// Désactivé temporairement pour test - conflit potentiel avec vite-plugin-pwa
+// if ('serviceWorker' in navigator && import.meta.env.PROD) {
+//   navigator.serviceWorker.register('/sw.js').catch(() => {});
+// }
