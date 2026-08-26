@@ -9,13 +9,14 @@ export function AccountPage() {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState(profile?.full_name ?? '');
   const [phone, setPhone] = useState(profile?.phone ?? '');
+  const [email, setEmail] = useState(profile?.email ?? '');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   const handleSave = async (e: FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    await supabase.from('profiles').update({ full_name: fullName, phone }).eq('id', profile!.id);
+    await supabase.from('profiles').update({ full_name: fullName, phone, email }).eq('id', profile!.id);
     await refreshProfile();
     setSaving(false);
     setSaved(true);
@@ -41,7 +42,8 @@ export function AccountPage() {
         </div>
         <div>
           <p className="font-semibold">{profile?.full_name ?? 'Vendeur'}</p>
-          <p className="text-sm text-brume">{session?.user?.email ?? profile?.id}</p>
+          <p className="text-sm text-brume">@{profile?.username ?? 'utilisateur'}</p>
+          <p className="text-xs text-brume">{profile?.email ?? session?.user?.email ?? 'Aucun email renseigné'}</p>
           <span className="badge bg-vert-marche/10 text-vert-marche mt-1">{profile?.role}</span>
         </div>
       </div>
@@ -54,6 +56,10 @@ export function AccountPage() {
         <div>
           <label className="label">Téléphone</label>
           <input value={phone} onChange={(e) => setPhone(e.target.value)} className="input" placeholder="+243..." />
+        </div>
+        <div>
+          <label className="label">Email <span className="text-brume text-xs">(optionnel)</span></label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" placeholder="vous@exemple.com" />
         </div>
         <button type="submit" disabled={saving} className="btn-primary w-full">
           {saving ? 'Enregistrement...' : 'Enregistrer'}

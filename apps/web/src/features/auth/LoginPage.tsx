@@ -11,11 +11,21 @@ export function LoginPage() {
   const [searchParams] = useSearchParams();
   const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const validateUsername = (value: string) => {
+    const trimmed = value.trim().toLowerCase().replace(/\s+/g, '');
+    if (trimmed.length < 4) return 'Le nom d\'utilisateur doit faire au moins 4 caractères.';
+    if (trimmed.length > 20) return 'Le nom d\'utilisateur ne doit pas dépasser 20 caractères.';
+    if (!/^[a-z0-9]+$/.test(trimmed)) return 'Lettres et chiffres uniquement.';
+    if (!/[a-z]/.test(trimmed)) return 'Le nom d\'utilisateur doit contenir au moins une lettre.';
+    if (!/[0-9]/.test(trimmed)) return 'Le nom d\'utilisateur doit contenir au moins un chiffre.';
+    return null;
+  };
 
   useEffect(() => {
     if (!profile) return;
@@ -44,19 +54,23 @@ export function LoginPage() {
     setError(null);
     setLoading(true);
 
+    const usernameError = validateUsername(username);
+    if (usernameError) {
+      setError(usernameError);
+      setLoading(false);
+      return;
+    }
+
     if (mode === 'login') {
-      const { error } = await signIn(email, password);
-      if (error) {
-        setError(error);
+      const { error: signInError } = await signIn(username, password);
+      if (signInError) {
+        setError(signInError);
         setLoading(false);
       }
     } else {
-      const { error } = await signUp(email, password, fullName);
-      if (error) {
-        setError(error);
-        setLoading(false);
-      } else {
-        setError('Compte créé avec succès ! Redirection...');
+      const { error: signUpError } = await signUp(username, password, fullName);
+      if (signUpError) {
+        setError(signUpError);
         setLoading(false);
       }
     }
@@ -158,15 +172,18 @@ export function LoginPage() {
                   </div>
                 )}
                 <div>
-                  <label className="label">Email</label>
+                  <label className="label">Nom d'utilisateur</label>
                   <input
-                    type="email"
+                    type="text"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    minLength={4}
+                    maxLength={20}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value.toLowerCase())}
                     className="input"
-                    placeholder="vous@exemple.com"
+                    placeholder="jean2024"
                   />
+                  <p className="mt-1 text-xs text-brume">Lettres + chiffres, minimum 4 caractères.</p>
                 </div>
                 <div>
                   <label className="label">Mot de passe</label>
@@ -182,9 +199,7 @@ export function LoginPage() {
                 </div>
 
                 {error && (
-                  <p className={`text-sm ${error.includes('Compte créé') ? 'text-vert-marche' : 'text-corail-alerte'}`}>
-                    {error}
-                  </p>
+                  <p className="text-sm text-corail-alerte">{error}</p>
                 )}
 
                 <button type="submit" disabled={loading} className="btn-primary w-full">

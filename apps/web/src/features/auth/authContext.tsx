@@ -3,13 +3,21 @@ import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase';
 import type { Profile, UserRole } from '../../types';
 
+const AUTH_EMAIL_DOMAIN = 'statusmarket.app';
+
+function toAuthEmail(username: string): string {
+  const clean = username.trim().toLowerCase().replace(/\s+/g, '');
+  if (clean.includes('@')) return clean;
+  return `${clean}@${AUTH_EMAIL_DOMAIN}`;
+}
+
 interface AuthContextValue {
   session: Session | null;
   user: User | null;
   profile: Profile | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: string | null }>;
+  signIn: (username: string, password: string) => Promise<{ error: string | null }>;
+  signUp: (username: string, password: string, fullName?: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -38,11 +46,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfile(profileData);
     } else if (error && error.code === 'PGRST116') {
       const { data: userData } = await supabase.auth.getUser();
-      const fullName = userData?.user?.user_metadata?.full_name || '';
-      const role = userData?.user?.user_metadata?.role || 'SELLER';
+      const meta = userData?.user?.user_metadata || {};
+      const fullName = meta.full_name || '';
+      const username = meta.username || '';
+      const role = meta.role || 'SELLER';
       const { data: newProfile } = await supabase
         .from('profiles')
-        .insert({ id: userId, full_name: fullName, role })
+        .insert({
+          id: userId,
+          username,
+          email: userData?.user?.email || null,
+          full_name: fullName,
+          role,
+        })
         .select('*')
         .single();
       if (newProfile) setProfile(newProfile as Profile);
@@ -80,18 +96,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [loadProfile]);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const signIn = async (username: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: toAuthEmail(username),
+      password,
+    });
     return { error: error?.message ?? null };
   };
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (username: string, password: string, fullName?: string) => {
+    const email = toAuthEmail(username);
+    const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName, role: 'SELLER' } },
+      options: {
+        data: {
+          full_name: fullName,
+          username,
+          role: 'SELLER',
+        },
+      },
     });
-    return { error: error?.message ?? null };
+    if (signUpError) {
+      return { error: signUpError.message };
+    }
+    // Auto-confirm trigger should already confirm the user; log them in immediately
+    // to create the session and profile without waiting for confirmation email.
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    return { error: signInError?.message ?? null };
   };
 
   const signOut = async () => {

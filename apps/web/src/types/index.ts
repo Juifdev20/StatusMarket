@@ -7,6 +7,8 @@ export type PaymentMode = 'MANUAL' | 'GATEWAY';
 export interface Profile {
   id: string;
   role: UserRole;
+  username: string | null;
+  email: string | null;
   full_name: string | null;
   phone: string | null;
   avatar_url: string | null;
