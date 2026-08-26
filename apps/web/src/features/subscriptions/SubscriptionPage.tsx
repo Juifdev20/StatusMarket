@@ -154,7 +154,7 @@ function PaymentForm({ plan, sellerId, onClose }: {
   if (done) {
     return (
       <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 md:items-center md:p-4" onClick={onClose}>
-        <div className="card max-h-[85vh] w-full max-w-sm flex flex-col rounded-b-none md:rounded-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="card h-[100dvh] w-full max-w-sm flex flex-col rounded-b-none md:h-auto md:max-h-[85vh] md:rounded-2xl" onClick={(e) => e.stopPropagation()}>
           <div className="p-4 md:p-6 text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-vert-marche/10">
               <Check size={24} className="text-vert-marche" />
@@ -172,7 +172,7 @@ function PaymentForm({ plan, sellerId, onClose }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 md:items-center md:p-4" onClick={onClose}>
-      <div className="card max-h-[85vh] w-full max-w-md flex flex-col rounded-b-none md:rounded-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="card h-[100dvh] w-full max-w-md flex flex-col rounded-b-none md:h-auto md:max-h-[85vh] md:rounded-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="border-b border-brume/10 p-4 md:p-6">
           <h2 className="font-serif text-lg font-bold">Paiement — Plan {plan.name}</h2>
         </div>
