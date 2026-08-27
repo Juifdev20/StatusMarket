@@ -35,5 +35,8 @@ services:
         sync: false
     routes:
       - type: rewrite
+        source: /og/*
+        destination: https://statusmarket-api.onrender.com/og/$1
+      - type: rewrite
         source: /*
         destination: /index.html
