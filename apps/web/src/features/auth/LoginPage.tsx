@@ -3,7 +3,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from './authContext';
 import { supabase } from '../../lib/supabase';
 import { StatusRing } from '../../components/StatusRing';
-import { Store, MessageCircle, TrendingUp, Shield } from 'lucide-react';
+import { Store, MessageCircle, TrendingUp, Shield, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export function LoginPage() {
   const { signIn, signUp, profile } = useAuth();
@@ -13,9 +13,15 @@ export function LoginPage() {
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [recoveryPin, setRecoveryPin] = useState('');
+  const [showRecoveryPin, setShowRecoveryPin] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const validateUsername = (value: string) => {
     const trimmed = value.trim().toLowerCase().replace(/\s+/g, '');
@@ -26,6 +32,12 @@ export function LoginPage() {
     if (!/[0-9]/.test(trimmed)) return 'Le nom d\'utilisateur doit contenir au moins un chiffre.';
     return null;
   };
+
+  const usernameError = touched.username ? validateUsername(username) : null;
+  const passwordMatchError = mode === 'register' && touched.confirmPassword && confirmPassword.length > 0 && password !== confirmPassword
+    ? 'Les mots de passe ne correspondent pas.'
+    : null;
+  const passwordsMatch = mode === 'register' && confirmPassword.length > 0 && password === confirmPassword;
 
   useEffect(() => {
     if (!profile) return;
@@ -52,14 +64,15 @@ export function LoginPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
+    setTouched({ username: true, confirmPassword: true });
 
-    const usernameError = validateUsername(username);
-    if (usernameError) {
-      setError(usernameError);
-      setLoading(false);
+    const usernameErr = validateUsername(username);
+    if (usernameErr) {
+      setError(usernameErr);
       return;
     }
+
+    setLoading(true);
 
     if (mode === 'login') {
       const { error: signInError } = await signIn(username, password);
@@ -68,7 +81,32 @@ export function LoginPage() {
         setLoading(false);
       }
     } else {
-      const { error: signUpError } = await signUp(username, password, fullName);
+      if (!fullName.trim()) {
+        setError('Le nom complet est obligatoire.');
+        setLoading(false);
+        return;
+      }
+      if (!phone.trim()) {
+        setError('Le numéro de téléphone est obligatoire.');
+        setLoading(false);
+        return;
+      }
+      if (!recoveryPin.trim()) {
+        setError('Le code de récupération est obligatoire.');
+        setLoading(false);
+        return;
+      }
+      if (!/^\d{4,6}$/.test(recoveryPin)) {
+        setError('Le code de récupération doit contenir 4 à 6 chiffres.');
+        setLoading(false);
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError('Les mots de passe ne correspondent pas. Vérifiez votre saisie.');
+        setLoading(false);
+        return;
+      }
+      const { error: signUpError } = await signUp(username, password, fullName, phone, recoveryPin);
       if (signUpError) {
         setError(signUpError);
         setLoading(false);
@@ -145,13 +183,13 @@ export function LoginPage() {
 
               <div className="mb-6 flex gap-2 p-1 rounded-xl bg-encre-nuit/5 dark:bg-white/5">
                 <button
-                  onClick={() => setMode('login')}
+                  onClick={() => { setMode('login'); setError(null); setTouched({}); }}
                   className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-colors ${mode === 'login' ? 'bg-white dark:bg-encre-nuit shadow-sm text-vert-marche' : 'text-brume'}`}
                 >
                   Connexion
                 </button>
                 <button
-                  onClick={() => setMode('register')}
+                  onClick={() => { setMode('register'); setError(null); setTouched({}); }}
                   className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-colors ${mode === 'register' ? 'bg-white dark:bg-encre-nuit shadow-sm text-vert-marche' : 'text-brume'}`}
                 >
                   Inscription
@@ -164,11 +202,52 @@ export function LoginPage() {
                     <label className="label">Nom complet</label>
                     <input
                       type="text"
+                      required
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       className="input"
                       placeholder="Jean Mukendi"
                     />
+                  </div>
+                )}
+                {mode === 'register' && (
+                  <div>
+                    <label className="label">Numéro de téléphone</label>
+                    <input
+                      type="tel"
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="input"
+                      placeholder="+243 828 497 218"
+                    />
+                  </div>
+                )}
+                {mode === 'register' && (
+                  <div>
+                    <label className="label">Code de récupération</label>
+                    <div className="relative">
+                      <input
+                        type={showRecoveryPin ? 'text' : 'password'}
+                        inputMode="numeric"
+                        pattern="\d{4,6}"
+                        required
+                        minLength={4}
+                        maxLength={6}
+                        value={recoveryPin}
+                        onChange={(e) => setRecoveryPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                        className="input w-full pr-10"
+                        placeholder="4 à 6 chiffres"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowRecoveryPin((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-brume"
+                      >
+                        {showRecoveryPin ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                    <p className="mt-1 text-xs text-brume">Gardez ce code secret. Il servira à réinitialiser votre mot de passe.</p>
                   </div>
                 )}
                 <div>
@@ -180,26 +259,71 @@ export function LoginPage() {
                     maxLength={20}
                     value={username}
                     onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                    className="input"
+                    onBlur={() => setTouched((t) => ({ ...t, username: true }))}
+                    className={`input ${usernameError ? 'border-corail-alerte' : ''}`}
                     placeholder="jean2024"
                   />
-                  <p className="mt-1 text-xs text-brume">Lettres + chiffres, minimum 4 caractères.</p>
+                  {usernameError ? (
+                    <p className="mt-1 flex items-center gap-1 text-xs text-corail-alerte">
+                      <AlertCircle size={12} /> {usernameError}
+                    </p>
+                  ) : (
+                    <p className="mt-1 text-xs text-brume">Lettres + chiffres, minimum 4 caractères.</p>
+                  )}
                 </div>
                 <div>
                   <label className="label">Mot de passe</label>
-                  <input
-                    type="password"
-                    required
-                    minLength={6}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="input"
-                    placeholder="••••••••"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      minLength={6}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="input w-full pr-10"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-brume hover:text-vert-marche"
+                      aria-label={showPassword ? 'Cacher le mot de passe' : 'Afficher le mot de passe'}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
+                {mode === 'register' && (
+                  <div>
+                    <label className="label">Confirmer le mot de passe</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        minLength={6}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onBlur={() => setTouched((t) => ({ ...t, confirmPassword: true }))}
+                        className={`input w-full pr-10 ${passwordMatchError ? 'border-corail-alerte' : ''}`}
+                        placeholder="••••••••"
+                      />
+                      {passwordsMatch && (
+                        <CheckCircle2 size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-vert-marche" />
+                      )}
+                    </div>
+                    {passwordMatchError && (
+                      <p className="mt-1 flex items-center gap-1 text-xs text-corail-alerte">
+                        <AlertCircle size={12} /> {passwordMatchError}
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {error && (
-                  <p className="text-sm text-corail-alerte">{error}</p>
+                  <div className="flex items-start gap-2 rounded-lg bg-corail-alerte/10 p-3 text-sm text-corail-alerte">
+                    <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                    <span>{error}</span>
+                  </div>
                 )}
 
                 <button type="submit" disabled={loading} className="btn-primary w-full">
@@ -207,7 +331,16 @@ export function LoginPage() {
                 </button>
               </form>
 
-              <div className="mt-6 text-center">
+              <div className="mt-4 flex flex-col items-center gap-1 text-center">
+                <Link to="/recuperation" className="text-xs text-brume hover:text-vert-marche transition-colors">
+                  Mot de passe oublié ?
+                </Link>
+                <Link to="/recuperation" className="text-xs text-brume hover:text-vert-marche transition-colors">
+                  Identifiant oublié ?
+                </Link>
+              </div>
+
+              <div className="mt-4 text-center">
                 <Link to="/" className="text-sm text-brume hover:text-vert-marche transition-colors">
                   ← Retour à l'accueil
                 </Link>

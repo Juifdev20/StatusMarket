@@ -11,6 +11,7 @@ export interface Profile {
   email: string | null;
   full_name: string | null;
   phone: string | null;
+  recovery_pin: string | null;
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
@@ -85,6 +86,7 @@ export interface Product {
   currency: string;
   image_url: string | null;
   images: string[];
+  share_preview_image_url: string | null;
   is_available: boolean;
   is_promoted: boolean;
   stock: number;
@@ -225,5 +227,15 @@ export interface StatusPost {
   share_message: string | null;
   store_link: string;
   views: number;
+  created_at: string;
+}
+
+export interface ProductComment {
+  id: string;
+  product_id: string;
+  profile_id: string | null;
+  store_id: string | null;
+  author_name: string;
+  content: string;
   created_at: string;
 }

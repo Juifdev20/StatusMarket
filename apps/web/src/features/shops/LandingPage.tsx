@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useAuth, getHomeRoute } from '../auth/authContext';
 import { supabase } from '../../lib/supabase';
+import { CommentSection } from '../../components/CommentSection';
 import type { Store as StoreType, Product, GlobalCategory } from '../../types';
 
 const fallbackCategories = [
@@ -42,6 +43,7 @@ export function LandingPage() {
   const [globalCategories, setGlobalCategories] = useState<GlobalCategory[]>([]);
   const [allStores, setAllStores] = useState<StoreType[]>([]);
   const [storesPage, setStoresPage] = useState(0);
+  const [productViews, setProductViews] = useState<Record<string, number>>({});
   const STORES_PER_PAGE = 10;
   const [dark, setDark] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -92,6 +94,7 @@ export function LandingPage() {
       const pid = v.product_id as string;
       if (pid) viewCounts[pid] = (viewCounts[pid] || 0) + 1;
     });
+    setProductViews(viewCounts);
     const sorted = [...products].sort((a, b) => {
       const av = viewCounts[a.id] || 0;
       const bv = viewCounts[b.id] || 0;
@@ -280,7 +283,7 @@ export function LandingPage() {
             <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
               <Flame size={20} className="text-corail-alerte" /> Tendances
             </h2>
-            <ProductCarousel products={trendingProducts} />
+            <ProductCarousel products={trendingProducts} productViews={productViews} />
           </section>
         )}
 
@@ -341,7 +344,7 @@ export function LandingPage() {
             <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
               <Tag size={20} className="text-corail-alerte" /> Offres du moment
             </h2>
-            <ProductCarousel products={promoProducts} showDiscount />
+            <ProductCarousel products={promoProducts} productViews={productViews} showDiscount />
           </section>
         )}
 
@@ -400,7 +403,7 @@ export function LandingPage() {
             <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
               <Sparkles size={20} className="text-vert-marche" /> Dernières nouveautés
             </h2>
-            <ProductCarousel products={newProducts} />
+            <ProductCarousel products={newProducts} productViews={productViews} />
           </section>
         )}
 
@@ -457,40 +460,54 @@ export function LandingPage() {
   );
 }
 
-function ProductCarousel({ products, showDiscount }: { products: ProductWithStore[]; showDiscount?: boolean }) {
+function ProductCarousel({ products, productViews, showDiscount }: { products: ProductWithStore[]; productViews: Record<string, number>; showDiscount?: boolean }) {
   return (
-    <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+    <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide items-start">
       {products.map((p) => (
-        <Link
+        <div
           key={p.id}
-          to={`/boutique/${p.store?.slug}`}
-          className="card shrink-0 w-36 sm:w-44 p-3 transition hover:shadow-md snap-start"
+          className="card shrink-0 w-44 sm:w-52 p-3 transition hover:shadow-md snap-start"
         >
-          <div className="aspect-square rounded-lg bg-brume/20 overflow-hidden mb-2 relative">
-            {p.image_url ? (
-              <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                <ShoppingBag size={24} className="text-brume/40" />
-              </div>
-            )}
-            {showDiscount && p.discount_price && (
-              <span className="absolute top-1 left-1 rounded-full bg-corail-alerte px-2 py-0.5 text-[10px] font-bold text-white">
-                -{Math.round((1 - p.discount_price / p.price) * 100)}%
-              </span>
-            )}
-          </div>
-          <p className="text-sm font-semibold truncate">{p.name}</p>
-          {showDiscount && p.discount_price ? (
-            <div className="flex items-center gap-1">
-              <span className="font-mono text-xs text-corail-alerte">{p.discount_price} {p.currency}</span>
-              <span className="font-mono text-[10px] text-brume line-through">{p.price}</span>
+          <Link to={`/boutique/${p.store?.slug}`} className="block">
+            <div className="aspect-square rounded-lg bg-brume/20 overflow-hidden mb-2 relative">
+              {p.image_url ? (
+                <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <ShoppingBag size={24} className="text-brume/40" />
+                </div>
+              )}
+              {showDiscount && p.discount_price && (
+                <span className="absolute top-1 left-1 rounded-full bg-corail-alerte px-2 py-0.5 text-[10px] font-bold text-white">
+                  -{Math.round((1 - p.discount_price / p.price) * 100)}%
+                </span>
+              )}
             </div>
-          ) : (
-            <p className="font-mono text-xs text-vert-marche">{p.price} {p.currency}</p>
-          )}
-          <p className="text-xs text-brume truncate mt-1">{p.store?.name}</p>
-        </Link>
+            <p className="text-sm font-semibold truncate hover:text-vert-marche">{p.name}</p>
+            {showDiscount && p.discount_price ? (
+              <div className="flex items-center gap-1">
+                <span className="font-mono text-xs text-corail-alerte">{p.discount_price} {p.currency}</span>
+                <span className="font-mono text-[10px] text-brume line-through">{p.price}</span>
+              </div>
+            ) : (
+              <p className="font-mono text-xs text-vert-marche">{p.price} {p.currency}</p>
+            )}
+            <p className="text-xs text-brume truncate mt-1">{p.store?.name}</p>
+          </Link>
+
+          <div className="mt-1 flex items-center gap-3 text-[10px] text-brume">
+            <span className="flex items-center gap-0.5">
+              <Search size={11} /> {productViews[p.id] || 0} vues
+            </span>
+            <Link to={`/boutique/${p.store?.slug}`} className="hover:text-vert-marche hover:underline">
+              Voir boutique
+            </Link>
+          </div>
+
+          <div className="mt-3">
+            <CommentSection productId={p.id} />
+          </div>
+        </div>
       ))}
     </div>
   );

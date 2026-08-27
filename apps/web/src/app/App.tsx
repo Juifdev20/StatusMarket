@@ -10,6 +10,7 @@ import { CategoryBrowsePage } from '../features/shops/CategoryBrowsePage';
 import { CategoriesListPage } from '../features/shops/CategoriesListPage';
 import { PublicShopPage } from '../features/shops/PublicShopPage';
 import { LoginPage } from '../features/auth/LoginPage';
+import { ResetPasswordPage } from '../features/auth/ResetPasswordPage';
 import { AccountPage } from '../features/auth/AccountPage';
 import { SellerDashboard } from '../features/shops/SellerDashboard';
 import { CreateStorePage } from '../features/shops/CreateStorePage';
@@ -47,6 +48,7 @@ export default function App() {
           {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/connexion" element={<LoginPage />} />
+          <Route path="/recuperation" element={<ResetPasswordPage />} />
           <Route path="/boutique/:slug" element={<PublicShopPage />} />
           <Route path="/categorie/:slug" element={<CategoryBrowsePage />} />
           <Route path="/categories" element={<CategoriesListPage />} />

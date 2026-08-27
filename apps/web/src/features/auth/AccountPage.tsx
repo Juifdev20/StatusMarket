@@ -1,8 +1,9 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth/authContext';
+import { useAuth, toAuthEmail } from '../auth/authContext';
 import { supabase } from '../../lib/supabase';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Eye, EyeOff } from 'lucide-react';
+import type { Store } from '../../types';
 
 export function AccountPage() {
   const { profile, session, signOut, refreshProfile } = useAuth();
@@ -12,6 +13,20 @@ export function AccountPage() {
   const [email, setEmail] = useState(profile?.email ?? '');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const [store, setStore] = useState<Store | null>(null);
+  const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [whatsappSaving, setWhatsappSaving] = useState(false);
+  const [whatsappSaved, setWhatsappSaved] = useState(false);
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordSaved, setPasswordSaved] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const handleSave = async (e: FormEvent) => {
     e.preventDefault();
@@ -26,6 +41,86 @@ export function AccountPage() {
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  useEffect(() => {
+    if (!profile) return;
+    (async () => {
+      const { data } = await supabase
+        .from('stores')
+        .select('*')
+        .eq('owner_id', profile.id)
+        .maybeSingle();
+      if (data) {
+        setStore(data as Store);
+        setWhatsappNumber(data.whatsapp_number ?? '');
+      }
+    })();
+  }, [profile]);
+
+  const handleWhatsappSave = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!store) return;
+    setWhatsappSaving(true);
+    const { error } = await supabase
+      .from('stores')
+      .update({ whatsapp_number: whatsappNumber.trim() || null })
+      .eq('id', store.id);
+    if (!error) {
+      setStore({ ...store, whatsapp_number: whatsappNumber.trim() || null });
+      setWhatsappSaved(true);
+      setTimeout(() => setWhatsappSaved(false), 3000);
+    }
+    setWhatsappSaving(false);
+  };
+
+  const handlePasswordChange = async (e: FormEvent) => {
+    e.preventDefault();
+    setPasswordError(null);
+    setPasswordSaved(false);
+
+    if (!profile?.username) {
+      setPasswordError('Profil non trouvé.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordError('Le nouveau mot de passe doit faire au moins 6 caractères.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Les mots de passe ne correspondent pas.');
+      return;
+    }
+
+    setPasswordSaving(true);
+
+    // Verify current password first
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: toAuthEmail(profile.username),
+      password: currentPassword,
+    });
+
+    if (signInError) {
+      setPasswordError('Mot de passe actuel incorrect.');
+      setPasswordSaving(false);
+      return;
+    }
+
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (updateError) {
+      setPasswordError(updateError.message);
+    } else {
+      setPasswordSaved(true);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setPasswordSaved(false), 3000);
+    }
+
+    setPasswordSaving(false);
   };
 
   return (
@@ -66,6 +161,102 @@ export function AccountPage() {
         </button>
         {saved && <p className="text-center text-sm text-vert-marche">Profil mis à jour !</p>}
       </form>
+
+      <form onSubmit={handlePasswordChange} className="card p-4 space-y-4">
+        <h2 className="font-semibold">Modifier le mot de passe</h2>
+
+        {passwordError && (
+          <p className="text-sm text-corail-alerte">{passwordError}</p>
+        )}
+        {passwordSaved && (
+          <p className="text-sm text-vert-marche">Mot de passe mis à jour avec succès.</p>
+        )}
+
+        <div>
+          <label className="label">Mot de passe actuel</label>
+          <div className="relative">
+            <input
+              type={showCurrent ? 'text' : 'password'}
+              required
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="input w-full pr-10"
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              onClick={() => setShowCurrent((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-brume"
+            >
+              {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label className="label">Nouveau mot de passe</label>
+          <div className="relative">
+            <input
+              type={showNew ? 'text' : 'password'}
+              required
+              minLength={6}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="input w-full pr-10"
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              onClick={() => setShowNew((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-brume"
+            >
+              {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label className="label">Confirmer le nouveau mot de passe</label>
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="input w-full"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <button type="submit" disabled={passwordSaving} className="btn-primary w-full">
+          {passwordSaving ? 'Modification...' : 'Changer le mot de passe'}
+        </button>
+      </form>
+
+      {store && (
+        <form onSubmit={handleWhatsappSave} className="card p-4 space-y-4">
+          <h2 className="font-semibold">Numéro WhatsApp de la boutique</h2>
+          <p className="text-sm text-brume">
+            Ce numéro sera utilisé par les clients pour vous contacter sur WhatsApp.
+          </p>
+          <div>
+            <label className="label">Numéro WhatsApp</label>
+            <input
+              type="tel"
+              value={whatsappNumber}
+              onChange={(e) => setWhatsappNumber(e.target.value)}
+              className="input"
+              placeholder="+243 8XX XXX XXX"
+            />
+          </div>
+          <button type="submit" disabled={whatsappSaving} className="btn-primary w-full">
+            {whatsappSaving ? 'Enregistrement...' : 'Enregistrer le numéro'}
+          </button>
+          {whatsappSaved && (
+            <p className="text-center text-sm text-vert-marche">Numéro WhatsApp mis à jour !</p>
+          )}
+        </form>
+      )}
 
       <button onClick={handleSignOut} className="btn-danger w-full">
         <LogOut size={18} /> Se déconnecter

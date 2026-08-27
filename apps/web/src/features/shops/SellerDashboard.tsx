@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Package, Store, TrendingUp, CreditCard, Plus, ExternalLink, Share2, ShoppingBag, ArrowRight, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
@@ -12,6 +12,8 @@ export function SellerDashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [storeViews, setStoreViews] = useState(0);
+  const [publicationsCount, setPublicationsCount] = useState(0);
+  const [ordersCount, setOrdersCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
@@ -28,12 +30,29 @@ export function SellerDashboard() {
     longitude: '',
   });
   const [savingLocation, setSavingLocation] = useState(false);
+  const reminderSent = useRef(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const storeFrontRef = useRef<HTMLInputElement>(null);
+
+  const loadStats = useCallback(async (storeId: string) => {
+    const [prodRes, viewsRes, postsRes, ordersRes, subRes] = await Promise.all([
+      supabase.from('products').select('*').eq('store_id', storeId).order('created_at', { ascending: false }),
+      supabase.from('store_views').select('id', { count: 'exact' }).eq('store_id', storeId),
+      supabase.from('status_posts').select('id', { count: 'exact' }).eq('store_id', storeId),
+      supabase.from('orders').select('id', { count: 'exact' }).eq('store_id', storeId),
+      supabase.from('subscriptions').select('*, plan:subscription_plans(*)').eq('seller_id', profile!.id).order('created_at', { ascending: false }).limit(1),
+    ]);
+    if (prodRes.data) setProducts(prodRes.data as Product[]);
+    if (viewsRes.count !== null && viewsRes.count !== undefined) setStoreViews(viewsRes.count);
+    if (postsRes.count !== null && postsRes.count !== undefined) setPublicationsCount(postsRes.count);
+    if (ordersRes.count !== null && ordersRes.count !== undefined) setOrdersCount(ordersRes.count);
+    if (subRes.data && subRes.data.length > 0) setSubscription(subRes.data[0] as Subscription);
+  }, [profile]);
 
   useEffect(() => {
     if (!profile) return;
     (async () => {
+      setLoading(true);
       const { data: stores } = await supabase
         .from('stores')
         .select('*')
@@ -42,18 +61,37 @@ export function SellerDashboard() {
       if (stores && stores.length > 0) {
         const s = stores[0] as StoreType;
         setStore(s);
-        const [prodRes, subRes, viewsRes] = await Promise.all([
-          supabase.from('products').select('*').eq('store_id', s.id).order('created_at', { ascending: false }),
-          supabase.from('subscriptions').select('*, plan:subscription_plans(*)').eq('seller_id', profile.id).order('created_at', { ascending: false }).limit(1),
-          supabase.from('store_views').select('id', { count: 'exact' }).eq('store_id', s.id),
-        ]);
-        if (prodRes.data) setProducts(prodRes.data as Product[]);
-        if (subRes.data && subRes.data.length > 0) setSubscription(subRes.data[0] as Subscription);
-        if (viewsRes.count !== null && viewsRes.count !== undefined) setStoreViews(viewsRes.count);
+        await loadStats(s.id);
+
+        // Check if store setup reminder is needed (fire-and-forget, only once per mount)
+        if (!reminderSent.current) {
+          reminderSent.current = true;
+          const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+          fetch(`${API_URL}/api/notifications/check-store-setup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: profile.id }),
+          }).catch(() => {});
+        }
       }
       setLoading(false);
     })();
-  }, [profile]);
+  }, [profile, loadStats]);
+
+  // Real-time updates for dashboard stats
+  useEffect(() => {
+    if (!store) return;
+    const channel = supabase
+      .channel('dashboard-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'store_views', filter: `store_id=eq.${store.id}` }, () => loadStats(store.id))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products', filter: `store_id=eq.${store.id}` }, () => loadStats(store.id))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'status_posts', filter: `store_id=eq.${store.id}` }, () => loadStats(store.id))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `store_id=eq.${store.id}` }, () => loadStats(store.id))
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [store, loadStats]);
 
   useEffect(() => {
     if (store) {
@@ -219,14 +257,14 @@ export function SellerDashboard() {
             <Share2 size={18} />
             <span className="text-xs font-medium">Publications</span>
           </div>
-          <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">—</p>
+          <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">{publicationsCount}</p>
         </div>
         <div className="card p-4">
           <div className="flex items-center gap-2 text-brume mb-2">
             <ShoppingBag size={18} />
             <span className="text-xs font-medium">Commandes</span>
           </div>
-          <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">—</p>
+          <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">{ordersCount}</p>
         </div>
       </div>
 

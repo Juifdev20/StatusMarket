@@ -10,6 +10,7 @@ export function PublicationsPage() {
   const [store, setStore] = useState<Store | null>(null);
   const [posts, setPosts] = useState<StatusPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!profile) return;
@@ -45,8 +46,31 @@ export function PublicationsPage() {
     if (store) await loadPosts(store.id);
   };
 
-  const copyLink = (slug: string) => {
-    navigator.clipboard.writeText(`${window.location.origin}/pub/${slug}`);
+  const sharePost = async (post: StatusPost) => {
+    const url = `${window.location.origin}/og/pub/${post.slug}`;
+    const text = post.caption ? `${post.caption}\n\n${url}` : url;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'StatusMarket',
+          text,
+          url,
+        });
+        return;
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') return;
+      }
+    }
+
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(post.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      console.error('Could not share or copy link');
+    }
   };
 
   if (loading) {
@@ -103,8 +127,9 @@ export function PublicationsPage() {
                   <a href={`/pub/${post.slug}`} target="_blank" rel="noopener noreferrer" className="btn-outline flex-1 text-xs">
                     <ExternalLink size={14} /> Voir
                   </a>
-                  <button onClick={() => copyLink(post.slug)} className="btn-ghost p-2" title="Copier le lien">
+                  <button onClick={() => sharePost(post)} className="btn-ghost p-2" title={copiedId === post.id ? 'Lien copié' : 'Partager'}>
                     <Share2 size={16} />
+                    {copiedId === post.id && <span className="sr-only">Lien copié</span>}
                   </button>
                   <button onClick={() => handleDelete(post.id)} className="btn-ghost p-2 text-corail-alerte" title="Supprimer">
                     <Trash2 size={16} />

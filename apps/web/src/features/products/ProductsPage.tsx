@@ -1,7 +1,8 @@
 import { useEffect, useState, FormEvent } from 'react';
-import { Plus, Pencil, Trash2, X, Package } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Package, Share2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
+import { ShareDialog } from '../../components/ShareDialog';
 import type { Store, Product, Category, GlobalCategory } from '../../types';
 
 export function ProductsPage() {
@@ -15,6 +16,7 @@ export function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [refresh, setRefresh] = useState(0);
+  const [sharingProduct, setSharingProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     const ownerId = profile?.id || user?.id;
@@ -142,6 +144,9 @@ export function ProductsPage() {
                 {p.category && <span className="badge bg-brume/20 text-brume mt-1 ml-1">{p.category.name}</span>}
               </div>
               <div className="flex gap-1">
+                <button onClick={() => setSharingProduct(p)} className="btn-ghost p-2" title="Partager">
+                  <Share2 size={16} />
+                </button>
                 <button onClick={() => { setEditing(p); setShowForm(true); }} className="btn-ghost p-2">
                   <Pencil size={16} />
                 </button>
@@ -162,6 +167,17 @@ export function ProductsPage() {
           product={editing}
           onClose={() => setShowForm(false)}
           onSaved={() => { setShowForm(false); loadProducts(); }}
+        />
+      )}
+
+      {sharingProduct && store && (
+        <ShareDialog
+          product={sharingProduct}
+          store={store}
+          onClose={() => setSharingProduct(null)}
+          onPreviewImageChange={(imgUrl) => {
+            setProducts((prev) => prev.map((p) => p.id === sharingProduct.id ? { ...p, share_preview_image_url: imgUrl } : p));
+          }}
         />
       )}
     </div>

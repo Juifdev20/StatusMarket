@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Search, Home, ShoppingCart, MessageCircle, ArrowLeft, Package, Plus, Flag, MapPin, ExternalLink } from 'lucide-react';
+import { Search, Home, ShoppingCart, MessageCircle, ArrowLeft, Package, Plus, Flag, MapPin, ExternalLink, Eye } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { PWAInstallPrompt } from '../../components/PWAInstallPrompt';
 import { ReportModal } from '../../components/ReportModal';
+import { CommentSection } from '../../components/CommentSection';
 import type { Store, Product, Category, GlobalCategory } from '../../types';
 
 export function PublicShopPage() {
@@ -19,6 +20,7 @@ export function PublicShopPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cartCount, setCartCount] = useState(0);
+  const [productViews, setProductViews] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const updateCount = () => {
@@ -57,7 +59,20 @@ export function PublicShopPage() {
         console.error('Product fetch error:', prodRes.error);
       } else if (prodRes.data) {
         setProducts(prodRes.data as Product[]);
-        console.log('Products loaded:', prodRes.data.length, prodRes.data);
+
+        // Load view counts per product
+        const { data: viewsData } = await supabase
+          .from('store_views')
+          .select('product_id')
+          .eq('store_id', storeData.id)
+          .not('product_id', 'is', null);
+        if (viewsData) {
+          const counts: Record<string, number> = {};
+          for (const v of viewsData) {
+            if (v.product_id) counts[v.product_id] = (counts[v.product_id] || 0) + 1;
+          }
+          setProductViews(counts);
+        }
       }
 
       if (catRes.error) {
@@ -249,6 +264,16 @@ export function PublicShopPage() {
                       <span className="text-[10px] mt-1">Image manquante</span>
                     </div>
                   )}
+                  {product.discount_price && product.discount_price < product.price && (
+                    <span className="absolute top-2 left-2 badge bg-corail-alerte text-white text-[10px]">
+                      -{Math.round((1 - product.discount_price / product.price) * 100)}%
+                    </span>
+                  )}
+                  {product.stock <= 3 && product.stock > 0 && (
+                    <span className="absolute top-2 right-2 badge bg-ambre-pagne text-white text-[10px]">
+                      Plus que {product.stock}
+                    </span>
+                  )}
                 </div>
                 <div className="p-3">
                   <h3 className="text-sm font-semibold text-encre-nuit dark:text-sable-chaud line-clamp-2">
@@ -268,6 +293,14 @@ export function PublicShopPage() {
                   ) : (
                     <p className="mt-1 text-xs text-corail-alerte">Prix non défini</p>
                   )}
+                  <div className="mt-1 flex items-center gap-3 text-[10px] text-brume">
+                    <span className="flex items-center gap-0.5"><Eye size={11} /> {productViews[product.id] || 0}</span>
+                    {product.stock > 0 ? (
+                      <span className="text-vert-marche">En stock</span>
+                    ) : (
+                      <span className="text-corail-alerte">Rupture</span>
+                    )}
+                  </div>
                   <div className="flex gap-2 mt-2">
                     <a
                       href={whatsappLink(product)}
@@ -280,6 +313,11 @@ export function PublicShopPage() {
                     <button onClick={() => addToCart(product)} className="btn-outline p-2" title="Ajouter au panier">
                       <Plus size={16} />
                     </button>
+                  </div>
+
+                  {/* Comments always visible */}
+                  <div className="mt-3">
+                    <CommentSection productId={product.id} storeOwnerId={store?.owner_id} />
                   </div>
                 </div>
               </div>

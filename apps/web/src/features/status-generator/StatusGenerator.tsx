@@ -116,7 +116,7 @@ export function StatusGenerator() {
     setPublishing(false);
   };
 
-  const shareUrl = publishedSlug ? `${window.location.origin}/pub/${publishedSlug}` : '';
+  const shareUrl = publishedSlug ? `${window.location.origin}/og/pub/${publishedSlug}` : '';
   const whatsappShareUrl = publishedSlug
     ? `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${shareUrl}`)}`
     : '';
