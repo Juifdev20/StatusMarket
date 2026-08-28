@@ -165,7 +165,7 @@ router.get('/pub/:slug', asyncHandler(async (req, res) => {
   const storeName = storeData.name || 'Boutique';
   const storeSlug = storeData.slug || '';
   const ogImage = post.cover_image_url || storeData.logo_url || DEFAULT_OG_IMAGE;
-  const pubUrl = `${SITE_URL}/pub/${slug}`;
+  const pubUrl = `${SITE_URL}/boutique/${storeSlug}?pub=${slug}`;
   const shareUrl = `${OG_WORKER_URL}/og/pub/${slug}`;
   const title = post.caption ? `${post.caption} — ${storeName}` : `${storeName} sur StatusMarket`;
   const description = post.share_message || `Découvrez ${storeName} sur StatusMarket.`;
