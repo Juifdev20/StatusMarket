@@ -116,7 +116,7 @@ export function StatusGenerator() {
     setPublishing(false);
   };
 
-  const shareUrl = publishedSlug ? `https://www.statusmarket.store/og/pub/${publishedSlug}` : '';
+  const shareUrl = publishedSlug ? `https://statusmarket-api.onrender.com/og/pub/${publishedSlug}` : '';
   const whatsappShareUrl = publishedSlug
     ? `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${shareUrl}`)}`
     : '';

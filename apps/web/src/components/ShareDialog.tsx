@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import type { Product, Store } from '../types';
 
 const SITE_URL = import.meta.env.VITE_SITE_URL || window.location.origin;
-const OG_WORKER_URL = 'https://www.statusmarket.store';
+const OG_WORKER_URL = 'https://statusmarket-api.onrender.com';
 
 interface ShareDialogProps {
   product: Product;

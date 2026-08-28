@@ -5,7 +5,7 @@ import { asyncHandler } from '../../middlewares/asyncHandler';
 const router = Router();
 
 const SITE_URL = process.env.SITE_URL || 'https://www.statusmarket.store';
-const OG_WORKER_URL = process.env.OG_WORKER_URL || 'https://www.statusmarket.store';
+const OG_WORKER_URL = process.env.OG_WORKER_URL || 'https://statusmarket-api.onrender.com';
 const DEFAULT_OG_IMAGE = 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1200&h=630&fit=crop';
 
 function ensureWww(url: string): string {
