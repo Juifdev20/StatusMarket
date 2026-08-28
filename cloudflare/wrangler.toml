@@ -1,0 +1,9 @@
+name = "statusmarket-og"
+main = "og-worker.js"
+compatibility_date = "2024-01-01"
+
+# Route: statusmarket.store/og/* → this Worker
+# Add this route in Cloudflare dashboard:
+# Workers & Pages → statusmarket-og → Triggers → Add Route
+# Route: statusmarket.store/og/*
+# Zone: statusmarket.store

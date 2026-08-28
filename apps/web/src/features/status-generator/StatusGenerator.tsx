@@ -116,7 +116,7 @@ export function StatusGenerator() {
     setPublishing(false);
   };
 
-  const shareUrl = publishedSlug ? `${window.location.origin}/og/pub/${publishedSlug}` : '';
+  const shareUrl = publishedSlug ? `https://statusmarket-og.maestrodieudonne964.workers.dev/og/pub/${publishedSlug}` : '';
   const whatsappShareUrl = publishedSlug
     ? `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${shareUrl}`)}`
     : '';

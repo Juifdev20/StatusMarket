@@ -5,6 +5,7 @@ import { asyncHandler } from '../../middlewares/asyncHandler';
 const router = Router();
 
 const SITE_URL = process.env.SITE_URL || 'https://statusmarket.store';
+const OG_WORKER_URL = process.env.OG_WORKER_URL || 'https://statusmarket-og.maestrodieudonne964.workers.dev';
 const DEFAULT_OG_IMAGE = 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1200&h=630&fit=crop';
 
 function escapeHtml(str: string): string {
@@ -94,7 +95,7 @@ router.get('/product/:id', asyncHandler(async (req, res) => {
     : product.price;
   const ogImage = product.share_preview_image_url || product.image_url || storeData.logo_url || DEFAULT_OG_IMAGE;
   const productUrl = `${SITE_URL}/boutique/${storeSlug}`;
-  const shareUrl = `${SITE_URL}/og/product/${id}`;
+  const shareUrl = `${OG_WORKER_URL}/og/product/${id}`;
   const title = `${product.name} — ${storeName}`;
   const description = product.description
     ? `${product.description} — ${displayPrice} ${product.currency}`
@@ -129,7 +130,7 @@ router.get('/store/:slug', asyncHandler(async (req, res) => {
 
   const ogImage = store.logo_url || store.store_front_image_url || DEFAULT_OG_IMAGE;
   const storeUrl = `${SITE_URL}/boutique/${store.slug}`;
-  const shareUrl = `${SITE_URL}/og/store/${store.slug}`;
+  const shareUrl = `${OG_WORKER_URL}/og/store/${store.slug}`;
   const title = `${store.name} — StatusMarket`;
   const description = store.description
     ? store.description
@@ -165,7 +166,7 @@ router.get('/pub/:slug', asyncHandler(async (req, res) => {
   const storeSlug = storeData.slug || '';
   const ogImage = post.cover_image_url || storeData.logo_url || DEFAULT_OG_IMAGE;
   const pubUrl = `${SITE_URL}/pub/${slug}`;
-  const shareUrl = `${SITE_URL}/og/pub/${slug}`;
+  const shareUrl = `${OG_WORKER_URL}/og/pub/${slug}`;
   const title = post.caption ? `${post.caption} — ${storeName}` : `${storeName} sur StatusMarket`;
   const description = post.share_message || `Découvrez ${storeName} sur StatusMarket.`;
 

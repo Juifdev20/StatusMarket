@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import type { Product, Store } from '../types';
 
 const SITE_URL = import.meta.env.VITE_SITE_URL || window.location.origin;
+const OG_WORKER_URL = 'https://statusmarket-og.maestrodieudonne964.workers.dev';
 
 interface ShareDialogProps {
   product: Product;
@@ -25,7 +26,7 @@ export function ShareDialog({ product, store, onClose, onPreviewImageChange }: S
     ...(product.image_url ? [product.image_url] : []),
   ].filter((v, i, self) => v && self.indexOf(v) === i);
 
-  const ogUrl = `${SITE_URL}/og/product/${product.id}`;
+  const ogUrl = `${OG_WORKER_URL}/og/product/${product.id}`;
   const displayPrice = product.discount_price && product.discount_price < product.price
     ? `${product.discount_price} ${product.currency}`
     : `${product.price} ${product.currency}`;
