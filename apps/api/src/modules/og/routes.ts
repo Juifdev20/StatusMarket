@@ -4,7 +4,7 @@ import { asyncHandler } from '../../middlewares/asyncHandler';
 
 const router = Router();
 
-const SITE_URL = process.env.SITE_URL || 'https://statusmarket.store';
+const SITE_URL = process.env.SITE_URL || 'https://www.statusmarket.store';
 const OG_WORKER_URL = process.env.OG_WORKER_URL || 'https://statusmarket-og.maestrodieudonne964.workers.dev';
 const DEFAULT_OG_IMAGE = 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1200&h=630&fit=crop';
 
