@@ -30,6 +30,8 @@ export function SellerDashboard() {
     longitude: '',
   });
   const [savingLocation, setSavingLocation] = useState(false);
+  const [locationSaved, setLocationSaved] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const reminderSent = useRef(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const storeFrontRef = useRef<HTMLInputElement>(null);
@@ -157,6 +159,8 @@ export function SellerDashboard() {
     e.preventDefault();
     if (!store) return;
     setSavingLocation(true);
+    setLocationSaved(false);
+    setLocationError(null);
     const payload = {
       city: locationDraft.city.trim() || null,
       quartier: locationDraft.quartier.trim() || null,
@@ -167,7 +171,13 @@ export function SellerDashboard() {
       longitude: locationDraft.longitude ? parseFloat(locationDraft.longitude) : null,
     };
     const { error } = await supabase.from('stores').update(payload).eq('id', store.id);
-    if (!error) setStore({ ...store, ...payload });
+    if (error) {
+      setLocationError('Erreur lors de la sauvegarde de la localisation.');
+    } else {
+      setStore({ ...store, ...payload });
+      setLocationSaved(true);
+      setTimeout(() => setLocationSaved(false), 3000);
+    }
     setSavingLocation(false);
   };
 
@@ -476,6 +486,12 @@ export function SellerDashboard() {
             <button type="submit" disabled={savingLocation} className="btn-primary w-full mt-4">
               {savingLocation ? 'Enregistrement...' : 'Enregistrer'}
             </button>
+            {locationSaved && (
+              <p className="text-center text-sm text-vert-marche mt-2">Boutique mise à jour avec succès !</p>
+            )}
+            {locationError && (
+              <p className="text-center text-sm text-corail-alerte mt-2">{locationError}</p>
+            )}
             <p className="text-xs text-brume mt-2">Ces informations aident les clients à vous trouver sur la page d'accueil.</p>
           </form>
 

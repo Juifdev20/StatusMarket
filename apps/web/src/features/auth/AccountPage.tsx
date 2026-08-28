@@ -234,28 +234,64 @@ export function AccountPage() {
       </form>
 
       {store && (
-        <form onSubmit={handleWhatsappSave} className="card p-4 space-y-4">
-          <h2 className="font-semibold">Numéro WhatsApp de la boutique</h2>
-          <p className="text-sm text-brume">
-            Ce numéro sera utilisé par les clients pour vous contacter sur WhatsApp.
-          </p>
-          <div>
-            <label className="label">Numéro WhatsApp</label>
-            <input
-              type="tel"
-              value={whatsappNumber}
-              onChange={(e) => setWhatsappNumber(e.target.value)}
-              className="input"
-              placeholder="+243 8XX XXX XXX"
-            />
+        <>
+          <form onSubmit={handleWhatsappSave} className="card p-4 space-y-4">
+            <h2 className="font-semibold">Numéro WhatsApp de la boutique</h2>
+            <p className="text-sm text-brume">
+              Ce numéro sera utilisé par les clients pour vous contacter sur WhatsApp.
+            </p>
+            <div>
+              <label className="label">Numéro WhatsApp</label>
+              <input
+                type="tel"
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value)}
+                className="input"
+                placeholder="+243 8XX XXX XXX"
+              />
+            </div>
+            <button type="submit" disabled={whatsappSaving} className="btn-primary w-full">
+              {whatsappSaving ? 'Enregistrement...' : 'Enregistrer le numéro'}
+            </button>
+            {whatsappSaved && (
+              <p className="text-center text-sm text-vert-marche">Numéro WhatsApp mis à jour !</p>
+            )}
+          </form>
+
+          <div className="card p-4 space-y-4">
+            <h2 className="font-semibold">Ma boutique</h2>
+            <div className="flex items-start gap-4">
+              {store.store_front_image_url ? (
+                <img
+                  src={store.store_front_image_url}
+                  alt="Photo de la devanture"
+                  className="h-20 w-28 rounded-lg object-cover border border-brume/20"
+                />
+              ) : (
+                <div className="h-20 w-28 rounded-lg bg-brume/10 flex items-center justify-center text-xs text-brume text-center">
+                  Aucune photo
+                </div>
+              )}
+              <div className="space-y-1 text-sm">
+                <p><span className="font-medium">Nom :</span> {store.name}</p>
+                {store.city && <p><span className="font-medium">Ville :</span> {store.city}</p>}
+                {store.quartier && <p><span className="font-medium">Quartier :</span> {store.quartier}</p>}
+                {store.avenue && <p><span className="font-medium">Avenue :</span> {store.avenue}</p>}
+                {store.numero_porte && <p><span className="font-medium">N° :</span> {store.numero_porte}</p>}
+                {store.map_link && (
+                  <a
+                    href={store.map_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-vert-marche underline text-xs break-all"
+                  >
+                    Voir sur Google Maps
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
-          <button type="submit" disabled={whatsappSaving} className="btn-primary w-full">
-            {whatsappSaving ? 'Enregistrement...' : 'Enregistrer le numéro'}
-          </button>
-          {whatsappSaved && (
-            <p className="text-center text-sm text-vert-marche">Numéro WhatsApp mis à jour !</p>
-          )}
-        </form>
+        </>
       )}
 
       <button onClick={handleSignOut} className="btn-danger w-full">
