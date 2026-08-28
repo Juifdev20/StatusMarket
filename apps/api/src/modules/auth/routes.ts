@@ -10,7 +10,7 @@ const AUTH_EMAIL_DOMAIN = 'statusmarket.app';
 const usernameRegex = /^[a-z0-9]+$/;
 
 const signUpSchema = z.object({
-  username: z.string().min(4).max(20).regex(usernameRegex, 'Lettres et chiffres uniquement'),
+  username: z.string().min(4).max(20).regex(/^[a-z0-9\s]+$/i, 'Lettres et chiffres uniquement'),
   password: z.string().min(6),
   fullName: z.string().min(1).max(100),
   phone: z.string().min(1).max(30),
@@ -23,7 +23,8 @@ router.post('/signup', asyncHandler(async (req, res) => {
     return res.status(400).json({ error: parsed.error.flatten().fieldErrors });
   }
 
-  const { username, password, fullName, phone, recoveryPin } = parsed.data;
+  const { username: rawUsername, password, fullName, phone, recoveryPin } = parsed.data;
+  const username = rawUsername.trim().toLowerCase().replace(/\s+/g, '');
   const email = `${username}@${AUTH_EMAIL_DOMAIN}`;
 
   const supabase = getSupabaseAdmin();

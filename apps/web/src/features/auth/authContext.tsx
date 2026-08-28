@@ -144,7 +144,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         const rawMsg = typeof err.error === 'string' ? err.error : '';
-        return { error: translateAuthError(rawMsg) || 'Une erreur est survenue lors de l\'inscription.' };
+        if (rawMsg) {
+          return { error: translateAuthError(rawMsg) || rawMsg };
+        }
+        if (err.error && typeof err.error === 'object') {
+          const fieldErrors = err.error.fieldErrors || err.error;
+          const firstField = Object.values(fieldErrors)[0];
+          if (Array.isArray(firstField) && firstField.length > 0) {
+            return { error: firstField[0] };
+          }
+          if (typeof firstField === 'string') {
+            return { error: firstField };
+          }
+        }
+        return { error: 'Une erreur est survenue lors de l\'inscription.' };
       }
     } catch {
       return { error: 'Problème de connexion internet. Vérifiez votre réseau et réessayez.' };

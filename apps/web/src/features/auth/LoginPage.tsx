@@ -75,7 +75,8 @@ export function LoginPage() {
     setLoading(true);
 
     if (mode === 'login') {
-      const { error: signInError } = await signIn(username, password);
+      const cleanUsername = username.trim().toLowerCase().replace(/\s+/g, '');
+      const { error: signInError } = await signIn(cleanUsername, password);
       if (signInError) {
         setError(signInError);
         setLoading(false);
@@ -106,7 +107,8 @@ export function LoginPage() {
         setLoading(false);
         return;
       }
-      const { error: signUpError } = await signUp(username, password, fullName, phone, recoveryPin);
+      const cleanUsername = username.trim().toLowerCase().replace(/\s+/g, '');
+      const { error: signUpError } = await signUp(cleanUsername, password, fullName, phone, recoveryPin);
       if (signUpError) {
         setError(signUpError);
         setLoading(false);
