@@ -47,7 +47,7 @@ export function PublicationsPage() {
   };
 
   const sharePost = async (post: StatusPost) => {
-    const url = `https://statusmarket-og.maestrodieudonne964.workers.dev/og/pub/${post.slug}`;
+    const url = `https://www.statusmarket.store/og/pub/${post.slug}`;
     const text = post.caption ? `${post.caption}\n\n${url}` : url;
 
     if (navigator.share) {
