@@ -36,7 +36,7 @@ services:
     routes:
       - type: rewrite
         source: /og/*
-        destination: https://statusmarket-api.onrender.com/og/$1
+        destination: https://statusmarket-api.onrender.com/og/:splat
       - type: rewrite
         source: /*
         destination: /index.html
