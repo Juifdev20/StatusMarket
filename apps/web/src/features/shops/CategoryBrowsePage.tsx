@@ -3,10 +3,11 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Search, Store, ShoppingBag, MapPin, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { FavoriteButton } from '../../components/FavoriteButton';
+import { WhatsAppContactButton } from '../../components/WhatsAppContactButton';
 import type { Product, GlobalCategory } from '../../types';
 
 interface ProductWithStore extends Product {
-  store?: { name: string; slug: string; logo_url: string | null; city: string | null } | null;
+  store?: { name: string; slug: string; logo_url: string | null; city: string | null; whatsapp_number: string | null } | null;
   global_category?: GlobalCategory | null;
 }
 
@@ -39,7 +40,7 @@ export function CategoryBrowsePage() {
 
     const { data: prodData } = await supabase
       .from('products')
-      .select('*, store:stores(name, slug, logo_url, city), global_category:global_categories(*)')
+      .select('*, store:stores(name, slug, logo_url, city, whatsapp_number), global_category:global_categories(*)')
       .eq('global_category_id', catData.id)
       .eq('is_available', true)
       .order('created_at', { ascending: false });
@@ -202,6 +203,11 @@ export function CategoryBrowsePage() {
                       </span>
                     )}
                   </div>
+                  <WhatsAppContactButton
+                    product={p}
+                    store={{ whatsapp_number: p.store?.whatsapp_number }}
+                    className="mt-2 w-full !py-1.5"
+                  />
                 </div>
               </Link>
             ))}

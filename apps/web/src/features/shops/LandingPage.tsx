@@ -9,6 +9,7 @@ import { useAuth, getHomeRoute } from '../auth/authContext';
 import { supabase } from '../../lib/supabase';
 import { ReviewSection } from '../../components/ReviewSection';
 import { FavoriteButton } from '../../components/FavoriteButton';
+import { WhatsAppContactButton } from '../../components/WhatsAppContactButton';
 import { useTrendingProducts } from '../../hooks/useTrending';
 import type { Store as StoreType, Product, GlobalCategory } from '../../types';
 
@@ -24,7 +25,7 @@ const fallbackCategories = [
 ];
 
 interface ProductWithStore extends Product {
-  store?: { name: string; slug: string; logo_url: string | null; city: string | null } | null;
+  store?: { name: string; slug: string; logo_url: string | null; city: string | null; whatsapp_number: string | null } | null;
 }
 
 interface SearchResults {
@@ -68,7 +69,7 @@ export function LandingPage() {
     const [storesRes, productsRes, gcatRes] = await Promise.all([
       supabase.from('stores').select('*').eq('is_active', true).eq('is_suspended', false).order('created_at', { ascending: false }),
       supabase.from('products')
-        .select('*, store:stores(name, slug, logo_url, city)')
+        .select('*, store:stores(name, slug, logo_url, city, whatsapp_number)')
         .eq('is_available', true)
         .order('created_at', { ascending: false }),
       supabase.from('global_categories').select('*').eq('is_active', true).order('sort_order'),
@@ -117,7 +118,7 @@ export function LandingPage() {
     }
     const [prodRes, storeRes, catRes] = await Promise.all([
       supabase.from('products')
-        .select('*, store:stores(name, slug, logo_url, city)')
+        .select('*, store:stores(name, slug, logo_url, city, whatsapp_number)')
         .ilike('name', `%${q}%`)
         .eq('is_available', true)
         .limit(10),
@@ -519,6 +520,12 @@ function ProductCarousel({ products, productViews, showDiscount }: { products: P
               Voir boutique
             </Link>
           </div>
+
+          <WhatsAppContactButton
+            product={p}
+            store={{ whatsapp_number: p.store?.whatsapp_number }}
+            className="mt-2 w-full !py-1.5"
+          />
 
           <div className="mt-3">
             <ReviewSection productId={p.id} />

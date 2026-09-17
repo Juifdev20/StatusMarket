@@ -7,6 +7,7 @@ import { ReportModal } from '../../components/ReportModal';
 import { ReviewSection } from '../../components/ReviewSection';
 import { FavoriteButton } from '../../components/FavoriteButton';
 import { FollowButton } from '../../components/FollowButton';
+import { WhatsAppContactButton } from '../../components/WhatsAppContactButton';
 import { StarRating } from '../../components/StarRating';
 import type { Store, Product, Category, GlobalCategory, RatingSummary } from '../../types';
 
@@ -120,12 +121,6 @@ export function PublicShopPage() {
     const matchesGlobalCategory = !activeGlobalCategory || p.global_category_id === activeGlobalCategory;
     return matchesSearch && matchesCategory && matchesGlobalCategory;
   });
-
-  const whatsappLink = (product: Product) => {
-    const number = store?.whatsapp_number?.replace(/[^0-9]/g, '') ?? '';
-    const text = encodeURIComponent(`Bonjour, je suis intéressé(e) par: ${product.name} (${product.price} ${product.currency})`);
-    return `https://wa.me/${number}?text=${text}`;
-  };
 
   const addToCart = (product: Product) => {
     if (!store) return;
@@ -345,14 +340,11 @@ export function PublicShopPage() {
                     )}
                   </div>
                   <div className="flex gap-2 mt-2">
-                    <a
-                      href={whatsappLink(product)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-cta flex-1 text-xs"
-                    >
-                      WhatsApp
-                    </a>
+                    <WhatsAppContactButton
+                      product={product}
+                      store={{ whatsapp_number: store?.whatsapp_number }}
+                      className="flex-1"
+                    />
                     <button onClick={() => addToCart(product)} className="btn-outline p-2" title="Ajouter au panier">
                       <Plus size={16} />
                     </button>
