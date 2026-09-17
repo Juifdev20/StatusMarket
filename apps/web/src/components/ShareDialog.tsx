@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { X, Share2, MessageCircle, Copy, Check, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { getSiteUrl } from '../utils/siteUrl';
 import type { Product, Store } from '../types';
 
-const SITE_URL = import.meta.env.VITE_SITE_URL || window.location.origin;
+const SITE_URL = getSiteUrl();
 
 interface ShareDialogProps {
   product: Product;

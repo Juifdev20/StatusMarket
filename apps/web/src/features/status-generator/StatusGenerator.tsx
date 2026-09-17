@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Share2, Check, Image as ImageIcon, Link as LinkIcon, Copy } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
+import { getSiteUrl } from '../../utils/siteUrl';
 import type { Store, Product } from '../../types';
 
 export function StatusGenerator() {
@@ -116,8 +117,7 @@ export function StatusGenerator() {
     setPublishing(false);
   };
 
-  const SITE_URL = import.meta.env.VITE_SITE_URL || window.location.origin;
-  const shareUrl = publishedSlug ? `${SITE_URL}/og/pub/${publishedSlug}` : '';
+  const shareUrl = publishedSlug ? `${getSiteUrl()}/og/pub/${publishedSlug}` : '';
   const whatsappShareUrl = publishedSlug
     ? `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${shareUrl}`)}`
     : '';

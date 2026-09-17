@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Share2, Eye, Trash2, Plus, ExternalLink, Image as ImageIcon, Store as StoreIcon } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
+import { getSiteUrl } from '../../utils/siteUrl';
 import type { Store, StatusPost } from '../../types';
 
 export function PublicationsPage() {
@@ -47,8 +48,7 @@ export function PublicationsPage() {
   };
 
   const sharePost = async (post: StatusPost) => {
-    const SITE_URL = import.meta.env.VITE_SITE_URL || window.location.origin;
-    const url = `${SITE_URL}/og/pub/${post.slug}`;
+    const url = `${getSiteUrl()}/og/pub/${post.slug}`;
     const text = post.caption ? `${post.caption}\n\n${url}` : url;
 
     if (navigator.share) {
