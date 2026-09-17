@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Search, Store, ShoppingBag, MapPin, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { FavoriteButton } from '../../components/FavoriteButton';
 import type { Product, GlobalCategory } from '../../types';
 
 interface ProductWithStore extends Product {
@@ -176,6 +177,7 @@ export function CategoryBrowsePage() {
                       -{Math.round((1 - p.discount_price / p.price) * 100)}%
                     </span>
                   )}
+                  <FavoriteButton productId={p.id} className="absolute top-1.5 right-1.5 !p-1.5" size={14} />
                 </div>
                 <div className="p-3">
                   <h3 className="text-sm font-semibold text-encre-nuit dark:text-sable-chaud line-clamp-2">{p.name}</h3>

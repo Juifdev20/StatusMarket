@@ -51,6 +51,12 @@ export function PublicationsPage() {
     const url = `${getSiteUrl()}/og/pub/${post.slug}`;
     const text = post.caption ? `${post.caption}\n\n${url}` : url;
 
+    if (store) {
+      await supabase.from('product_shares').insert(
+        post.product_ids.map((productId) => ({ product_id: productId, store_id: store.id, platform: 'status' }))
+      );
+    }
+
     if (navigator.share) {
       try {
         await navigator.share({

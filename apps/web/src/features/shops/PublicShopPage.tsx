@@ -4,8 +4,11 @@ import { Search, Home, ShoppingCart, MessageCircle, ArrowLeft, Package, Plus, Fl
 import { supabase } from '../../lib/supabase';
 import { PWAInstallPrompt } from '../../components/PWAInstallPrompt';
 import { ReportModal } from '../../components/ReportModal';
-import { CommentSection } from '../../components/CommentSection';
-import type { Store, Product, Category, GlobalCategory } from '../../types';
+import { ReviewSection } from '../../components/ReviewSection';
+import { FavoriteButton } from '../../components/FavoriteButton';
+import { FollowButton } from '../../components/FollowButton';
+import { StarRating } from '../../components/StarRating';
+import type { Store, Product, Category, GlobalCategory, RatingSummary } from '../../types';
 
 export function PublicShopPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -21,6 +24,8 @@ export function PublicShopPage() {
   const [error, setError] = useState<string | null>(null);
   const [cartCount, setCartCount] = useState(0);
   const [productViews, setProductViews] = useState<Record<string, number>>({});
+  const [storeRating, setStoreRating] = useState<RatingSummary | null>(null);
+  const [productRatings, setProductRatings] = useState<Record<string, RatingSummary>>({});
 
   useEffect(() => {
     const updateCount = () => {
@@ -73,7 +78,29 @@ export function PublicShopPage() {
           }
           setProductViews(counts);
         }
+
+        // Load rating summaries for each product
+        const productIds = prodRes.data.map((p) => p.id);
+        if (productIds.length > 0) {
+          const { data: ratingsData } = await supabase
+            .from('product_rating_summary')
+            .select('*')
+            .in('product_id', productIds);
+          if (ratingsData) {
+            const map: Record<string, RatingSummary> = {};
+            for (const r of ratingsData) map[r.product_id] = r;
+            setProductRatings(map);
+          }
+        }
       }
+
+      // Load store rating summary
+      const { data: storeRatingData } = await supabase
+        .from('store_rating_summary')
+        .select('*')
+        .eq('store_id', storeData.id)
+        .maybeSingle();
+      if (storeRatingData) setStoreRating(storeRatingData as RatingSummary);
 
       if (catRes.error) {
         console.error('Category fetch error:', catRes.error);
@@ -156,6 +183,9 @@ export function PublicShopPage() {
               </div>
               <div className="min-w-0">
                 <h1 className="font-serif text-xl font-bold text-encre-nuit dark:text-sable-chaud">{store.name}</h1>
+                {storeRating && storeRating.review_count > 0 && (
+                  <StarRating value={storeRating.avg_rating || 0} readOnly size={13} showCount={storeRating.review_count} />
+                )}
                 {store.description && <p className="text-sm text-brume mt-0.5 break-words">{store.description}</p>}
                 {store.city && (
                   <p className="text-xs text-brume mt-1 flex items-center gap-1">
@@ -180,12 +210,16 @@ export function PublicShopPage() {
                 )}
               </div>
             </div>
-            <button
-              onClick={() => setShowReport(true)}
-              className="self-start sm:mt-0 flex items-center gap-1 rounded-full bg-corail-alerte/10 px-3 py-1 text-xs font-medium text-corail-alerte shrink-0"
-            >
-              <Flag size={14} /> Signaler
-            </button>
+            <div className="flex items-center gap-2 self-start shrink-0">
+              <FollowButton storeId={store.id} />
+              <FavoriteButton storeId={store.id} />
+              <button
+                onClick={() => setShowReport(true)}
+                className="flex items-center gap-1 rounded-full bg-corail-alerte/10 px-3 py-1 text-xs font-medium text-corail-alerte shrink-0"
+              >
+                <Flag size={14} /> Signaler
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -274,11 +308,20 @@ export function PublicShopPage() {
                       Plus que {product.stock}
                     </span>
                   )}
+                  <FavoriteButton productId={product.id} className="absolute bottom-2 right-2 !p-1.5" size={14} />
                 </div>
                 <div className="p-3">
                   <h3 className="text-sm font-semibold text-encre-nuit dark:text-sable-chaud line-clamp-2">
                     {product.name || 'Produit sans nom'}
                   </h3>
+                  {productRatings[product.id] && productRatings[product.id].review_count > 0 && (
+                    <StarRating
+                      value={productRatings[product.id].avg_rating || 0}
+                      readOnly
+                      size={11}
+                      showCount={productRatings[product.id].review_count}
+                    />
+                  )}
                   {product.price ? (
                     product.discount_price && product.discount_price < product.price ? (
                       <div className="mt-1 flex items-center gap-1.5">
@@ -315,9 +358,9 @@ export function PublicShopPage() {
                     </button>
                   </div>
 
-                  {/* Comments always visible */}
+                  {/* Reviews always visible */}
                   <div className="mt-3">
-                    <CommentSection productId={product.id} storeOwnerId={store?.owner_id} />
+                    <ReviewSection productId={product.id} storeOwnerId={store?.owner_id} />
                   </div>
                 </div>
               </div>

@@ -7,7 +7,9 @@ import {
 } from 'lucide-react';
 import { useAuth, getHomeRoute } from '../auth/authContext';
 import { supabase } from '../../lib/supabase';
-import { CommentSection } from '../../components/CommentSection';
+import { ReviewSection } from '../../components/ReviewSection';
+import { FavoriteButton } from '../../components/FavoriteButton';
+import { useTrendingProducts } from '../../hooks/useTrending';
 import type { Store as StoreType, Product, GlobalCategory } from '../../types';
 
 const fallbackCategories = [
@@ -33,6 +35,7 @@ interface SearchResults {
 
 export function LandingPage() {
   const { profile } = useAuth();
+  const { products: mostSharedProducts } = useTrendingProducts(10);
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResults | null>(null);
   const [trendingProducts, setTrendingProducts] = useState<ProductWithStore[]>([]);
@@ -220,7 +223,9 @@ export function LandingPage() {
 
           <div className="flex items-center gap-2 shrink-0">
             {profile ? (
-              <Link to={getHomeRoute(profile.role)} className="btn-primary text-sm">Mon espace</Link>
+              <Link to={profile.role === 'CLIENT' ? '/mon-compte' : getHomeRoute(profile.role)} className="btn-primary text-sm">
+                {profile.role === 'CLIENT' ? 'Mon compte' : 'Mon espace'}
+              </Link>
             ) : (
               <>
                 <Link to="/connexion?mode=login" className="btn-ghost text-sm hidden sm:inline-flex">Connexion</Link>
@@ -277,13 +282,23 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* Tendances */}
+        {/* Tendances (vues) */}
         {trendingProducts.length > 0 && (
           <section>
             <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
               <Flame size={20} className="text-corail-alerte" /> Tendances
             </h2>
             <ProductCarousel products={trendingProducts} productViews={productViews} />
+          </section>
+        )}
+
+        {/* Les plus partagés */}
+        {mostSharedProducts.length > 0 && (
+          <section>
+            <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
+              <Share2 size={20} className="text-vert-marche" /> Les plus partagés
+            </h2>
+            <ProductCarousel products={mostSharedProducts as ProductWithStore[]} productViews={productViews} />
           </section>
         )}
 
@@ -482,6 +497,7 @@ function ProductCarousel({ products, productViews, showDiscount }: { products: P
                   -{Math.round((1 - p.discount_price / p.price) * 100)}%
                 </span>
               )}
+              <FavoriteButton productId={p.id} className="absolute top-1 right-1 !p-1.5" size={13} />
             </div>
             <p className="text-sm font-semibold truncate hover:text-vert-marche">{p.name}</p>
             {showDiscount && p.discount_price ? (
@@ -505,7 +521,7 @@ function ProductCarousel({ products, productViews, showDiscount }: { products: P
           </div>
 
           <div className="mt-3">
-            <CommentSection productId={p.id} />
+            <ReviewSection productId={p.id} />
           </div>
         </div>
       ))}

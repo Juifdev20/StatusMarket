@@ -113,6 +113,10 @@ export function StatusGenerator() {
       return;
     }
 
+    await supabase.from('product_shares').insert(
+      selectedIds.map((productId) => ({ product_id: productId, store_id: store.id, platform: 'status' }))
+    );
+
     setPublishedSlug(data.slug);
     setPublishing(false);
   };

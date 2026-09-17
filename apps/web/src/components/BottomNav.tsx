@@ -1,8 +1,17 @@
 import { NavLink } from 'react-router-dom';
+import type { LucideIcon } from 'lucide-react';
 import { Home, Package, CirclePlus, ShoppingBag, User } from 'lucide-react';
 import { StatusRing } from './StatusRing';
 
-const tabs = [
+export interface BottomNavTab {
+  to: string;
+  icon: LucideIcon;
+  label: string;
+  end: boolean;
+  elevated?: boolean;
+}
+
+const vendorTabs: BottomNavTab[] = [
   { to: '/vendeur', icon: Home, label: 'Accueil', end: true },
   { to: '/vendeur/produits', icon: Package, label: 'Produits', end: false },
   { to: '/vendeur/statut', icon: CirclePlus, label: 'Statut', end: false, elevated: true },
@@ -10,7 +19,11 @@ const tabs = [
   { to: '/vendeur/compte', icon: User, label: 'Compte', end: false },
 ];
 
-export function BottomNav() {
+interface BottomNavProps {
+  tabs?: BottomNavTab[];
+}
+
+export function BottomNav({ tabs = vendorTabs }: BottomNavProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-brume/30 bg-white dark:bg-encre-nuit md:hidden">
       <div className="flex items-end justify-around px-2 pb-[env(safe-area-inset-bottom)] pt-1">

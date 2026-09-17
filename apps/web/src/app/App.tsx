@@ -3,6 +3,7 @@ import { AuthProvider, useAuth, getHomeRoute } from '../features/auth/authContex
 import { ProtectedRoute } from './ProtectedRoute';
 import { VendorLayout } from '../layouts/VendorLayout';
 import { AdminLayout } from '../layouts/AdminLayout';
+import { ClientLayout } from '../layouts/ClientLayout';
 
 import { CartPage } from '../features/cart/CartPage';
 import { LandingPage } from '../features/shops/LandingPage';
@@ -29,6 +30,9 @@ import { AdminReportsPage } from '../features/admin/AdminReportsPage';
 import { AdminPaymentsPage } from '../features/admin/AdminPaymentsPage';
 import { AdminSubscriptionsPage } from '../features/admin/AdminSubscriptionsPage';
 import { AdminSettingsPage } from '../features/admin/AdminSettingsPage';
+import { FavoritesTab } from '../features/client/FavoritesTab';
+import { ReviewsTab } from '../features/client/ReviewsTab';
+import { FollowedStoresTab } from '../features/client/FollowedStoresTab';
 import { Footer } from '../components/Footer';
 import { HelpPage } from '../features/pages/HelpPage';
 import { PrivacyPage } from '../features/pages/PrivacyPage';
@@ -72,6 +76,17 @@ export default function App() {
             <Route path="abonnement" element={<SubscriptionPage />} />
             <Route path="compte" element={<AccountPage />} />
             <Route path="boutique/nouvelle" element={<CreateStorePage />} />
+          </Route>
+
+          {/* Client routes */}
+          <Route path="/mon-compte" element={
+            <ProtectedRoute roles={['CLIENT']}>
+              <ClientLayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<FavoritesTab />} />
+            <Route path="avis" element={<ReviewsTab />} />
+            <Route path="boutiques-suivies" element={<FollowedStoresTab />} />
           </Route>
 
           {/* Admin routes */}

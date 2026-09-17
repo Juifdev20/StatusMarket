@@ -207,6 +207,26 @@ export interface Review {
   updated_at: string;
 }
 
+export interface RatingSummary {
+  review_count: number;
+  avg_rating: number | null;
+}
+
+export interface ProductShare {
+  id: string;
+  product_id: string;
+  store_id: string;
+  platform: string | null;
+  created_at: string;
+}
+
+export interface StoreFollow {
+  id: string;
+  user_id: string;
+  store_id: string;
+  created_at: string;
+}
+
 export interface PlatformSettings {
   id: number;
   trial_duration_days: number;

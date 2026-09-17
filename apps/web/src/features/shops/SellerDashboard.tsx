@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Package, Store, TrendingUp, CreditCard, Plus, ExternalLink, Share2, ShoppingBag, ArrowRight, Upload } from 'lucide-react';
+import { Package, Store, TrendingUp, CreditCard, Plus, ExternalLink, Share2, ShoppingBag, ArrowRight, Upload, Star, Users } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { StatusRing } from '../../components/StatusRing';
@@ -14,6 +14,10 @@ export function SellerDashboard() {
   const [storeViews, setStoreViews] = useState(0);
   const [publicationsCount, setPublicationsCount] = useState(0);
   const [ordersCount, setOrdersCount] = useState(0);
+  const [avgRating, setAvgRating] = useState<number | null>(null);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [sharesCount, setSharesCount] = useState(0);
+  const [followerCount, setFollowerCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
@@ -37,18 +41,25 @@ export function SellerDashboard() {
   const storeFrontRef = useRef<HTMLInputElement>(null);
 
   const loadStats = useCallback(async (storeId: string) => {
-    const [prodRes, viewsRes, postsRes, ordersRes, subRes] = await Promise.all([
+    const [prodRes, viewsRes, postsRes, ordersRes, subRes, ratingRes, sharesRes, followersRes] = await Promise.all([
       supabase.from('products').select('*').eq('store_id', storeId).order('created_at', { ascending: false }),
       supabase.from('store_views').select('id', { count: 'exact' }).eq('store_id', storeId),
       supabase.from('status_posts').select('id', { count: 'exact' }).eq('store_id', storeId),
       supabase.from('orders').select('id', { count: 'exact' }).eq('store_id', storeId),
       supabase.from('subscriptions').select('*, plan:subscription_plans(*)').eq('seller_id', profile!.id).order('created_at', { ascending: false }).limit(1),
+      supabase.from('store_rating_summary').select('*').eq('store_id', storeId).maybeSingle(),
+      supabase.from('product_shares').select('id', { count: 'exact' }).eq('store_id', storeId).gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
+      supabase.from('store_follower_counts').select('*').eq('store_id', storeId).maybeSingle(),
     ]);
     if (prodRes.data) setProducts(prodRes.data as Product[]);
     if (viewsRes.count !== null && viewsRes.count !== undefined) setStoreViews(viewsRes.count);
     if (postsRes.count !== null && postsRes.count !== undefined) setPublicationsCount(postsRes.count);
     if (ordersRes.count !== null && ordersRes.count !== undefined) setOrdersCount(ordersRes.count);
     if (subRes.data && subRes.data.length > 0) setSubscription(subRes.data[0] as Subscription);
+    setAvgRating(ratingRes.data?.avg_rating ?? null);
+    setReviewCount(ratingRes.data?.review_count ?? 0);
+    if (sharesRes.count !== null && sharesRes.count !== undefined) setSharesCount(sharesRes.count);
+    setFollowerCount(followersRes.data?.follower_count ?? 0);
   }, [profile]);
 
   useEffect(() => {
@@ -89,6 +100,8 @@ export function SellerDashboard() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'products', filter: `store_id=eq.${store.id}` }, () => loadStats(store.id))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'status_posts', filter: `store_id=eq.${store.id}` }, () => loadStats(store.id))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `store_id=eq.${store.id}` }, () => loadStats(store.id))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_follows', filter: `store_id=eq.${store.id}` }, () => loadStats(store.id))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'reviews', filter: `store_id=eq.${store.id}` }, () => loadStats(store.id))
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
@@ -275,6 +288,33 @@ export function SellerDashboard() {
             <span className="text-xs font-medium">Commandes</span>
           </div>
           <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">{ordersCount}</p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="card p-4">
+          <div className="flex items-center gap-2 text-brume mb-2">
+            <Star size={18} />
+            <span className="text-xs font-medium">Note moyenne</span>
+          </div>
+          <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">
+            {avgRating ? avgRating.toFixed(1) : '—'}
+            {reviewCount > 0 && <span className="text-xs text-brume font-sans ml-1">({reviewCount})</span>}
+          </p>
+        </div>
+        <div className="card p-4">
+          <div className="flex items-center gap-2 text-brume mb-2">
+            <Share2 size={18} />
+            <span className="text-xs font-medium">Partages (7j)</span>
+          </div>
+          <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">{sharesCount}</p>
+        </div>
+        <div className="card p-4">
+          <div className="flex items-center gap-2 text-brume mb-2">
+            <Users size={18} />
+            <span className="text-xs font-medium">Abonnés</span>
+          </div>
+          <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">{followerCount}</p>
         </div>
       </div>
 

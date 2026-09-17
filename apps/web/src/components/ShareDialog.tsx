@@ -31,10 +31,15 @@ export function ShareDialog({ product, store, onClose, onPreviewImageChange }: S
     ? `${product.discount_price} ${product.currency}`
     : `${product.price} ${product.currency}`;
 
+  const logShare = (platform: string) => {
+    supabase.from('product_shares').insert({ product_id: product.id, store_id: store.id, platform }).then();
+  };
+
   const handleShareWhatsApp = () => {
     const text = message ? `${message}\n\n${ogUrl}` : ogUrl;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
+    logShare('whatsapp');
   };
 
   const handleCopyLink = async () => {
@@ -42,6 +47,7 @@ export function ShareDialog({ product, store, onClose, onPreviewImageChange }: S
       await navigator.clipboard.writeText(ogUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      logShare('copy_link');
     } catch {
       // fallback
     }
