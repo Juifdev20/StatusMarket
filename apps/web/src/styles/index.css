@@ -15,9 +15,11 @@
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
+    touch-action: pan-x pan-y;
   }
   body {
     @apply bg-sable-chaud text-encre-nuit font-sans antialiased;
+    touch-action: pan-x pan-y;
   }
   .dark body {
     @apply bg-encre-nuit text-sable-chaud;
