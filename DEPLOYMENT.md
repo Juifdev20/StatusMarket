@@ -36,9 +36,12 @@ Dans le dashboard Render → Service `statusmarket-api` → Environment :
 | `SUPABASE_URL` | `https://xxx.supabase.co` |
 | `SUPABASE_ANON_KEY` | votre clé anon Supabase |
 | `SUPABASE_SERVICE_ROLE_KEY` | votre clé service role Supabase |
-| `CORS_ORIGIN` | `https://statusmarket-web.onrender.com` |
+| `CORS_ORIGIN` | `https://statusmarket-agh0.onrender.com,https://www.statusmarket.store` |
+| `SITE_URL` | `https://statusmarket-agh0.onrender.com` (temporaire, voir note) |
 
-> **Important** : `CORS_ORIGIN` doit contenir l'URL du frontend déployé. Ajoutez aussi `http://localhost:5173` séparé par une virgule pour le dev local : `https://statusmarket-web.onrender.com,http://localhost:5173`
+> **Important** : `CORS_ORIGIN` doit contenir toutes les origines autorisées à appeler l'API, séparées par une virgule. On y met dès maintenant `www.statusmarket.store` même si le DNS n'est pas encore branché, pour ne pas devoir y revenir après.
+
+> **Note `SITE_URL`** : tant que le domaine n'est pas pointé vers Render (étape 5), laissez `SITE_URL` sur l'URL `.onrender.com` du frontend pour que les liens de partage restent fonctionnels dès aujourd'hui. Une fois le domaine actif, changez-la pour `https://www.statusmarket.store` (et pareil pour `VITE_SITE_URL` ci-dessous).
 
 #### Web (`statusmarket-web`)
 Dans le dashboard Render → Service `statusmarket-web` → Environment :
@@ -47,24 +50,40 @@ Dans le dashboard Render → Service `statusmarket-web` → Environment :
 |----------|--------|
 | `VITE_SUPABASE_URL` | `https://xxx.supabase.co` |
 | `VITE_SUPABASE_ANON_KEY` | votre clé anon Supabase |
-| `VITE_API_URL` | `https://statusmarket-api.onrender.com` |
+| `VITE_API_URL` | `https://statusmarketapi.onrender.com` |
+| `VITE_SITE_URL` | `https://statusmarket-agh0.onrender.com` (temporaire, voir note ci-dessus) |
 
-### 4. URLs après déploiement
+> Après avoir créé le service API, notez son URL réelle et mettez-la aussi à jour dans `render.yaml` (règle de rewrite `/og/*`) — Render ne permet pas de la référencer dynamiquement entre services.
 
-- **Frontend** : `https://statusmarket-web.onrender.com`
-- **API** : `https://statusmarket-api.onrender.com`
-- **Health check** : `https://statusmarket-api.onrender.com/health`
+### 4. URLs après déploiement (avant configuration du domaine)
 
-### 5. Configurer Supabase
+- **Frontend** : `https://statusmarket-agh0.onrender.com`
+- **API** : `https://statusmarketapi.onrender.com`
+- **Health check** : `https://statusmarketapi.onrender.com/health`
+
+### 5. Pointer le domaine statusmarket.store (GoDaddy) vers Render
+
+Le domaine est enregistré chez GoDaddy avec ses nameservers par défaut (`ns*.domaincontrol.com`) — pas besoin de Cloudflare.
+
+1. Sur Render → Service `statusmarket-web` → **Settings** → **Custom Domains** → ajouter `www.statusmarket.store`. Render indique le CNAME cible à créer.
+2. Sur GoDaddy → DNS de `statusmarket.store` → ajouter un enregistrement **CNAME** : `www` → cible fournie par Render.
+3. Toujours sur GoDaddy → onglet **Forwarding** → rediriger `statusmarket.store` (apex, sans www) vers `https://www.statusmarket.store` (redirection permanente 301, "Forward only").
+4. Attendre la propagation DNS (jusqu'à quelques heures), puis vérifier que Render a bien émis le certificat SSL pour `www.statusmarket.store`.
+
+### 6. Configurer Supabase
 
 Dans Supabase Dashboard → Authentication → URL Configuration :
 
-- **Site URL** : `https://statusmarket-web.onrender.com`
-- **Redirect URLs** : ajoutez `https://statusmarket-web.onrender.com/**`
+- **Site URL** : `https://www.statusmarket.store`
+- **Redirect URLs** : ajoutez `https://www.statusmarket.store/**`
 
-### 6. Lancer le seed (optionnel)
+### 7. Lancer le seed (optionnel)
 
 Dans Supabase SQL Editor, exécutez `supabase/seed.sql` pour créer les données de démonstration.
+
+## Note sur `cloudflare/`
+
+Le worker `cloudflare/og-worker.js` n'est plus utilisé (le domaine ne passe pas par les nameservers Cloudflare). Les liens OG passent maintenant directement par la règle de rewrite `/og/*` dans `render.yaml`. Ce dossier peut être supprimé si vous ne comptez pas migrer vers Cloudflare plus tard.
 
 ## Comptes de test
 

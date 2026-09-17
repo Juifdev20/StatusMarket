@@ -24,12 +24,12 @@ function isCrawler(userAgent) {
 }
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     const url = new URL(request.url);
 
     if (url.pathname.startsWith('/og/')) {
       const userAgent = request.headers.get('User-Agent') || '';
-      const apiUrl = `https://statusmarket-api.onrender.com${url.pathname}`;
+      const apiUrl = `${env.API_URL}${url.pathname}`;
       const apiResponse = await fetch(apiUrl, {
         headers: { 'User-Agent': userAgent || 'WhatsApp/2.0' },
       });

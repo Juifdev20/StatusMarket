@@ -47,7 +47,8 @@ export function PublicationsPage() {
   };
 
   const sharePost = async (post: StatusPost) => {
-    const url = `https://statusmarket-api.onrender.com/og/pub/${post.slug}`;
+    const SITE_URL = import.meta.env.VITE_SITE_URL || window.location.origin;
+    const url = `${SITE_URL}/og/pub/${post.slug}`;
     const text = post.caption ? `${post.caption}\n\n${url}` : url;
 
     if (navigator.share) {

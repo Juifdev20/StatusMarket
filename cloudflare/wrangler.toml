@@ -2,6 +2,11 @@ name = "statusmarket-og"
 main = "og-worker.js"
 compatibility_date = "2024-01-01"
 
+# Update this after every redeploy of the API service (Render URL changes
+# when a new service is created). No code change needed elsewhere.
+[vars]
+API_URL = "https://statusmarket-api.onrender.com"
+
 # Route: statusmarket.store/og/* → this Worker
 # Add this route in Cloudflare dashboard:
 # Workers & Pages → statusmarket-og → Triggers → Add Route
