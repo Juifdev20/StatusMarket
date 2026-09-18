@@ -12,6 +12,7 @@ import adminRoutes from './modules/admin/routes';
 import authRoutes from './modules/auth/routes';
 import passwordResetRoutes from './modules/auth/resetPassword';
 import notificationsRoutes from './modules/notifications/routes';
+import aiRoutes from './modules/ai/routes';
 import ogRoutes from './modules/og/routes';
 
 const app = express();
@@ -41,6 +42,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', passwordResetRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/ai', aiRoutes);
 app.use('/api/shops', shopsRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/categories', categoriesRoutes);

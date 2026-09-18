@@ -57,4 +57,10 @@ export const api = {
   createCategory: (body: object) => fetcher('/api/categories', { method: 'POST', body: JSON.stringify(body) }),
   updateCategory: (id: string, body: object) => fetcher(`/api/categories/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   deleteCategory: (id: string) => fetcher(`/api/categories/${id}`, { method: 'DELETE' }),
+
+  // AI generation
+  generateCaption: (body: { imageUrl: string; productNames: string[] }) =>
+    fetcher('/api/ai/generate-caption', { method: 'POST', body: JSON.stringify(body) }),
+  generateDescription: (body: { imageUrl: string; name: string; price?: number; currency?: string }) =>
+    fetcher('/api/ai/generate-description', { method: 'POST', body: JSON.stringify(body) }),
 };

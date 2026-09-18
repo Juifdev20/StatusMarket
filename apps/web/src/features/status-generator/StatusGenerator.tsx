@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Share2, Check, Image as ImageIcon, Link as LinkIcon, Copy } from 'lucide-react';
+import { Share2, Check, Image as ImageIcon, Link as LinkIcon, Copy, Sparkles } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { getSiteUrl } from '../../utils/siteUrl';
+import { api } from '../../lib/api';
 import type { Store, Product } from '../../types';
 
 export function StatusGenerator() {
@@ -12,6 +13,8 @@ export function StatusGenerator() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
+  const [generatingCaption, setGeneratingCaption] = useState(false);
+  const [captionError, setCaptionError] = useState<string | null>(null);
   const [shareMessage, setShareMessage] = useState('Découvrez mes produits sur StatusMarket !');
   const [publishing, setPublishing] = useState(false);
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
@@ -84,6 +87,23 @@ export function StatusGenerator() {
       }
       return next;
     });
+  };
+
+  const handleGenerateCaption = async () => {
+    if (!coverImage) return;
+    setGeneratingCaption(true);
+    setCaptionError(null);
+    try {
+      const result = await api.generateCaption({
+        imageUrl: coverImage,
+        productNames: selectedProducts.map((p) => p.name),
+      });
+      setCaption(result.caption);
+    } catch {
+      setCaptionError('Génération indisponible pour le moment, réessayez ou écrivez votre propre texte.');
+    } finally {
+      setGeneratingCaption(false);
+    }
   };
 
   const coverCandidates = selectedProducts
@@ -288,13 +308,26 @@ export function StatusGenerator() {
           )}
 
           <div className="card p-4">
-            <label className="label">3. Légende (optionnel)</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="label mb-0">3. Légende (optionnel)</label>
+              <button
+                type="button"
+                onClick={handleGenerateCaption}
+                disabled={!coverImage || generatingCaption}
+                className="btn-outline text-xs flex items-center gap-1 py-1 px-2 disabled:opacity-40"
+                title={!coverImage ? 'Choisissez une photo de couverture pour activer la génération IA' : 'Générer une légende avec l\'IA'}
+              >
+                <Sparkles size={12} className={generatingCaption ? 'animate-pulse' : ''} />
+                {generatingCaption ? 'Génération...' : 'Générer pour moi'}
+              </button>
+            </div>
             <input
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               className="input"
               placeholder="Promo du jour ! Nouveautés disponibles..."
             />
+            {captionError && <p className="text-xs text-corail-alerte mt-1">{captionError}</p>}
           </div>
 
           <div className="card p-4">

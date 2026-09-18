@@ -1,8 +1,9 @@
 import { useEffect, useState, FormEvent } from 'react';
-import { Plus, Pencil, Trash2, X, Package, Share2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Package, Share2, Sparkles } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { ShareDialog } from '../../components/ShareDialog';
+import { api } from '../../lib/api';
 import type { Store, Product, Category, GlobalCategory } from '../../types';
 
 export function ProductsPage() {
@@ -205,6 +206,8 @@ function ProductForm({ store, categories, globalCategories, product, onClose, on
   const [isPromoted, setIsPromoted] = useState(product?.is_promoted ?? false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [generatingDesc, setGeneratingDesc] = useState(false);
+  const [descError, setDescError] = useState<string | null>(null);
 
   const handleUpload = async (file: File) => {
     setUploading(true);
@@ -216,6 +219,25 @@ function ProductForm({ store, categories, globalCategories, product, onClose, on
       setImageUrl(data.publicUrl);
     }
     setUploading(false);
+  };
+
+  const handleGenerateDescription = async () => {
+    if (!imageUrl || !name.trim()) return;
+    setGeneratingDesc(true);
+    setDescError(null);
+    try {
+      const result = await api.generateDescription({
+        imageUrl,
+        name: name.trim(),
+        price: price ? parseFloat(price) : undefined,
+        currency,
+      });
+      setDescription(result.description);
+    } catch {
+      setDescError('Génération indisponible pour le moment, réessayez ou écrivez votre propre texte.');
+    } finally {
+      setGeneratingDesc(false);
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -258,8 +280,21 @@ function ProductForm({ store, categories, globalCategories, product, onClose, on
               <input required value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="Nom du produit" />
             </div>
             <div>
-              <label className="label">Description</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="label mb-0">Description</label>
+                <button
+                  type="button"
+                  onClick={handleGenerateDescription}
+                  disabled={!imageUrl || !name.trim() || generatingDesc}
+                  className="btn-outline text-xs flex items-center gap-1 py-1 px-2 disabled:opacity-40"
+                  title={!imageUrl ? 'Ajoutez une photo (plus bas) pour activer la génération IA' : 'Générer une description avec l\'IA'}
+                >
+                  <Sparkles size={12} className={generatingDesc ? 'animate-pulse' : ''} />
+                  {generatingDesc ? 'Génération...' : 'Générer pour moi'}
+                </button>
+              </div>
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="input min-h-[80px]" placeholder="Description du produit" />
+              {descError && <p className="text-xs text-corail-alerte mt-1">{descError}</p>}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
