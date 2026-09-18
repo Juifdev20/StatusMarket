@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Store, TrendingUp, Image as ImageIcon, ArrowRight,
   Share2, ShoppingBag, Smartphone, Search, Sun, Moon, MapPin, Flame,
@@ -10,18 +11,19 @@ import { supabase } from '../../lib/supabase';
 import { ReviewSection } from '../../components/ReviewSection';
 import { FavoriteButton } from '../../components/FavoriteButton';
 import { WhatsAppContactButton } from '../../components/WhatsAppContactButton';
+import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 import { useTrendingProducts } from '../../hooks/useTrending';
 import type { Store as StoreType, Product, GlobalCategory } from '../../types';
 
 const fallbackCategories = [
-  { name: 'Mode', slug: 'mode', emoji: '👗' },
-  { name: 'Téléphones', slug: 'telephones', emoji: '📱' },
-  { name: 'Chaussures', slug: 'chaussures', emoji: '👟' },
-  { name: 'Beauté', slug: 'beaute', emoji: '💄' },
-  { name: 'Maison', slug: 'maison', emoji: '🏠' },
-  { name: 'Restaurant', slug: 'restaurant', emoji: '🍔' },
-  { name: 'Informatique', slug: 'informatique', emoji: '💻' },
-  { name: 'Accessoires', slug: 'accessoires', emoji: '🎁' },
+  { key: 'fashion', slug: 'mode', emoji: '👗' },
+  { key: 'phones', slug: 'telephones', emoji: '📱' },
+  { key: 'shoes', slug: 'chaussures', emoji: '👟' },
+  { key: 'beauty', slug: 'beaute', emoji: '💄' },
+  { key: 'home', slug: 'maison', emoji: '🏠' },
+  { key: 'restaurant', slug: 'restaurant', emoji: '🍔' },
+  { key: 'computing', slug: 'informatique', emoji: '💻' },
+  { key: 'accessories', slug: 'accessoires', emoji: '🎁' },
 ];
 
 interface ProductWithStore extends Product {
@@ -35,6 +37,7 @@ interface SearchResults {
 }
 
 export function LandingPage() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { products: mostSharedProducts } = useTrendingProducts(10);
   const [query, setQuery] = useState('');
@@ -158,7 +161,7 @@ export function LandingPage() {
             <input
               value={query}
               onChange={(e) => { setQuery(e.target.value); handleSearch(e.target.value); }}
-              placeholder="Rechercher boutiques, produits..."
+              placeholder={t('landing.searchPlaceholder')}
               className="input pl-10 py-2.5 w-full text-sm"
             />
             {query && (
@@ -169,12 +172,12 @@ export function LandingPage() {
             {searchResults && query && (
               <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl bg-white dark:bg-encre-nuit border border-brume/20 shadow-lg max-h-[70vh] overflow-y-auto z-50">
                 {searchResults.products.length === 0 && searchResults.stores.length === 0 && searchResults.categories.length === 0 ? (
-                  <p className="p-4 text-sm text-brume text-center">Aucun résultat pour "{query}"</p>
+                  <p className="p-4 text-sm text-brume text-center">{t('landing.noResults', { query })}</p>
                 ) : (
                   <div className="p-2 space-y-1">
                     {searchResults.products.length > 0 && (
                       <>
-                        <p className="px-3 py-1 text-xs font-semibold text-brume uppercase">Produits</p>
+                        <p className="px-3 py-1 text-xs font-semibold text-brume uppercase">{t('landing.products')}</p>
                         {searchResults.products.map((p) => (
                           <Link key={p.id} to={`/boutique/${p.store?.slug}`} className="flex items-center gap-3 rounded-xl p-2 hover:bg-encre-nuit/5 dark:hover:bg-white/5">
                             <div className="h-10 w-10 shrink-0 rounded-lg bg-brume/20 overflow-hidden">
@@ -191,7 +194,7 @@ export function LandingPage() {
                     )}
                     {searchResults.stores.length > 0 && (
                       <>
-                        <p className="px-3 py-1 text-xs font-semibold text-brume uppercase mt-2">Boutiques</p>
+                        <p className="px-3 py-1 text-xs font-semibold text-brume uppercase mt-2">{t('landing.shops')}</p>
                         {searchResults.stores.map((s) => (
                           <Link key={s.id} to={`/boutique/${s.slug}`} className="flex items-center gap-3 rounded-xl p-2 hover:bg-encre-nuit/5 dark:hover:bg-white/5">
                             <div className="h-10 w-10 shrink-0 rounded-full bg-vert-marche/10 overflow-hidden">
@@ -207,7 +210,7 @@ export function LandingPage() {
                     )}
                     {searchResults.categories.length > 0 && (
                       <>
-                        <p className="px-3 py-1 text-xs font-semibold text-brume uppercase mt-2">Catégories</p>
+                        <p className="px-3 py-1 text-xs font-semibold text-brume uppercase mt-2">{t('categories.title')}</p>
                         {searchResults.categories.map((c) => (
                           <Link key={c.id} to={`/categorie/${c.slug}`} className="flex items-center gap-3 rounded-xl p-2 hover:bg-encre-nuit/5 dark:hover:bg-white/5">
                             <span className="text-lg">{c.icon}</span>
@@ -225,15 +228,16 @@ export function LandingPage() {
           <div className="flex items-center gap-2 shrink-0">
             {profile ? (
               <Link to={profile.role === 'CLIENT' ? '/mon-compte' : getHomeRoute(profile.role)} className="btn-primary text-sm">
-                {profile.role === 'CLIENT' ? 'Mon compte' : 'Mon espace'}
+                {profile.role === 'CLIENT' ? t('account.title') : t('landing.mySpace')}
               </Link>
             ) : (
               <>
-                <Link to="/connexion?mode=login" className="btn-ghost text-sm hidden sm:inline-flex">Connexion</Link>
-                <Link to="/connexion?mode=register" className="btn-primary text-sm">Créer un compte</Link>
+                <Link to="/connexion?mode=login" className="btn-ghost text-sm hidden sm:inline-flex">{t('auth.login')}</Link>
+                <Link to="/connexion?mode=register" className="btn-primary text-sm">{t('auth.createAccount')}</Link>
               </>
             )}
-            <button onClick={() => setDark((d) => !d)} className="btn-ghost p-2" title="Thème">
+            <LanguageSwitcher />
+            <button onClick={() => setDark((d) => !d)} className="btn-ghost p-2" title={t('landing.theme')}>
               {dark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
           </div>
@@ -244,14 +248,14 @@ export function LandingPage() {
         {/* Hero */}
         <section className="text-center py-8">
           <h1 className="font-serif text-3xl font-bold text-encre-nuit dark:text-sable-chaud sm:text-4xl lg:text-5xl leading-tight">
-            Découvrez les boutiques <span className="text-vert-marche">près de vous</span>
+            {t('landing.heroTitle1')} <span className="text-vert-marche">{t('landing.heroTitle2')}</span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-brume">
-            Parcourez des centaines de produits, trouvez votre prochaine boutique préférée, et achetez directement via WhatsApp.
+            {t('landing.heroSubtitle')}
           </p>
           {!profile && (
             <Link to="/connexion" className="btn-cta mt-6 inline-flex">
-              Créer ma boutique <ArrowRight size={18} />
+              {t('landing.createMyShop')} <ArrowRight size={18} />
             </Link>
           )}
         </section>
@@ -260,16 +264,16 @@ export function LandingPage() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-serif text-xl font-bold flex items-center gap-2">
-              <Sparkles size={20} className="text-vert-marche" /> Explorer les catégories
+              <Sparkles size={20} className="text-vert-marche" /> {t('landing.exploreCategories')}
             </h2>
             <Link to="/categories" className="text-xs font-medium text-vert-marche hover:underline flex items-center gap-1">
-              Voir tout <ChevronRight size={14} />
+              {t('common.seeAll')} <ChevronRight size={14} />
             </Link>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide snap-x snap-mandatory">
             {(globalCategories.length > 0
               ? globalCategories.map((c) => ({ name: c.name, slug: c.slug, emoji: c.icon }))
-              : fallbackCategories
+              : fallbackCategories.map((c) => ({ name: t(`landing.fallbackCategories.${c.key}`), slug: c.slug, emoji: c.emoji }))
             ).map((cat) => (
               <Link
                 key={cat.slug}
@@ -287,7 +291,7 @@ export function LandingPage() {
         {trendingProducts.length > 0 && (
           <section>
             <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
-              <Flame size={20} className="text-corail-alerte" /> Tendances
+              <Flame size={20} className="text-corail-alerte" /> {t('landing.trending')}
             </h2>
             <ProductCarousel products={trendingProducts} productViews={productViews} />
           </section>
@@ -297,7 +301,7 @@ export function LandingPage() {
         {mostSharedProducts.length > 0 && (
           <section>
             <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
-              <Share2 size={20} className="text-vert-marche" /> Les plus partagés
+              <Share2 size={20} className="text-vert-marche" /> {t('landing.mostShared')}
             </h2>
             <ProductCarousel products={mostSharedProducts as ProductWithStore[]} productViews={productViews} />
           </section>
@@ -307,7 +311,7 @@ export function LandingPage() {
         {allStores.length > 0 && (
           <section>
             <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
-              <Store size={20} className="text-vert-marche" /> Boutiques à découvrir
+              <Store size={20} className="text-vert-marche" /> {t('landing.shopsToDiscover')}
             </h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {popularStores.map((s) => (
@@ -317,7 +321,7 @@ export function LandingPage() {
                   </div>
                   <p className="text-sm font-semibold truncate w-full">{s.name}</p>
                   {s.city && <p className="text-xs text-brume flex items-center gap-1 mt-1"><MapPin size={10} /> {s.city}</p>}
-                  <span className="text-xs text-vert-marche mt-2 flex items-center gap-1">Voir <ChevronRight size={12} /></span>
+                  <span className="text-xs text-vert-marche mt-2 flex items-center gap-1">{t('landing.view')} <ChevronRight size={12} /></span>
                 </Link>
               ))}
             </div>
@@ -332,10 +336,10 @@ export function LandingPage() {
                   disabled={storesPage === 0}
                   className="btn-outline text-xs"
                 >
-                  <ChevronRight size={14} className="rotate-180" /> Retour
+                  <ChevronRight size={14} className="rotate-180" /> {t('common.back')}
                 </button>
                 <span className="text-xs text-brume">
-                  Page {storesPage + 1} / {Math.ceil(allStores.length / STORES_PER_PAGE)}
+                  {t('landing.page', { current: storesPage + 1, total: Math.ceil(allStores.length / STORES_PER_PAGE) })}
                 </span>
                 <button
                   onClick={() => {
@@ -347,7 +351,7 @@ export function LandingPage() {
                   disabled={storesPage >= Math.ceil(allStores.length / STORES_PER_PAGE) - 1}
                   className="btn-outline text-xs"
                 >
-                  Suivant <ChevronRight size={14} />
+                  {t('landing.next')} <ChevronRight size={14} />
                 </button>
               </div>
             )}
@@ -358,7 +362,7 @@ export function LandingPage() {
         {promoProducts.length > 0 && (
           <section>
             <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
-              <Tag size={20} className="text-corail-alerte" /> Offres du moment
+              <Tag size={20} className="text-corail-alerte" /> {t('landing.currentDeals')}
             </h2>
             <ProductCarousel products={promoProducts} productViews={productViews} showDiscount />
           </section>
@@ -368,7 +372,7 @@ export function LandingPage() {
         {trendingProducts.length > 0 && (
           <section>
             <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
-              <Trophy size={20} className="text-vert-marche" /> Les plus populaires
+              <Trophy size={20} className="text-vert-marche" /> {t('landing.mostPopular')}
             </h2>
             <div className="space-y-2">
               {trendingProducts.slice(0, 5).map((p, i) => (
@@ -394,7 +398,7 @@ export function LandingPage() {
         {nearbyStores.length > 0 && (
           <section>
             <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
-              <MapPin size={20} className="text-vert-marche" /> Près de vous
+              <MapPin size={20} className="text-vert-marche" /> {t('landing.nearYou')}
             </h2>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {nearbyStores.map((s) => (
@@ -417,7 +421,7 @@ export function LandingPage() {
         {newProducts.length > 0 && (
           <section>
             <h2 className="font-serif text-xl font-bold mb-4 flex items-center gap-2">
-              <Sparkles size={20} className="text-vert-marche" /> Dernières nouveautés
+              <Sparkles size={20} className="text-vert-marche" /> {t('landing.latestArrivals')}
             </h2>
             <ProductCarousel products={newProducts} productViews={productViews} />
           </section>
@@ -427,29 +431,29 @@ export function LandingPage() {
         <section id="fonctionnalites" className="py-10">
           <div className="mb-8 text-center">
             <h2 className="font-serif text-2xl font-bold text-encre-nuit dark:text-sable-chaud lg:text-3xl">
-              Tout pour vendre sur WhatsApp
+              {t('landing.featuresTitle')}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm text-brume">
-              Une suite complète pensée pour les commerçants africains qui veulent vendre simplement et professionnellement.
+              {t('landing.featuresSubtitle')}
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: Store, title: 'Boutique en ligne', desc: 'Un lien unique pour toute votre boutique. Catalogue organisé, fiches produits, contact WhatsApp.' },
-              { icon: ImageIcon, title: 'Générateur de statuts', desc: 'Créez des publications multi-produits avec photo de couverture et lien de partage.' },
-              { icon: TrendingUp, title: 'Statistiques', desc: 'Suivez les vues de votre boutique, de vos publications et de vos produits en temps réel.' },
-              { icon: Share2, title: 'Partage WhatsApp', desc: 'Partagez un lien avec image de couverture, comme YouTube ou TikTok.' },
-              { icon: ShoppingBag, title: 'Ventes directes', desc: 'Vos clients commandent par WhatsApp en un clic depuis vos fiches produits.' },
-              { icon: Smartphone, title: 'Mobile-first', desc: 'Gérez votre boutique depuis votre téléphone, partout en RDC et en Afrique.' },
+              { icon: Store, key: 'onlineShop' },
+              { icon: ImageIcon, key: 'statusGenerator' },
+              { icon: TrendingUp, key: 'stats' },
+              { icon: Share2, key: 'whatsappShare' },
+              { icon: ShoppingBag, key: 'directSales' },
+              { icon: Smartphone, key: 'mobileFirst' },
             ].map((f) => {
               const Icon = f.icon;
               return (
-                <div key={f.title} className="card p-5 transition hover:shadow-lg">
+                <div key={f.key} className="card p-5 transition hover:shadow-lg">
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-vert-marche/10">
                     <Icon size={20} className="text-vert-marche" />
                   </div>
-                  <h3 className="font-serif text-base font-bold text-encre-nuit dark:text-sable-chaud">{f.title}</h3>
-                  <p className="mt-1 text-sm text-brume">{f.desc}</p>
+                  <h3 className="font-serif text-base font-bold text-encre-nuit dark:text-sable-chaud">{t(`landing.features.${f.key}.title`)}</h3>
+                  <p className="mt-1 text-sm text-brume">{t(`landing.features.${f.key}.desc`)}</p>
                 </div>
               );
             })}
@@ -460,12 +464,12 @@ export function LandingPage() {
         {!profile && (
           <section className="py-10">
             <div className="rounded-3xl bg-vert-marche p-8 text-center text-white lg:p-12">
-              <h2 className="font-serif text-2xl font-bold lg:text-3xl">Prêt à vendre sur WhatsApp ?</h2>
+              <h2 className="font-serif text-2xl font-bold lg:text-3xl">{t('landing.ctaTitle')}</h2>
               <p className="mx-auto mt-3 max-w-xl text-white/80 text-sm">
-                Rejoignez les commerçants qui utilisent StatusMarket pour transformer leurs statuts en ventes.
+                {t('landing.ctaSubtitle')}
               </p>
               <Link to="/connexion" className="btn-cta mt-6 inline-flex bg-white text-vert-marche hover:bg-white/90">
-                Commencer maintenant <ArrowRight size={18} />
+                {t('landing.ctaButton')} <ArrowRight size={18} />
               </Link>
             </div>
           </section>
@@ -477,6 +481,7 @@ export function LandingPage() {
 }
 
 function ProductCarousel({ products, productViews, showDiscount }: { products: ProductWithStore[]; productViews: Record<string, number>; showDiscount?: boolean }) {
+  const { t } = useTranslation();
   return (
     <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide items-start">
       {products.map((p) => (
@@ -514,10 +519,10 @@ function ProductCarousel({ products, productViews, showDiscount }: { products: P
 
           <div className="mt-1 flex items-center gap-3 text-[10px] text-brume">
             <span className="flex items-center gap-0.5">
-              <Search size={11} /> {productViews[p.id] || 0} vues
+              <Search size={11} /> {t('landing.views', { count: productViews[p.id] || 0 })}
             </span>
             <Link to={`/boutique/${p.store?.slug}`} className="hover:text-vert-marche hover:underline">
-              Voir boutique
+              {t('landing.viewShop')}
             </Link>
           </div>
 

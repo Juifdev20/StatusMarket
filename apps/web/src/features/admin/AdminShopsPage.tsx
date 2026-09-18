@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Store, Search } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import type { Store as StoreType } from '../../types';
 
 export function AdminShopsPage() {
+  const { t } = useTranslation();
   const [shops, setShops] = useState<StoreType[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -49,13 +51,13 @@ export function AdminShopsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-2xl font-bold">Boutiques</h1>
-        <span className="badge bg-brume/20 text-brume">{shops.length} boutique{shops.length > 1 ? 's' : ''}</span>
+        <h1 className="font-serif text-2xl font-bold">{t('landing.shops')}</h1>
+        <span className="badge bg-brume/20 text-brume">{t('adminShops.count', { count: shops.length })}</span>
       </div>
 
       <div className="relative">
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-brume" />
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher..." className="input pl-10" />
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('common.search') + '...'} className="input pl-10" />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -70,10 +72,10 @@ export function AdminShopsPage() {
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               <button onClick={() => toggleActive(shop.id, shop.is_active)} className={`badge ${shop.is_active ? 'bg-vert-marche/10 text-vert-marche' : 'bg-corail-alerte/10 text-corail-alerte'}`}>
-                {shop.is_active ? 'Actif' : 'Inactif'}
+                {shop.is_active ? t('adminDashboard.active') : t('adminDashboard.inactive')}
               </button>
               <button onClick={() => toggleSuspended(shop.id, shop.is_suspended)} className={`badge ${shop.is_suspended ? 'bg-corail-alerte/10 text-corail-alerte' : 'bg-brume/20 text-brume'}`}>
-                {shop.is_suspended ? 'Suspendu' : 'Ok'}
+                {shop.is_suspended ? t('adminShops.suspended') : 'Ok'}
               </button>
             </div>
           </div>

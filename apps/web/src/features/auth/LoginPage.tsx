@@ -1,11 +1,13 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from './authContext';
 import { supabase } from '../../lib/supabase';
 import { StatusRing } from '../../components/StatusRing';
 import { Store, MessageCircle, TrendingUp, Shield, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const { signIn, signUp, profile } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -25,17 +27,17 @@ export function LoginPage() {
 
   const validateUsername = (value: string) => {
     const trimmed = value.trim().toLowerCase().replace(/\s+/g, '');
-    if (trimmed.length < 4) return 'Le nom d\'utilisateur doit faire au moins 4 caractères.';
-    if (trimmed.length > 20) return 'Le nom d\'utilisateur ne doit pas dépasser 20 caractères.';
-    if (!/^[a-z0-9]+$/.test(trimmed)) return 'Lettres et chiffres uniquement.';
-    if (!/[a-z]/.test(trimmed)) return 'Le nom d\'utilisateur doit contenir au moins une lettre.';
-    if (!/[0-9]/.test(trimmed)) return 'Le nom d\'utilisateur doit contenir au moins un chiffre.';
+    if (trimmed.length < 4) return t('auth.errors.usernameTooShort');
+    if (trimmed.length > 20) return t('auth.errors.usernameTooLong');
+    if (!/^[a-z0-9]+$/.test(trimmed)) return t('auth.errors.usernameAlphanumeric');
+    if (!/[a-z]/.test(trimmed)) return t('auth.errors.usernameNeedsLetter');
+    if (!/[0-9]/.test(trimmed)) return t('auth.errors.usernameNeedsDigit');
     return null;
   };
 
   const usernameError = touched.username ? validateUsername(username) : null;
   const passwordMatchError = mode === 'register' && touched.confirmPassword && confirmPassword.length > 0 && password !== confirmPassword
-    ? 'Les mots de passe ne correspondent pas.'
+    ? t('auth.errors.passwordMismatch')
     : null;
   const passwordsMatch = mode === 'register' && confirmPassword.length > 0 && password === confirmPassword;
 
@@ -83,27 +85,27 @@ export function LoginPage() {
       }
     } else {
       if (!fullName.trim()) {
-        setError('Le nom complet est obligatoire.');
+        setError(t('auth.errors.fullNameRequired'));
         setLoading(false);
         return;
       }
       if (!phone.trim()) {
-        setError('Le numéro de téléphone est obligatoire.');
+        setError(t('auth.errors.phoneRequired'));
         setLoading(false);
         return;
       }
       if (!recoveryPin.trim()) {
-        setError('Le code de récupération est obligatoire.');
+        setError(t('auth.errors.pinRequired'));
         setLoading(false);
         return;
       }
       if (!/^\d{4,6}$/.test(recoveryPin)) {
-        setError('Le code de récupération doit contenir 4 à 6 chiffres.');
+        setError(t('auth.errors.pinFormat'));
         setLoading(false);
         return;
       }
       if (password !== confirmPassword) {
-        setError('Les mots de passe ne correspondent pas. Vérifiez votre saisie.');
+        setError(t('auth.errors.passwordMismatchLong'));
         setLoading(false);
         return;
       }
@@ -132,34 +134,34 @@ export function LoginPage() {
 
           <div className="space-y-8">
             <h2 className="font-serif text-4xl font-bold leading-tight">
-              Ta boutique, <br />un seul lien.
+              {t('auth.marketing.headline1')} <br />{t('auth.marketing.headline2')}
             </h2>
             <p className="text-lg text-white/80 max-w-md">
-              Transformez vos statuts WhatsApp en véritable canal de vente. Catalogue, produits, contact direct — le tout sur un lien unique à partager.
+              {t('auth.marketing.subtitle')}
             </p>
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
                   <MessageCircle size={20} />
                 </div>
-                <p className="font-medium">Vendez directement sur WhatsApp</p>
+                <p className="font-medium">{t('auth.marketing.point1')}</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
                   <TrendingUp size={20} />
                 </div>
-                <p className="font-medium">Suivez vos statistiques en temps réel</p>
+                <p className="font-medium">{t('auth.marketing.point2')}</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
                   <Shield size={20} />
                 </div>
-                <p className="font-medium">Paiements et abonnements sécurisés</p>
+                <p className="font-medium">{t('auth.marketing.point3')}</p>
               </div>
             </div>
           </div>
 
-          <p className="text-sm text-white/60">© 2026 StatusMarket. Tous droits réservés.</p>
+          <p className="text-sm text-white/60">{t('footer.rights', { year: 2026 })}</p>
         </div>
 
         {/* Right side - form */}
@@ -172,15 +174,15 @@ export function LoginPage() {
                 </div>
               </StatusRing>
               <h1 className="font-serif text-2xl font-bold text-encre-nuit dark:text-sable-chaud">StatusMarket</h1>
-              <p className="text-sm text-brume">Ta boutique, un seul lien.</p>
+              <p className="text-sm text-brume">{t('auth.tagline')}</p>
             </div>
 
             <div className="card p-6 lg:p-8">
               <h2 className="font-serif text-2xl font-bold text-encre-nuit dark:text-sable-chaud mb-2">
-                {mode === 'login' ? 'Connexion' : 'Inscription'}
+                {mode === 'login' ? t('auth.login') : t('auth.register')}
               </h2>
               <p className="text-sm text-brume mb-6">
-                {mode === 'login' ? 'Connectez-vous à votre espace vendeur.' : 'Créez votre compte vendeur.'}
+                {mode === 'login' ? t('auth.loginSubtitle') : t('auth.registerSubtitle')}
               </p>
 
               <div className="mb-6 flex gap-2 p-1 rounded-xl bg-encre-nuit/5 dark:bg-white/5">
@@ -188,20 +190,20 @@ export function LoginPage() {
                   onClick={() => { setMode('login'); setError(null); setTouched({}); }}
                   className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-colors ${mode === 'login' ? 'bg-white dark:bg-encre-nuit shadow-sm text-vert-marche' : 'text-brume'}`}
                 >
-                  Connexion
+                  {t('auth.login')}
                 </button>
                 <button
                   onClick={() => { setMode('register'); setError(null); setTouched({}); }}
                   className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-colors ${mode === 'register' ? 'bg-white dark:bg-encre-nuit shadow-sm text-vert-marche' : 'text-brume'}`}
                 >
-                  Inscription
+                  {t('auth.register')}
                 </button>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {mode === 'register' && (
                   <div>
-                    <label className="label">Nom complet</label>
+                    <label className="label">{t('auth.fullName')}</label>
                     <input
                       type="text"
                       required
@@ -214,7 +216,7 @@ export function LoginPage() {
                 )}
                 {mode === 'register' && (
                   <div>
-                    <label className="label">Numéro de téléphone</label>
+                    <label className="label">{t('auth.phone')}</label>
                     <input
                       type="tel"
                       required
@@ -227,7 +229,7 @@ export function LoginPage() {
                 )}
                 {mode === 'register' && (
                   <div>
-                    <label className="label">Code de récupération</label>
+                    <label className="label">{t('auth.recoveryPin')}</label>
                     <div className="relative">
                       <input
                         type={showRecoveryPin ? 'text' : 'password'}
@@ -239,7 +241,7 @@ export function LoginPage() {
                         value={recoveryPin}
                         onChange={(e) => setRecoveryPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
                         className="input w-full pr-10"
-                        placeholder="4 à 6 chiffres"
+                        placeholder={t('auth.recoveryPinPlaceholder')}
                       />
                       <button
                         type="button"
@@ -249,11 +251,11 @@ export function LoginPage() {
                         {showRecoveryPin ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
-                    <p className="mt-1 text-xs text-brume">Gardez ce code secret. Il servira à réinitialiser votre mot de passe.</p>
+                    <p className="mt-1 text-xs text-brume">{t('auth.recoveryPinHint')}</p>
                   </div>
                 )}
                 <div>
-                  <label className="label">Nom d'utilisateur</label>
+                  <label className="label">{t('auth.username')}</label>
                   <input
                     type="text"
                     required
@@ -270,11 +272,11 @@ export function LoginPage() {
                       <AlertCircle size={12} /> {usernameError}
                     </p>
                   ) : (
-                    <p className="mt-1 text-xs text-brume">Lettres + chiffres, minimum 4 caractères.</p>
+                    <p className="mt-1 text-xs text-brume">{t('auth.usernameHint')}</p>
                   )}
                 </div>
                 <div>
-                  <label className="label">Mot de passe</label>
+                  <label className="label">{t('auth.password')}</label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -289,7 +291,7 @@ export function LoginPage() {
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-brume hover:text-vert-marche"
-                      aria-label={showPassword ? 'Cacher le mot de passe' : 'Afficher le mot de passe'}
+                      aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -297,7 +299,7 @@ export function LoginPage() {
                 </div>
                 {mode === 'register' && (
                   <div>
-                    <label className="label">Confirmer le mot de passe</label>
+                    <label className="label">{t('auth.confirmPassword')}</label>
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
@@ -329,22 +331,22 @@ export function LoginPage() {
                 )}
 
                 <button type="submit" disabled={loading} className="btn-primary w-full">
-                  {loading ? 'Chargement...' : mode === 'login' ? 'Se connecter' : 'Créer un compte'}
+                  {loading ? t('common.loading') : mode === 'login' ? t('auth.signIn') : t('auth.createAccount')}
                 </button>
               </form>
 
               <div className="mt-4 flex flex-col items-center gap-1 text-center">
                 <Link to="/recuperation" className="text-xs text-brume hover:text-vert-marche transition-colors">
-                  Mot de passe oublié ?
+                  {t('auth.forgotPassword')}
                 </Link>
                 <Link to="/recuperation" className="text-xs text-brume hover:text-vert-marche transition-colors">
-                  Identifiant oublié ?
+                  {t('auth.forgotUsername')}
                 </Link>
               </div>
 
               <div className="mt-4 text-center">
                 <Link to="/" className="text-sm text-brume hover:text-vert-marche transition-colors">
-                  ← Retour à l'accueil
+                  ← {t('auth.backToHome')}
                 </Link>
               </div>
             </div>

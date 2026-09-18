@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Search, Store, ShoppingBag, MapPin, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { FavoriteButton } from '../../components/FavoriteButton';
 import { WhatsAppContactButton } from '../../components/WhatsAppContactButton';
@@ -12,6 +13,7 @@ interface ProductWithStore extends Product {
 }
 
 export function CategoryBrowsePage() {
+  const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const [category, setCategory] = useState<GlobalCategory | null>(null);
   const [products, setProducts] = useState<ProductWithStore[]>([]);
@@ -95,8 +97,8 @@ export function CategoryBrowsePage() {
   if (!category) {
     return (
       <div className="flex flex-col items-center py-20 text-center">
-        <p className="text-brume mb-4">Catégorie introuvable.</p>
-        <Link to="/" className="btn-primary text-sm">Retour à l'accueil</Link>
+        <p className="text-brume mb-4">{t('categoryBrowse.notFound')}</p>
+        <Link to="/" className="btn-primary text-sm">{t('auth.backToHome')}</Link>
       </div>
     );
   }
@@ -107,13 +109,13 @@ export function CategoryBrowsePage() {
       <div className="bg-white dark:bg-encre-nuit/80 border-b border-brume/30 sticky top-0 z-40">
         <div className="mx-auto max-w-5xl px-4 py-4">
           <Link to="/" className="mb-3 flex items-center gap-1 text-sm text-brume hover:text-vert-marche">
-            <ArrowLeft size={16} /> Accueil
+            <ArrowLeft size={16} /> {t('nav.home')}
           </Link>
           <div className="flex items-center gap-3">
             <span className="text-3xl">{category.icon}</span>
             <div>
               <h1 className="font-serif text-xl font-bold text-encre-nuit dark:text-sable-chaud">{category.name}</h1>
-              <p className="text-xs text-brume">{sorted.length} produit{sorted.length > 1 ? 's' : ''} trouvé{sorted.length > 1 ? 's' : ''}</p>
+              <p className="text-xs text-brume">{t('categoryBrowse.productsFound', { count: sorted.length })}</p>
             </div>
           </div>
 
@@ -125,7 +127,7 @@ export function CategoryBrowsePage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Filtrer dans cette catégorie..."
+                placeholder={t('categoryBrowse.filterPlaceholder')}
                 className="input pl-9 py-2 text-sm"
               />
               {search && (
@@ -135,14 +137,14 @@ export function CategoryBrowsePage() {
               )}
             </div>
             <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="input py-2 text-sm sm:w-44">
-              <option value="recent">Plus récents</option>
-              <option value="price_low">Prix croissant</option>
-              <option value="price_high">Prix décroissant</option>
-              <option value="promo">Promotions d'abord</option>
+              <option value="recent">{t('categoryBrowse.sortRecent')}</option>
+              <option value="price_low">{t('categoryBrowse.sortPriceLow')}</option>
+              <option value="price_high">{t('categoryBrowse.sortPriceHigh')}</option>
+              <option value="promo">{t('categoryBrowse.sortPromo')}</option>
             </select>
             {cities.length > 0 && (
               <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} className="input py-2 text-sm sm:w-36">
-                <option value="">Toutes villes</option>
+                <option value="">{t('categoryBrowse.allCities')}</option>
                 {cities.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             )}
@@ -155,7 +157,7 @@ export function CategoryBrowsePage() {
         {sorted.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <ShoppingBag size={48} className="text-brume mb-4" />
-            <p className="text-brume">Aucun produit dans cette catégorie pour le moment.</p>
+            <p className="text-brume">{t('categoryBrowse.empty')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

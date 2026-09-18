@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Settings, Save, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import type { PlatformSettings } from '../../types';
 
 export function AdminSettingsPage() {
+  const { t, i18n } = useTranslation();
   const [settings, setSettings] = useState<PlatformSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -48,10 +50,10 @@ export function AdminSettingsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-2xl font-bold">Paramètres</h1>
+        <h1 className="font-serif text-2xl font-bold">{t('adminNav.settings')}</h1>
         {saved && (
           <span className="badge bg-vert-marche/10 text-vert-marche flex items-center gap-1">
-            <Check size={14} /> Enregistré
+            <Check size={14} /> {t('adminSettings.saved')}
           </span>
         )}
       </div>
@@ -59,13 +61,13 @@ export function AdminSettingsPage() {
       <div className="card p-6 space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-brume/20">
           <Settings size={20} className="text-vert-marche" />
-          <h2 className="font-semibold">Configuration de la plateforme</h2>
+          <h2 className="font-semibold">{t('adminSettings.platformConfig')}</h2>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="text-sm font-medium text-brume">Durée de l'essai (jours)</label>
-            <p className="text-xs text-brume mb-2">Nombre de jours pour la période d'essai gratuite des nouveaux vendeurs.</p>
+            <label className="text-sm font-medium text-brume">{t('adminSettings.trialDuration')}</label>
+            <p className="text-xs text-brume mb-2">{t('adminSettings.trialDurationHint')}</p>
             <input
               type="number"
               min={1}
@@ -76,8 +78,8 @@ export function AdminSettingsPage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-brume">Alerte d'expiration (jours)</label>
-            <p className="text-xs text-brume mb-2">Nombre de jours avant l'expiration de l'essai pour envoyer une alerte.</p>
+            <label className="text-sm font-medium text-brume">{t('adminSettings.expiryAlert')}</label>
+            <p className="text-xs text-brume mb-2">{t('adminSettings.expiryAlertHint')}</p>
             <input
               type="number"
               min={0}
@@ -94,17 +96,17 @@ export function AdminSettingsPage() {
             disabled={saving}
             className="btn-primary flex items-center gap-2"
           >
-            <Save size={16} /> Enregistrer
+            <Save size={16} /> {t('common.save')}
           </button>
         </div>
       </div>
 
       {settings && (
         <div className="card p-4">
-          <h3 className="text-sm font-semibold text-brume mb-2">Informations système</h3>
+          <h3 className="text-sm font-semibold text-brume mb-2">{t('adminSettings.systemInfo')}</h3>
           <div className="space-y-1 text-xs text-brume">
-            <p>Dernière mise à jour: {new Date(settings.updated_at).toLocaleString('fr-FR')}</p>
-            <p>Créé le: {new Date(settings.created_at).toLocaleString('fr-FR')}</p>
+            <p>{t('adminSettings.lastUpdated')}: {new Date(settings.updated_at).toLocaleString(i18n.language.startsWith('en') ? 'en-US' : 'fr-FR')}</p>
+            <p>{t('adminSellers.createdOn')}: {new Date(settings.created_at).toLocaleString(i18n.language.startsWith('en') ? 'en-US' : 'fr-FR')}</p>
           </div>
         </div>
       )}

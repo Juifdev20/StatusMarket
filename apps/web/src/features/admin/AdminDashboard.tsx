@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Users, Store, Package, CreditCard, Flag, Check, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import type { Payment, SubscriptionPlan } from '../../types';
 
 export function AdminDashboard() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState({ sellers: 0, stores: 0, products: 0, pendingPayments: 0, activeTrials: 0, reports: 0 });
   const [recentPayments, setRecentPayments] = useState<Payment[]>([]);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
@@ -49,16 +51,16 @@ export function AdminDashboard() {
   }
 
   const statCards = [
-    { label: 'Vendeurs', value: stats.sellers, icon: Users, color: 'text-vert-marche' },
-    { label: 'Boutiques', value: stats.stores, icon: Store, color: 'text-ambre-pagne' },
-    { label: 'Produits', value: stats.products, icon: Package, color: 'text-vert-marche' },
-    { label: 'Paiements en attente', value: stats.pendingPayments, icon: CreditCard, color: 'text-corail-alerte' },
-    { label: 'Signalements', value: stats.reports, icon: Flag, color: 'text-corail-alerte' },
+    { label: t('adminNav.sellers'), value: stats.sellers, icon: Users, color: 'text-vert-marche' },
+    { label: t('landing.shops'), value: stats.stores, icon: Store, color: 'text-ambre-pagne' },
+    { label: t('products.title'), value: stats.products, icon: Package, color: 'text-vert-marche' },
+    { label: t('adminDashboard.pendingPayments'), value: stats.pendingPayments, icon: CreditCard, color: 'text-corail-alerte' },
+    { label: t('adminNav.reports'), value: stats.reports, icon: Flag, color: 'text-corail-alerte' },
   ];
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-bold">Tableau de bord</h1>
+      <h1 className="font-serif text-2xl font-bold">{t('vendorNav.dashboard')}</h1>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         {statCards.map((s) => {
@@ -76,9 +78,9 @@ export function AdminDashboard() {
       </div>
 
       <div className="card p-4">
-        <h2 className="font-semibold mb-4">Paiements en attente de validation</h2>
+        <h2 className="font-semibold mb-4">{t('adminDashboard.paymentsAwaitingReview')}</h2>
         {recentPayments.length === 0 ? (
-          <p className="text-sm text-brume">Aucun paiement en attente.</p>
+          <p className="text-sm text-brume">{t('adminDashboard.noPendingPayments')}</p>
         ) : (
           <div className="space-y-3">
             {recentPayments.map((payment) => (
@@ -90,7 +92,7 @@ export function AdminDashboard() {
                 </div>
                 {payment.proof_image_url && (
                   <a href={payment.proof_image_url} target="_blank" rel="noopener noreferrer" className="text-xs text-vert-marche underline">
-                    Voir preuve
+                    {t('adminDashboard.viewProof')}
                   </a>
                 )}
                 <div className="flex gap-1">
@@ -108,16 +110,16 @@ export function AdminDashboard() {
       </div>
 
       <div className="card p-4">
-        <h2 className="font-semibold mb-4">Plans d'abonnement</h2>
+        <h2 className="font-semibold mb-4">{t('adminDashboard.subscriptionPlans')}</h2>
         <div className="space-y-2">
           {plans.map((plan) => (
             <div key={plan.id} className="flex items-center justify-between rounded-xl p-3 bg-sable-chaud dark:bg-encre-nuit/40">
               <div>
                 <p className="text-sm font-semibold">{plan.name}</p>
-                <p className="text-xs text-brume">{plan.price_usd === 0 ? 'Gratuit' : `${plan.price_usd}$`} · {plan.duration_days} jours</p>
+                <p className="text-xs text-brume">{plan.price_usd === 0 ? t('subscription.free') : `${plan.price_usd}$`} · {t('subscription.days', { count: plan.duration_days })}</p>
               </div>
               <span className={`badge ${plan.is_active ? 'bg-vert-marche/10 text-vert-marche' : 'bg-brume/20 text-brume'}`}>
-                {plan.is_active ? 'Actif' : 'Inactif'}
+                {plan.is_active ? t('adminDashboard.active') : t('adminDashboard.inactive')}
               </span>
             </div>
           ))}

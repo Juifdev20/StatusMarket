@@ -1,10 +1,12 @@
 import { useState, FormEvent, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { ArrowLeft, Store, Upload, X, ChevronDown, ChevronUp } from 'lucide-react';
 
 export function CreateStorePage() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState('');
@@ -49,7 +51,7 @@ export function CreateStorePage() {
     const fileName = `logos/${profile.id}/${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage.from('product-images').upload(fileName, file);
     if (upErr) {
-      setError('Erreur lors du téléchargement du logo.');
+      setError(t('createStore.errors.logoUpload'));
     } else {
       const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
       setLogoUrl(data.publicUrl);
@@ -64,7 +66,7 @@ export function CreateStorePage() {
     const fileName = `store-fronts/${profile.id}/${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage.from('product-images').upload(fileName, file);
     if (upErr) {
-      setError('Erreur lors du téléchargement de la photo de la devanture.');
+      setError(t('createStore.errors.storefrontUpload'));
     } else {
       const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
       setStoreFrontUrl(data.publicUrl);
@@ -78,7 +80,7 @@ export function CreateStorePage() {
     if (!profile) return;
 
     if (!name.trim() || !slug.trim()) {
-      setError('Le nom et le slug sont obligatoires.');
+      setError(t('createStore.errors.nameSlugRequired'));
       return;
     }
 
@@ -91,7 +93,7 @@ export function CreateStorePage() {
       .maybeSingle();
 
     if (existing) {
-      setError('Ce slug est déjà utilisé. Choisissez-en un autre.');
+      setError(t('createStore.errors.slugTaken'));
       setLoading(false);
       return;
     }
@@ -147,7 +149,7 @@ export function CreateStorePage() {
   return (
     <div className="space-y-6">
       <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-brume hover:text-vert-marche">
-        <ArrowLeft size={16} /> Retour
+        <ArrowLeft size={16} /> {t('common.back')}
       </button>
 
       <div className="flex items-center gap-3">
@@ -155,26 +157,26 @@ export function CreateStorePage() {
           <Store size={24} className="text-vert-marche" />
         </div>
         <div>
-          <h1 className="font-serif text-2xl font-bold">Créer ma boutique</h1>
-          <p className="text-sm text-brume">Quelques informations pour démarrer. Le reste se configurera plus tard.</p>
+          <h1 className="font-serif text-2xl font-bold">{t('createStore.title')}</h1>
+          <p className="text-sm text-brume">{t('createStore.subtitle')}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="card p-6 space-y-4">
         <div>
-          <label className="label">Nom de la boutique *</label>
+          <label className="label">{t('createStore.shopName')} *</label>
           <input
             type="text"
             required
             value={name}
             onChange={(e) => handleNameChange(e.target.value)}
             className="input"
-            placeholder="Ma Boutique"
+            placeholder={t('createStore.shopNamePlaceholder')}
           />
         </div>
 
         <div>
-          <label className="label">Lien (slug) *</label>
+          <label className="label">{t('createStore.slug')} *</label>
           <div className="flex items-center gap-2">
             <span className="text-sm text-brume whitespace-nowrap">/boutique/</span>
             <input
@@ -189,7 +191,7 @@ export function CreateStorePage() {
         </div>
 
         <div>
-          <label className="label">Numéro WhatsApp *</label>
+          <label className="label">{t('common.whatsapp')} *</label>
           <input
             type="text"
             required
@@ -201,17 +203,17 @@ export function CreateStorePage() {
         </div>
 
         <div>
-          <label className="label">Description <span className="text-brume font-normal">(optionnel)</span></label>
+          <label className="label">{t('products.description')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="input min-h-[80px] resize-y"
-            placeholder="Décrivez votre boutique en quelques mots..."
+            placeholder={t('createStore.descriptionPlaceholder')}
           />
         </div>
 
         <div>
-          <label className="label">Logo <span className="text-brume font-normal">(optionnel)</span></label>
+          <label className="label">{t('createStore.logo')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
           <div className="flex items-center gap-3">
             <input
               ref={fileRef}
@@ -229,7 +231,7 @@ export function CreateStorePage() {
               disabled={logoUploading}
               className="btn-outline text-xs flex items-center gap-2"
             >
-              <Upload size={14} /> {logoUploading ? 'Téléchargement...' : 'Choisir un logo'}
+              <Upload size={14} /> {logoUploading ? t('createStore.uploading') : t('createStore.chooseLogo')}
             </button>
             {logoUrl ? (
               <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-vert-marche">
@@ -255,17 +257,17 @@ export function CreateStorePage() {
           onClick={() => setShowOptional(!showOptional)}
           className="flex w-full items-center justify-between rounded-xl bg-brume/5 px-4 py-3 text-sm font-medium text-brume hover:bg-brume/10 transition-colors"
         >
-          <span>Plus d'options (adresse, localisation, photo)</span>
+          <span>{t('createStore.moreOptions')}</span>
           {showOptional ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
 
         {showOptional && (
           <div className="space-y-4">
             <div className="card p-4 bg-brume/5">
-              <h3 className="font-medium mb-3">Adresse</h3>
+              <h3 className="font-medium mb-3">{t('createStore.address')}</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="label">Ville <span className="text-brume font-normal">(optionnel)</span></label>
+                  <label className="label">{t('account.city')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                   <input
                     type="text"
                     value={city}
@@ -276,7 +278,7 @@ export function CreateStorePage() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="label">Quartier <span className="text-brume font-normal">(optionnel)</span></label>
+                    <label className="label">{t('account.quartier')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                     <input
                       type="text"
                       value={quartier}
@@ -286,7 +288,7 @@ export function CreateStorePage() {
                     />
                   </div>
                   <div>
-                    <label className="label">Avenue <span className="text-brume font-normal">(optionnel)</span></label>
+                    <label className="label">{t('account.avenue')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                     <input
                       type="text"
                       value={avenue}
@@ -297,7 +299,7 @@ export function CreateStorePage() {
                   </div>
                 </div>
                 <div>
-                  <label className="label">Numéro de porte <span className="text-brume font-normal">(optionnel)</span></label>
+                  <label className="label">{t('createStore.doorNumber')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                   <input
                     type="text"
                     value={numeroPorte}
@@ -310,10 +312,10 @@ export function CreateStorePage() {
             </div>
 
             <div className="card p-4 bg-brume/5">
-              <h3 className="font-medium mb-3">Localisation GPS</h3>
+              <h3 className="font-medium mb-3">{t('createStore.gpsLocation')}</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="label">Lien Google Maps <span className="text-brume font-normal">(optionnel)</span></label>
+                  <label className="label">{t('createStore.mapsLink')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                   <input
                     type="url"
                     value={mapLink}
@@ -324,7 +326,7 @@ export function CreateStorePage() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="label">Latitude <span className="text-brume font-normal">(optionnel)</span></label>
+                    <label className="label">{t('createStore.latitude')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                     <input
                       type="number"
                       step="any"
@@ -335,7 +337,7 @@ export function CreateStorePage() {
                     />
                   </div>
                   <div>
-                    <label className="label">Longitude <span className="text-brume font-normal">(optionnel)</span></label>
+                    <label className="label">{t('createStore.longitude')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                     <input
                       type="number"
                       step="any"
@@ -350,7 +352,7 @@ export function CreateStorePage() {
             </div>
 
             <div>
-              <label className="label">Photo de la devanture <span className="text-brume font-normal">(optionnel)</span></label>
+              <label className="label">{t('account.storefrontPhoto')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
               <div className="flex items-center gap-3">
                 <input
                   ref={frontRef}
@@ -368,7 +370,7 @@ export function CreateStorePage() {
                   disabled={storeFrontUploading}
                   className="btn-outline text-xs flex items-center gap-2"
                 >
-                  <Upload size={14} /> {storeFrontUploading ? 'Téléchargement...' : 'Photo de la devanture'}
+                  <Upload size={14} /> {storeFrontUploading ? t('createStore.uploading') : t('account.storefrontPhoto')}
                 </button>
                 {storeFrontUrl ? (
                   <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 border-vert-marche">
@@ -383,7 +385,7 @@ export function CreateStorePage() {
                   </div>
                 ) : (
                   <div className="flex h-14 w-20 shrink-0 items-center justify-center rounded-lg bg-brume/10 text-brume text-xs text-center">
-                    Aperçu
+                    {t('products.preview')}
                   </div>
                 )}
               </div>
@@ -396,7 +398,7 @@ export function CreateStorePage() {
         )}
 
         <button type="submit" disabled={loading} className="btn-cta w-full">
-          {loading ? 'Création...' : 'Créer ma boutique'}
+          {loading ? t('createStore.creating') : t('createStore.title')}
         </button>
       </form>
     </div>

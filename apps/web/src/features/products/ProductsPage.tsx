@@ -1,5 +1,6 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, X, Package, Share2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { ShareDialog } from '../../components/ShareDialog';
@@ -8,6 +9,7 @@ import { AiGenerateButton, type AiLanguage } from '../../components/AiGenerateBu
 import type { Store, Product, Category, GlobalCategory } from '../../types';
 
 export function ProductsPage() {
+  const { t } = useTranslation();
   const { profile, user } = useAuth();
   const [store, setStore] = useState<Store | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -38,7 +40,7 @@ export function ProductsPage() {
         if (!isMounted) return;
         if (storeError) {
           console.error('Error fetching store:', storeError);
-          setFetchError(storeError.message || 'Erreur de chargement de la boutique');
+          setFetchError(storeError.message || t('products.errors.loadShop'));
           return;
         }
         const myStore = storeData ? (storeData as Store) : null;
@@ -60,14 +62,14 @@ export function ProductsPage() {
         }
       } catch (err: any) {
         if (!isMounted) return;
-        setFetchError(err?.message || 'Erreur de chargement de la boutique');
+        setFetchError(err?.message || t('products.errors.loadShop'));
         console.error('Error fetching store:', err);
       } finally {
         if (isMounted) setLoading(false);
       }
     })();
     return () => { isMounted = false; };
-  }, [profile?.id, user?.id, refresh]);
+  }, [profile?.id, user?.id, refresh, t]);
 
   const loadProducts = async () => {
     if (!store) return;
@@ -80,7 +82,7 @@ export function ProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Supprimer ce produit ?')) return;
+    if (!confirm(t('products.confirmDelete'))) return;
     await supabase.from('products').delete().eq('id', id);
     await loadProducts();
   };
@@ -94,7 +96,7 @@ export function ProductsPage() {
       <div className="flex flex-col items-center py-20 text-center px-4">
         <Package size={48} className="text-corail-alerte mb-4" />
         <p className="text-corail-alerte mb-4 text-sm">{fetchError}</p>
-        <button onClick={() => setRefresh(r => r + 1)} className="btn-primary text-xs">Réessayer</button>
+        <button onClick={() => setRefresh(r => r + 1)} className="btn-primary text-xs">{t('products.retry')}</button>
       </div>
     );
   }
@@ -103,7 +105,7 @@ export function ProductsPage() {
     return (
       <div className="flex flex-col items-center py-20 text-center">
         <Package size={48} className="text-brume mb-4" />
-        <p className="text-brume mb-4">Créez d'abord votre boutique pour gérer vos produits.</p>
+        <p className="text-brume mb-4">{t('products.createShopFirst')}</p>
       </div>
     );
   }
@@ -111,19 +113,19 @@ export function ProductsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-2xl font-bold">Produits</h1>
+        <h1 className="font-serif text-2xl font-bold">{t('products.title')}</h1>
         <button
           onClick={() => { setEditing(null); setShowForm(true); }}
           className="btn-primary text-xs"
         >
-          <Plus size={16} /> Ajouter
+          <Plus size={16} /> {t('common.add')}
         </button>
       </div>
 
       {products.length === 0 ? (
         <div className="flex flex-col items-center py-20 text-center">
           <Package size={48} className="text-brume mb-4" />
-          <p className="text-brume mb-4">Aucun produit. Ajoutez votre premier produit !</p>
+          <p className="text-brume mb-4">{t('products.empty')}</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -146,7 +148,7 @@ export function ProductsPage() {
                 {p.category && <span className="badge bg-brume/20 text-brume mt-1 ml-1">{p.category.name}</span>}
               </div>
               <div className="flex gap-1">
-                <button onClick={() => setSharingProduct(p)} className="btn-ghost p-2" title="Partager">
+                <button onClick={() => setSharingProduct(p)} className="btn-ghost p-2" title={t('common.share')}>
                   <Share2 size={16} />
                 </button>
                 <button onClick={() => { setEditing(p); setShowForm(true); }} className="btn-ghost p-2">
@@ -194,6 +196,7 @@ function ProductForm({ store, categories, globalCategories, product, onClose, on
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const [name, setName] = useState(product?.name ?? '');
   const [description, setDescription] = useState(product?.description ?? '');
   const [price, setPrice] = useState(product?.price?.toString() ?? '');
@@ -237,7 +240,7 @@ function ProductForm({ store, categories, globalCategories, product, onClose, on
       });
       setDescription(result.description);
     } catch {
-      setDescError('Génération indisponible pour le moment, réessayez ou écrivez votre propre texte.');
+      setDescError(t('ai.genericError'));
     } finally {
       setGeneratingDesc(false);
     }
@@ -273,36 +276,36 @@ function ProductForm({ store, categories, globalCategories, product, onClose, on
     <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 p-0 md:items-center md:p-4" onClick={onClose}>
       <div className="card h-[100dvh] w-full max-w-md flex flex-col rounded-b-none md:h-auto md:max-h-[85vh] md:rounded-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="border-b border-brume/10 p-4 md:p-6 flex items-center justify-between">
-          <h2 className="font-serif text-lg font-bold">{product ? 'Modifier' : 'Nouveau'} produit</h2>
+          <h2 className="font-serif text-lg font-bold">{product ? t('products.editProduct') : t('products.newProduct')}</h2>
           <button onClick={onClose} className="btn-ghost p-1"><X size={20} /></button>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
             <div>
-              <label className="label">Nom</label>
-              <input required value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="Nom du produit" />
+              <label className="label">{t('products.name')}</label>
+              <input required value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder={t('products.namePlaceholder')} />
             </div>
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="label mb-0">Description</label>
+                <label className="label mb-0">{t('products.description')}</label>
                 <AiGenerateButton
                   ready={!!imageUrl && !!name.trim()}
                   hasResult={!!description.trim()}
                   generating={generatingDesc}
                   onGenerate={handleGenerateDescription}
-                  disabledTitle="Ajoutez une photo (plus bas) et un nom pour activer la génération IA"
+                  disabledTitle={t('products.aiDisabledHint')}
                 />
               </div>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="input min-h-[80px]" placeholder="Description du produit" />
+              <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="input min-h-[80px]" placeholder={t('products.descriptionPlaceholder')} />
               {descError && <p className="text-xs text-corail-alerte mt-1">{descError}</p>}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="label">Prix</label>
+                <label className="label">{t('products.price')}</label>
                 <input required type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} className="input" placeholder="0.00" />
               </div>
               <div>
-                <label className="label">Devise</label>
+                <label className="label">{t('products.currency')}</label>
                 <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="input">
                   <option value="USD">USD</option>
                   <option value="CDF">CDF</option>
@@ -310,58 +313,58 @@ function ProductForm({ store, categories, globalCategories, product, onClose, on
               </div>
             </div>
             <div>
-              <label className="label">Catégorie</label>
+              <label className="label">{t('products.category')}</label>
               <select value={globalCategoryId} onChange={(e) => setGlobalCategoryId(e.target.value)} className="input">
-                <option value="">Choisir une catégorie...</option>
+                <option value="">{t('products.chooseCategory')}</option>
                 {globalCategories.map((c) => (
                   <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="label">Sous-catégorie (optionnel)</label>
+              <label className="label">{t('products.subcategory')} ({t('common.optional')})</label>
               <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="input">
-                <option value="">Aucune</option>
+                <option value="">{t('products.none')}</option>
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="label">Image</label>
+              <label className="label">{t('products.image')}</label>
               <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} className="input" />
-              {uploading && <p className="text-xs text-brume mt-1">Upload en cours...</p>}
-              {imageUrl && <img src={imageUrl} alt="Aperçu" className="mt-2 h-20 w-20 rounded-lg object-cover" />}
+              {uploading && <p className="text-xs text-brume mt-1">{t('products.uploading')}</p>}
+              {imageUrl && <img src={imageUrl} alt={t('products.preview')} className="mt-2 h-20 w-20 rounded-lg object-cover" />}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="label">Stock</label>
+                <label className="label">{t('products.stock')}</label>
                 <input type="number" value={stock} onChange={(e) => setStock(e.target.value)} className="input" />
               </div>
               <div>
-                <label className="label">Disponible</label>
+                <label className="label">{t('products.available')}</label>
                 <select value={isAvailable ? 'yes' : 'no'} onChange={(e) => setIsAvailable(e.target.value === 'yes')} className="input">
-                  <option value="yes">Oui</option>
-                  <option value="no">Non</option>
+                  <option value="yes">{t('common.yes')}</option>
+                  <option value="no">{t('common.no')}</option>
                 </select>
               </div>
             </div>
             <div>
-              <label className="label">Prix promo (optionnel)</label>
-              <input type="number" step="0.01" value={discountPrice} onChange={(e) => setDiscountPrice(e.target.value)} className="input" placeholder="Laisser vide si pas de promo" />
+              <label className="label">{t('products.discountPrice')} ({t('common.optional')})</label>
+              <input type="number" step="0.01" value={discountPrice} onChange={(e) => setDiscountPrice(e.target.value)} className="input" placeholder={t('products.discountPlaceholder')} />
               {discountPrice && parseFloat(discountPrice) > 0 && parseFloat(discountPrice) < parseFloat(price) && (
-                <p className="text-xs text-corail-alerte mt-1">Promo: -{Math.round((1 - parseFloat(discountPrice) / parseFloat(price)) * 100)}%</p>
+                <p className="text-xs text-corail-alerte mt-1">{t('products.promo')}: -{Math.round((1 - parseFloat(discountPrice) / parseFloat(price)) * 100)}%</p>
               )}
             </div>
             <div>
-              <label className="label">Mettre en avant (promotion)</label>
+              <label className="label">{t('products.featured')}</label>
               <select value={isPromoted ? 'yes' : 'no'} onChange={(e) => setIsPromoted(e.target.value === 'yes')} className="input">
-                <option value="no">Non</option>
-                <option value="yes">Oui</option>
+                <option value="no">{t('common.no')}</option>
+                <option value="yes">{t('common.yes')}</option>
               </select>
             </div>
           </div>
           <div className="sticky bottom-0 border-t border-brume/10 bg-inherit p-4 md:p-6 flex gap-2">
-            <button type="button" onClick={onClose} className="btn-ghost flex-1">Annuler</button>
-            <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? 'Enregistrement...' : 'Enregistrer'}</button>
+            <button type="button" onClick={onClose} className="btn-ghost flex-1">{t('common.cancel')}</button>
+            <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? t('account.saving') : t('common.save')}</button>
           </div>
         </form>
       </div>

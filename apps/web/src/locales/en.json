@@ -1,0 +1,651 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "loading": "Loading...",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "search": "Search",
+    "seeAll": "See all",
+    "seeMore": "See more",
+    "seeLess": "See less",
+    "optional": "optional",
+    "required": "required",
+    "error": "An error occurred",
+    "success": "Success",
+    "add": "Add",
+    "create": "Create",
+    "update": "Update",
+    "send": "Send",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "share": "Share",
+    "whatsapp": "WhatsApp",
+    "language": "Language"
+  },
+  "footer": {
+    "help": "Help",
+    "privacy": "Privacy",
+    "email": "Email",
+    "rights": "© {{year}} StatusMarket. All rights reserved.",
+    "designedBy": "Designed by Juif"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "markAllReadShort": "Mark all read",
+    "empty": "No notifications yet."
+  },
+  "pwa": {
+    "title": "Install StatusMarket",
+    "description": "Access your shop faster, even offline.",
+    "install": "Install the app"
+  },
+  "report": {
+    "title": "Report",
+    "thanks": "Thanks, your report has been submitted.",
+    "description": "Describe the reason for this report. Our team will review it within 24h.",
+    "placeholder": "Inappropriate content, scam, counterfeit...",
+    "sending": "Sending..."
+  },
+  "reviews": {
+    "count_one": "{{count}} review",
+    "count_other": "{{count}} reviews",
+    "seeOthers": "See {{count}} more reviews",
+    "placeholder": "Your review (optional)...",
+    "loginToReview": "Log in to leave a review."
+  },
+  "shareDialog": {
+    "title": "Share the product",
+    "previewImage": "Preview image",
+    "previewImageHint": "Choose the image shown in the WhatsApp preview",
+    "saving": "Saving...",
+    "previewLabel": "Share preview",
+    "availableAt": "{{name}} available at {{store}}",
+    "messageLabel": "WhatsApp message (optional)",
+    "messagePlaceholder": "🔥 New arrival!\nCheck out this product in my shop 👇",
+    "messageHint": "Your message will be followed by the product link.",
+    "linkLabel": "Share link",
+    "copyLink": "Copy link",
+    "shareOnWhatsapp": "Share on WhatsApp"
+  },
+  "help": {
+    "title": "Help Center",
+    "subtitle": "Quickly find answers to your questions.",
+    "findProduct": {
+      "q": "How do I find a product?",
+      "a": "Use the search bar at the top of the home page to search for a product, shop, or category. You can also browse categories and trending sections."
+    },
+    "howToBuy": {
+      "q": "How do I buy?",
+      "a": "Click on a product to see its details, add it to your cart if available, then contact the seller directly on WhatsApp to finalize the order."
+    },
+    "howToPay": {
+      "q": "How do I pay?",
+      "a": "StatusMarket connects buyers and sellers. Payment happens directly between you and the seller, based on terms you agree on (mobile money, cash, transfer, etc.)."
+    },
+    "createShop": {
+      "q": "How do I create my shop?",
+      "aBefore": "Click",
+      "aBold": "Create an account",
+      "aAfter": ", create a seller account, then fill out the shop creation form. You'll then be able to add your products and manage your orders."
+    },
+    "report": {
+      "q": "Report a problem",
+      "a": "If you come across inappropriate content or a scam, use the report button on the relevant shop or product page."
+    },
+    "needMore": "Need more help?",
+    "contactUs": "Contact us"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: August 2026",
+    "dataCollected": {
+      "title": "1. Data collected",
+      "body": "StatusMarket collects the information needed to run the platform: name, email address, WhatsApp number, shop and product information. We do not collect banking information."
+    },
+    "dataUse": {
+      "title": "2. Use of data",
+      "body": "Data is used to display shops and products, enable contact between buyers and sellers, and improve the user experience. We do not sell or share your personal data with third parties for commercial purposes."
+    },
+    "security": {
+      "title": "3. Security",
+      "body": "We implement technical and organizational measures to protect your data against unauthorized access, loss, or alteration."
+    },
+    "rights": {
+      "title": "4. Your rights",
+      "body": "You can request that your data be changed or deleted by contacting us at"
+    },
+    "contact": {
+      "title": "5. Contact",
+      "body": "For any question about this policy, contact us at"
+    }
+  },
+  "auth": {
+    "errors": {
+      "usernameTooShort": "Username must be at least 4 characters.",
+      "usernameTooLong": "Username must not exceed 20 characters.",
+      "usernameAlphanumeric": "Letters and numbers only.",
+      "usernameNeedsLetter": "Username must contain at least one letter.",
+      "usernameNeedsDigit": "Username must contain at least one digit.",
+      "passwordMismatch": "Passwords do not match.",
+      "passwordMismatchLong": "Passwords do not match. Please check your entry.",
+      "fullNameRequired": "Full name is required.",
+      "phoneRequired": "Phone number is required.",
+      "pinRequired": "Recovery code is required.",
+      "pinFormat": "Recovery code must be 4 to 6 digits.",
+      "invalidCredentials": "Incorrect username or password.",
+      "usernameTaken": "This username is already used. Please choose another one.",
+      "usernameTakenShort": "This username is already taken.",
+      "phoneTaken": "This phone number is already used by another account.",
+      "rateLimit": "Too many attempts. Please wait a few minutes before retrying.",
+      "passwordTooShort": "Password is too short (minimum 6 characters).",
+      "passwordWeak": "Password is too weak. Use at least 6 characters.",
+      "network": "Network issue. Please check your connection.",
+      "networkRetry": "Network issue. Please check your connection and try again.",
+      "timeout": "The server is taking too long to respond. Please try again.",
+      "overload": "The server is overloaded. Please try again shortly.",
+      "userNotFound": "No account found with this username.",
+      "notConfirmed": "Your account is not confirmed yet. Contact support.",
+      "sessionExpired": "Session expired. Please log in again.",
+      "signupFailed": "An error occurred during sign up.",
+      "signupAutoLoginFailed": "Sign up succeeded but automatic login failed. Try logging in manually."
+    },
+    "marketing": {
+      "headline1": "Your shop,",
+      "headline2": "one link.",
+      "subtitle": "Turn your WhatsApp statuses into a real sales channel. Catalog, products, direct contact — all through a single link to share.",
+      "point1": "Sell directly on WhatsApp",
+      "point2": "Track your stats in real time",
+      "point3": "Secure payments and subscriptions"
+    },
+    "tagline": "Your shop, one link.",
+    "login": "Log in",
+    "register": "Sign up",
+    "loginSubtitle": "Log in to your seller space.",
+    "registerSubtitle": "Create your seller account.",
+    "fullName": "Full name",
+    "phone": "Phone number",
+    "recoveryPin": "Recovery code",
+    "recoveryPinPlaceholder": "4 to 6 digits",
+    "recoveryPinHint": "Keep this code secret. It will be used to reset your password.",
+    "username": "Username",
+    "usernameHint": "Letters + digits, minimum 4 characters.",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "signIn": "Sign in",
+    "createAccount": "Create account",
+    "forgotPassword": "Forgot password?",
+    "forgotUsername": "Forgot username?",
+    "backToHome": "Back to home"
+  },
+  "resetPassword": {
+    "title": "Reset password",
+    "recoverTitle": "Recover my username",
+    "resetHint": "Enter your username, phone number, and recovery code to set a new password.",
+    "recoverHint": "Enter your phone number to recover your username.",
+    "errors": {
+      "tooShort": "Password must be at least 6 characters."
+    },
+    "success": "Password reset successfully. Log in with your username and new password.",
+    "noAccountFound": "No account found with this number.",
+    "newPassword": "New password",
+    "processing": "Processing...",
+    "searching": "Searching...",
+    "backToLogin": "Back to login"
+  },
+  "account": {
+    "title": "My account",
+    "defaultSeller": "Seller",
+    "defaultUser": "user",
+    "noEmail": "No email provided",
+    "phoneLabel": "Phone",
+    "emailLabel": "Email",
+    "saving": "Saving...",
+    "profileUpdated": "Profile updated!",
+    "changePassword": "Change password",
+    "changing": "Changing...",
+    "passwordUpdated": "Password updated successfully.",
+    "currentPassword": "Current password",
+    "confirmNewPassword": "Confirm new password",
+    "whatsappNumber": "Shop WhatsApp number",
+    "whatsappHint": "This number will be used by customers to contact you on WhatsApp.",
+    "saveNumber": "Save number",
+    "whatsappUpdated": "WhatsApp number updated!",
+    "myShop": "My shop",
+    "storefrontPhoto": "Storefront photo",
+    "noPhoto": "No photo",
+    "name": "Name",
+    "city": "City",
+    "quartier": "District",
+    "avenue": "Avenue",
+    "doorNumber": "No.",
+    "viewOnMaps": "View on Google Maps",
+    "signOut": "Sign out",
+    "errors": {
+      "profileNotFound": "Profile not found.",
+      "newPasswordTooShort": "New password must be at least 6 characters.",
+      "currentPasswordIncorrect": "Current password is incorrect."
+    }
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty.",
+    "exploreShops": "Explore shops",
+    "total": "Total",
+    "deliveryInfo": "Delivery information",
+    "phoneRequired": "Phone *",
+    "yourName": "Your name",
+    "addressRequired": "Full address *",
+    "addressPlaceholder": "District, avenue, door number...",
+    "notes": "Notes",
+    "notesPlaceholder": "Color, size...",
+    "confirmOrder": "Confirm order",
+    "orderSent": "Order sent!",
+    "sellerWillContact": "The seller will contact you on WhatsApp to confirm.",
+    "contactOnWhatsapp": "Contact on WhatsApp",
+    "errors": {
+      "phoneAndAddressRequired": "Phone number and full address are required for delivery."
+    }
+  },
+  "categories": {
+    "title": "Categories",
+    "createShopFirst": "First create your shop.",
+    "editCategory": "Edit category",
+    "newCategory": "New category",
+    "placeholder": "E.g: Shoes",
+    "empty": "No categories yet. Add some to better organize your products.",
+    "confirmDelete": "Delete this category?"
+  },
+  "favorites": {
+    "title": "My favorites",
+    "empty": "No favorites yet.",
+    "discoverShops": "Discover shops"
+  },
+  "follows": {
+    "title": "Followed shops",
+    "empty": "You're not following any shop yet."
+  },
+  "reviewsTab": {
+    "title": "My reviews",
+    "empty": "You haven't left any review yet.",
+    "deletedItem": "Deleted product/shop"
+  },
+  "orders": {
+    "title": "Orders",
+    "count_one": "{{count}} order",
+    "count_other": "{{count}} orders",
+    "noShop": "No shop",
+    "noShopHint": "First create your shop to receive and manage orders.",
+    "createShop": "Create my shop",
+    "empty": "No orders yet.",
+    "emptyHint": "Customers place orders from your public shop.",
+    "note": "Note",
+    "items": "Items",
+    "product": "Product",
+    "qty": "Qty",
+    "status": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled"
+    }
+  },
+  "ai": {
+    "genericError": "Generation unavailable right now, try again or write your own text."
+  },
+  "products": {
+    "title": "Products",
+    "empty": "No products yet. Add your first product!",
+    "createShopFirst": "First create your shop to manage your products.",
+    "retry": "Retry",
+    "confirmDelete": "Delete this product?",
+    "errors": {
+      "loadShop": "Error loading shop"
+    },
+    "editProduct": "Edit product",
+    "newProduct": "New product",
+    "name": "Name",
+    "namePlaceholder": "Product name",
+    "description": "Description",
+    "descriptionPlaceholder": "Product description",
+    "aiDisabledHint": "Add a photo (below) and a name to enable AI generation",
+    "price": "Price",
+    "currency": "Currency",
+    "category": "Category",
+    "chooseCategory": "Choose a category...",
+    "subcategory": "Subcategory",
+    "none": "None",
+    "image": "Image",
+    "uploading": "Uploading...",
+    "preview": "Preview",
+    "stock": "Stock",
+    "available": "Available",
+    "discountPrice": "Discount price",
+    "discountPlaceholder": "Leave empty if no discount",
+    "promo": "Promo",
+    "featured": "Featured (promotion)"
+  },
+  "createStore": {
+    "title": "Create my shop",
+    "subtitle": "A few details to get started. The rest can be set up later.",
+    "shopName": "Shop name",
+    "shopNamePlaceholder": "My Shop",
+    "slug": "Link (slug)",
+    "descriptionPlaceholder": "Describe your shop in a few words...",
+    "logo": "Logo",
+    "uploading": "Uploading...",
+    "chooseLogo": "Choose a logo",
+    "moreOptions": "More options (address, location, photo)",
+    "address": "Address",
+    "doorNumber": "Door number",
+    "gpsLocation": "GPS location",
+    "mapsLink": "Google Maps link",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "creating": "Creating...",
+    "errors": {
+      "logoUpload": "Error uploading the logo.",
+      "storefrontUpload": "Error uploading the storefront photo.",
+      "nameSlugRequired": "Name and slug are required.",
+      "slugTaken": "This slug is already used. Please choose another one."
+    }
+  },
+  "categoriesList": {
+    "title": "All categories",
+    "empty": "No categories available.",
+    "subtitle": "Choose a category to discover all products from StatusMarket shops."
+  },
+  "nav": {
+    "home": "Home"
+  },
+  "categoryBrowse": {
+    "notFound": "Category not found.",
+    "productsFound_one": "{{count}} product found",
+    "productsFound_other": "{{count}} products found",
+    "filterPlaceholder": "Filter in this category...",
+    "sortRecent": "Most recent",
+    "sortPriceLow": "Price: low to high",
+    "sortPriceHigh": "Price: high to low",
+    "sortPromo": "Promotions first",
+    "allCities": "All cities",
+    "empty": "No products in this category yet."
+  },
+  "landing": {
+    "searchPlaceholder": "Search shops, products...",
+    "noResults": "No results for \"{{query}}\"",
+    "products": "Products",
+    "shops": "Shops",
+    "mySpace": "My space",
+    "theme": "Theme",
+    "heroTitle1": "Discover shops",
+    "heroTitle2": "near you",
+    "heroSubtitle": "Browse hundreds of products, find your next favorite shop, and buy directly via WhatsApp.",
+    "createMyShop": "Create my shop",
+    "exploreCategories": "Explore categories",
+    "trending": "Trending",
+    "mostShared": "Most shared",
+    "shopsToDiscover": "Shops to discover",
+    "view": "View",
+    "page": "Page {{current}} / {{total}}",
+    "next": "Next",
+    "currentDeals": "Current deals",
+    "mostPopular": "Most popular",
+    "nearYou": "Near you",
+    "latestArrivals": "Latest arrivals",
+    "featuresTitle": "Everything to sell on WhatsApp",
+    "featuresSubtitle": "A complete suite designed for African merchants who want to sell simply and professionally.",
+    "ctaTitle": "Ready to sell on WhatsApp?",
+    "ctaSubtitle": "Join the merchants using StatusMarket to turn their statuses into sales.",
+    "ctaButton": "Get started now",
+    "views_one": "{{count}} view",
+    "views_other": "{{count}} views",
+    "viewShop": "View shop",
+    "fallbackCategories": {
+      "fashion": "Fashion",
+      "phones": "Phones",
+      "shoes": "Shoes",
+      "beauty": "Beauty",
+      "home": "Home",
+      "restaurant": "Restaurant",
+      "computing": "Computing",
+      "accessories": "Accessories"
+    },
+    "features": {
+      "onlineShop": { "title": "Online shop", "desc": "A single link for your entire shop. Organized catalog, product pages, WhatsApp contact." },
+      "statusGenerator": { "title": "Status generator", "desc": "Create multi-product posts with a cover photo and share link." },
+      "stats": { "title": "Stats", "desc": "Track views of your shop, posts, and products in real time." },
+      "whatsappShare": { "title": "WhatsApp sharing", "desc": "Share a link with a cover image, like YouTube or TikTok." },
+      "directSales": { "title": "Direct sales", "desc": "Your customers order on WhatsApp in one click from your product pages." },
+      "mobileFirst": { "title": "Mobile-first", "desc": "Manage your shop from your phone, anywhere in the DRC and Africa." }
+    }
+  },
+  "publicShop": {
+    "notFound": "Shop not found or disabled.",
+    "viewOnMaps": "View on Maps",
+    "searchProduct": "Search a product...",
+    "allCategories": "All categories",
+    "all": "All",
+    "noProducts": "No products available yet.",
+    "product": "Product",
+    "missingImage": "Missing image",
+    "onlyLeft_one": "Only {{count}} left",
+    "onlyLeft_other": "Only {{count}} left",
+    "unnamedProduct": "Unnamed product",
+    "priceNotSet": "Price not set",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "addToCart": "Add to cart"
+  },
+  "dashboard": {
+    "createShop": "Create your shop",
+    "createShopHint": "Launch your online shop in a few clicks.",
+    "greeting": "Hello, {{name}}",
+    "overview": "Here's an overview of your shop",
+    "newPost": "New post",
+    "viewMyShop": "View my shop",
+    "daysShort": "{{count}}d",
+    "trialInProgress": "PRO trial in progress",
+    "trialDaysLeft": "{{count}} days left in your trial. Upgrade to PRO to keep enjoying all features.",
+    "upgradeToPro": "Upgrade to PRO",
+    "shopViews": "Shop views",
+    "publications": "Posts",
+    "avgRating": "Average rating",
+    "sharesWeek": "Shares (7d)",
+    "followers": "Followers",
+    "recentProducts": "Recent products",
+    "noProductsYet": "No products yet",
+    "addProduct": "Add a product",
+    "subscription": "Subscription",
+    "expiresOn": "Expires on {{date}}",
+    "freePlan": "Free plan",
+    "upgradePlan": "Upgrade my plan",
+    "shopLogo": "Shop logo",
+    "changeLogo": "Change logo",
+    "location": "Location",
+    "changePhoto": "Change photo",
+    "shopUpdated": "Shop updated successfully!",
+    "locationHint": "This information helps customers find you on the home page.",
+    "quickActions": "Quick actions",
+    "createStatus": "Create a status",
+    "shareShopMessage": "Check out my shop on StatusMarket: {{url}}",
+    "errors": {
+      "logoUpload": "Error uploading the logo.",
+      "logoUpdate": "Error updating the logo.",
+      "photoUpload": "Error uploading the photo.",
+      "photoUpdate": "Error updating the photo.",
+      "locationSave": "Error saving location."
+    }
+  },
+  "statusGenerator": {
+    "defaultShareMessage": "Check out my products on StatusMarket!",
+    "postCreated": "Post created!",
+    "postCreatedHint": "Your status is ready. Share this link on WhatsApp — a cover photo will automatically come with the link.",
+    "cover": "Cover",
+    "createNewPost": "Create a new post",
+    "title": "Create a post",
+    "subtitle": "Select several products, choose a cover photo, then publish. The generated link can be shared on WhatsApp with the photo.",
+    "noProducts": "No products available. First add products to your shop.",
+    "step1_one": "1. Select your products ({{count}} selected)",
+    "step1_other": "1. Select your products ({{count}} selected)",
+    "step2": "2. Status cover photo",
+    "step2Hint": "This photo will come with the link when you share it on WhatsApp.",
+    "step3": "3. Caption (optional)",
+    "aiDisabledHint": "Choose a cover photo to enable AI generation",
+    "captionPlaceholder": "Deal of the day! New arrivals available...",
+    "step4": "4. WhatsApp share message",
+    "step4Hint": "This message will come with the link when you share on WhatsApp.",
+    "sharePreview": "Share preview",
+    "coverPreview": "Cover preview",
+    "productsAvailable_one": "{{count}} product available",
+    "productsAvailable_other": "{{count}} products available",
+    "publishing": "Publishing...",
+    "putOnStatus": "Put on status"
+  },
+  "publications": {
+    "confirmDelete": "Delete this post?",
+    "noShopHint": "First create your shop to manage your posts.",
+    "title": "My posts",
+    "newOne": "New",
+    "empty": "No posts yet. Create your first one!",
+    "untitled": "Untitled post",
+    "linkCopied": "Link copied"
+  },
+  "publicationPage": {
+    "notFound": "Post not found",
+    "notFoundHint": "This post no longer exists or has been deleted.",
+    "viewFullShop": "View full shop",
+    "orderMessage": "Hello, I'm interested in \"{{productName}}\" seen on StatusMarket.",
+    "order": "Order",
+    "viewWholeShop": "View the whole shop",
+    "poweredBy": "Powered by"
+  },
+  "subscription": {
+    "daysRemaining_one": "{{count}} day remaining",
+    "daysRemaining_other": "{{count}} days remaining",
+    "active": "Active",
+    "free": "Free",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "switchTo": "Switch to {{name}}",
+    "comingSoon": "Coming soon — contact us",
+    "proofSubmitted": "Proof submitted!",
+    "proofPending": "Your payment is pending review by the administrator.",
+    "paymentTitle": "Payment — {{name}} Plan",
+    "paymentInstructions": "Make your payment ({{price}}$) via Mobile Money or bank transfer, then submit proof below.",
+    "transactionRef": "Reference / Transaction ID",
+    "paymentScreenshot": "Payment screenshot",
+    "proof": "Proof",
+    "submit": "Submit"
+  },
+  "vendorNav": {
+    "dashboard": "Dashboard",
+    "newPost": "New post",
+    "account": "Account",
+    "seller": "Seller",
+    "sellerSpace": "Seller space",
+    "viewSite": "View site",
+    "status": "Status"
+  },
+  "adminNav": {
+    "sellers": "Sellers",
+    "payments": "Payments",
+    "subscriptions": "Subscriptions",
+    "reports": "Reports",
+    "settings": "Settings",
+    "administration": "Administration",
+    "controlPanel": "Admin panel"
+  },
+  "clientNav": {
+    "client": "Client",
+    "continueShopping": "Continue shopping"
+  },
+  "adminDashboard": {
+    "pendingPayments": "Pending payments",
+    "paymentsAwaitingReview": "Payments awaiting review",
+    "noPendingPayments": "No pending payments.",
+    "viewProof": "View proof",
+    "subscriptionPlans": "Subscription plans",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "adminPayments": {
+    "count_one": "{{count}} payment",
+    "count_other": "{{count}} payments",
+    "searchPlaceholder": "Search by seller or reference...",
+    "allStatuses": "All statuses",
+    "status": {
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "statusPlural": {
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "noneFound": "No payments found.",
+    "ref": "Ref",
+    "reason": "Reason",
+    "approve": "Approve",
+    "reject": "Reject"
+  },
+  "adminProducts": {
+    "count_one": "{{count}} product",
+    "count_other": "{{count}} products",
+    "unavailable": "Unavailable"
+  },
+  "adminReports": {
+    "count_one": "{{count}} report",
+    "count_other": "{{count}} reports",
+    "status": {
+      "OPEN": "Open",
+      "RESOLVED": "Resolved",
+      "DISMISSED": "Dismissed"
+    },
+    "resolve": "Resolve",
+    "none": "No reports."
+  },
+  "adminSellers": {
+    "count_one": "{{count}} seller",
+    "count_other": "{{count}} sellers",
+    "createdOn": "Created on",
+    "none": "No sellers found."
+  },
+  "adminSettings": {
+    "saved": "Saved",
+    "platformConfig": "Platform configuration",
+    "trialDuration": "Trial duration (days)",
+    "trialDurationHint": "Number of days for the free trial period for new sellers.",
+    "expiryAlert": "Expiry alert (days)",
+    "expiryAlertHint": "Number of days before trial expiry to send an alert.",
+    "systemInfo": "System information",
+    "lastUpdated": "Last updated"
+  },
+  "adminShops": {
+    "count_one": "{{count}} shop",
+    "count_other": "{{count}} shops",
+    "suspended": "Suspended"
+  },
+  "adminSubscriptions": {
+    "title": "Subscriptions & Plans",
+    "count_one": "{{count}} plan",
+    "count_other": "{{count}} plans",
+    "none": "No subscription plans found.",
+    "priceUsd": "Price (USD)",
+    "durationDays": "Duration (days)",
+    "duration": "Duration",
+    "maxProducts": "Max products",
+    "maxShops": "Max shops",
+    "order": "Order",
+    "unlimited": "Unlimited",
+    "features": "Features"
+  }
+}

@@ -1,13 +1,8 @@
 import { useEffect, useState } from 'react';
 import { CreditCard, Check, X, Search, ExternalLink } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import type { Payment } from '../../types';
-
-const statusLabels: Record<string, string> = {
-  PENDING: 'En attente',
-  APPROVED: 'Approuvé',
-  REJECTED: 'Rejeté',
-};
 
 const statusColors: Record<string, string> = {
   PENDING: 'bg-ambre-pagne/10 text-ambre-pagne',
@@ -16,10 +11,17 @@ const statusColors: Record<string, string> = {
 };
 
 export function AdminPaymentsPage() {
+  const { t, i18n } = useTranslation();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+
+  const statusLabels: Record<string, string> = {
+    PENDING: t('adminPayments.status.PENDING'),
+    APPROVED: t('adminPayments.status.APPROVED'),
+    REJECTED: t('adminPayments.status.REJECTED'),
+  };
 
   useEffect(() => {
     (async () => {
@@ -56,8 +58,8 @@ export function AdminPaymentsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-2xl font-bold">Paiements</h1>
-        <span className="badge bg-brume/20 text-brume">{payments.length} paiement{payments.length > 1 ? 's' : ''}</span>
+        <h1 className="font-serif text-2xl font-bold">{t('adminNav.payments')}</h1>
+        <span className="badge bg-brume/20 text-brume">{t('adminPayments.count', { count: payments.length })}</span>
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
@@ -66,7 +68,7 @@ export function AdminPaymentsPage() {
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Rechercher par vendeur ou référence..."
+            placeholder={t('adminPayments.searchPlaceholder')}
             className="input pl-10"
           />
         </div>
@@ -75,17 +77,17 @@ export function AdminPaymentsPage() {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="input sm:w-48"
         >
-          <option value="">Tous les statuts</option>
-          <option value="PENDING">En attente</option>
-          <option value="APPROVED">Approuvés</option>
-          <option value="REJECTED">Rejetés</option>
+          <option value="">{t('adminPayments.allStatuses')}</option>
+          <option value="PENDING">{t('adminPayments.status.PENDING')}</option>
+          <option value="APPROVED">{t('adminPayments.statusPlural.APPROVED')}</option>
+          <option value="REJECTED">{t('adminPayments.statusPlural.REJECTED')}</option>
         </select>
       </div>
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center py-20 text-center">
           <CreditCard size={48} className="text-brume mb-4" />
-          <p className="text-brume">Aucun paiement trouvé.</p>
+          <p className="text-brume">{t('adminPayments.noneFound')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -100,11 +102,11 @@ export function AdminPaymentsPage() {
                   <div className="mt-1 flex flex-wrap gap-3 text-xs text-brume">
                     <span className="font-mono text-vert-marche">{payment.amount} {payment.currency}</span>
                     <span>{payment.plan?.name ?? '—'}</span>
-                    <span>Réf: {payment.reference ?? 'N/A'}</span>
-                    <span>{new Date(payment.created_at).toLocaleDateString('fr-FR')}</span>
+                    <span>{t('adminPayments.ref')}: {payment.reference ?? 'N/A'}</span>
+                    <span>{new Date(payment.created_at).toLocaleDateString(i18n.language.startsWith('en') ? 'en-US' : 'fr-FR')}</span>
                   </div>
                   {payment.rejection_reason && (
-                    <p className="mt-1 text-xs text-corail-alerte">Motif: {payment.rejection_reason}</p>
+                    <p className="mt-1 text-xs text-corail-alerte">{t('adminPayments.reason')}: {payment.rejection_reason}</p>
                   )}
                 </div>
 
@@ -116,7 +118,7 @@ export function AdminPaymentsPage() {
                       rel="noopener noreferrer"
                       className="btn-ghost text-xs text-vert-marche flex items-center gap-1"
                     >
-                      <ExternalLink size={14} /> Preuve
+                      <ExternalLink size={14} /> {t('subscription.proof')}
                     </a>
                   )}
                   {payment.status === 'PENDING' && (
@@ -124,14 +126,14 @@ export function AdminPaymentsPage() {
                       <button
                         onClick={() => handleReview(payment.id, 'APPROVED')}
                         className="btn-ghost p-2 text-vert-marche"
-                        title="Approuver"
+                        title={t('adminPayments.approve')}
                       >
                         <Check size={18} />
                       </button>
                       <button
                         onClick={() => handleReview(payment.id, 'REJECTED')}
                         className="btn-ghost p-2 text-corail-alerte"
-                        title="Rejeter"
+                        title={t('adminPayments.reject')}
                       >
                         <X size={18} />
                       </button>

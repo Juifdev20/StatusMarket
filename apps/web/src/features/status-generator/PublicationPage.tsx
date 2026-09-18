@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Store, Package, MessageCircle, ArrowRight, Image as ImageIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { PWAInstallPrompt } from '../../components/PWAInstallPrompt';
 import type { StatusPost, Store as StoreType, Product } from '../../types';
 
 export function PublicationPage() {
+  const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<StatusPost | null>(null);
   const [store, setStore] = useState<StoreType | null>(null);
@@ -69,16 +71,16 @@ export function PublicationPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-sable-chaud dark:bg-encre-nuit px-4 text-center">
         <Package size={48} className="text-brume mb-4" />
-        <h1 className="font-serif text-xl font-bold mb-2">Publication introuvable</h1>
-        <p className="text-sm text-brume mb-6">Cette publication n'existe plus ou a été supprimée.</p>
-        <Link to="/" className="btn-primary">Retour à l'accueil</Link>
+        <h1 className="font-serif text-xl font-bold mb-2">{t('publicationPage.notFound')}</h1>
+        <p className="text-sm text-brume mb-6">{t('publicationPage.notFoundHint')}</p>
+        <Link to="/" className="btn-primary">{t('auth.backToHome')}</Link>
       </div>
     );
   }
 
   const handleWhatsAppOrder = (productName: string) => {
     if (!store.whatsapp_number) return;
-    const msg = encodeURIComponent(`Bonjour, je suis intéressé(e) par "${productName}" vu sur StatusMarket.`);
+    const msg = encodeURIComponent(t('publicationPage.orderMessage', { productName }));
     window.open(`https://wa.me/${store.whatsapp_number.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
   };
 
@@ -96,17 +98,17 @@ export function PublicationPage() {
             )}
             <div>
               <p className="font-serif font-bold text-lg">{store.name}</p>
-              <p className="text-xs text-brume">Voir la boutique complète</p>
+              <p className="text-xs text-brume">{t('publicationPage.viewFullShop')}</p>
             </div>
           </Link>
           <Link to={`/boutique/${store.slug}`} className="btn-outline text-xs">
-            Boutique <ArrowRight size={14} />
+            {t('landing.shops')} <ArrowRight size={14} />
           </Link>
         </header>
 
         {post.cover_image_url && (
           <div className="rounded-2xl overflow-hidden mb-6">
-            <img src={post.cover_image_url} alt="Publication" className="w-full max-h-[300px] object-cover" />
+            <img src={post.cover_image_url} alt={t('publications.title')} className="w-full max-h-[300px] object-cover" />
           </div>
         )}
 
@@ -124,7 +126,7 @@ export function PublicationPage() {
 
         <div className="mb-4">
           <h2 className="font-serif text-lg font-bold">
-            {products.length} produit{products.length > 1 ? 's' : ''} disponible{products.length > 1 ? 's' : ''}
+            {t('statusGenerator.productsAvailable', { count: products.length })}
           </h2>
         </div>
 
@@ -148,7 +150,7 @@ export function PublicationPage() {
                 <div className="flex items-center justify-between">
                   <p className="font-mono text-sm font-bold text-vert-marche">{p.price} {p.currency}</p>
                   {p.stock !== undefined && p.stock > 0 && (
-                    <span className="badge bg-vert-marche/10 text-vert-marche text-[10px]">Stock: {p.stock}</span>
+                    <span className="badge bg-vert-marche/10 text-vert-marche text-[10px]">{t('products.stock')}: {p.stock}</span>
                   )}
                 </div>
                 {store.whatsapp_number && (
@@ -156,7 +158,7 @@ export function PublicationPage() {
                     onClick={() => handleWhatsAppOrder(p.name)}
                     className="btn-cta w-full text-xs"
                   >
-                    <MessageCircle size={14} /> Commander
+                    <MessageCircle size={14} /> {t('publicationPage.order')}
                   </button>
                 )}
               </div>
@@ -166,13 +168,13 @@ export function PublicationPage() {
 
         <div className="mt-8 text-center">
           <Link to={`/boutique/${store.slug}`} className="btn-outline">
-            Voir toute la boutique <ArrowRight size={16} />
+            {t('publicationPage.viewWholeShop')} <ArrowRight size={16} />
           </Link>
         </div>
 
         <div className="mt-6 text-center">
           <p className="text-xs text-brume">
-            Propulsé par <span className="font-serif font-bold text-vert-marche">StatusMarket</span> — Ta boutique, un seul lien.
+            {t('publicationPage.poweredBy')} <span className="font-serif font-bold text-vert-marche">StatusMarket</span> — {t('auth.tagline')}
           </p>
         </div>
       </div>

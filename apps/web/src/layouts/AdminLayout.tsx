@@ -1,25 +1,28 @@
 import { ReactNode, useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { LayoutDashboard, Users, Store, Package, CreditCard, Settings, Flag, BarChart3, Menu, X, LogOut } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '../features/auth/authContext';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { NotificationsDropdown } from '../components/NotificationsDropdown';
 
-const navItems = [
-  { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
-  { to: '/admin/vendeurs', icon: Users, label: 'Vendeurs', end: false },
-  { to: '/admin/boutiques', icon: Store, label: 'Boutiques', end: false },
-  { to: '/admin/produits', icon: Package, label: 'Produits', end: false },
-  { to: '/admin/paiements', icon: CreditCard, label: 'Paiements', end: false },
-  { to: '/admin/abonnements', icon: BarChart3, label: 'Abonnements', end: false },
-  { to: '/admin/signalements', icon: Flag, label: 'Signalements', end: false },
-  { to: '/admin/parametres', icon: Settings, label: 'Paramètres', end: false },
-];
-
 export function AdminLayout({ children }: { children?: ReactNode }) {
+  const { t } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { profile, signOut } = useAuth();
+
+  const navItems = [
+    { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
+    { to: '/admin/vendeurs', icon: Users, label: t('adminNav.sellers'), end: false },
+    { to: '/admin/boutiques', icon: Store, label: t('landing.shops'), end: false },
+    { to: '/admin/produits', icon: Package, label: t('products.title'), end: false },
+    { to: '/admin/paiements', icon: CreditCard, label: t('adminNav.payments'), end: false },
+    { to: '/admin/abonnements', icon: BarChart3, label: t('adminNav.subscriptions'), end: false },
+    { to: '/admin/signalements', icon: Flag, label: t('adminNav.reports'), end: false },
+    { to: '/admin/parametres', icon: Settings, label: t('adminNav.settings'), end: false },
+  ];
 
   return (
     <div className="min-h-screen bg-sable-chaud dark:bg-encre-nuit">
@@ -31,7 +34,7 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
           </div>
           <div>
             <span className="font-serif text-lg font-bold text-vert-marche leading-none">StatusMarket</span>
-            <p className="text-[10px] text-brume">Administration</p>
+            <p className="text-[10px] text-brume">{t('adminNav.administration')}</p>
           </div>
         </div>
         <nav className="flex flex-col gap-1 p-4">
@@ -72,7 +75,7 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
             className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-corail-alerte hover:bg-corail-alerte/10 transition-colors"
           >
             <LogOut size={18} />
-            Déconnexion
+            {t('account.signOut')}
           </button>
         </div>
       </aside>
@@ -122,9 +125,10 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
 
       {/* Desktop top bar */}
       <header className="fixed left-0 right-0 top-0 z-30 hidden h-16 items-center justify-between border-b border-brume/30 bg-white/95 dark:bg-encre-nuit/95 px-8 backdrop-blur lg:left-64 lg:flex">
-        <h1 className="font-serif text-lg font-bold text-encre-nuit dark:text-sable-chaud">Panneau d'administration</h1>
+        <h1 className="font-serif text-lg font-bold text-encre-nuit dark:text-sable-chaud">{t('adminNav.controlPanel')}</h1>
         <div className="flex items-center gap-2">
           <NotificationsDropdown />
+          <LanguageSwitcher />
           <ThemeToggle />
           <div className="flex items-center gap-3 rounded-xl bg-encre-nuit/5 dark:bg-white/5 px-4 py-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-vert-marche/10 text-vert-marche font-bold text-xs">

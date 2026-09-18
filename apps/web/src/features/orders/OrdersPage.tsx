@@ -1,16 +1,9 @@
 import { useEffect, useState } from 'react';
 import { ShoppingBag, ChevronDown, ChevronUp, Phone, MapPin, User, Store as StoreIcon, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import type { Store, Order, OrderItem } from '../../types';
-
-const statusLabels: Record<string, string> = {
-  PENDING: 'En attente',
-  CONFIRMED: 'Confirmée',
-  SHIPPED: 'Expédiée',
-  DELIVERED: 'Livrée',
-  CANCELLED: 'Annulée',
-};
 
 const statusColors: Record<string, string> = {
   PENDING: 'bg-ambre-pagne/10 text-ambre-pagne',
@@ -21,11 +14,20 @@ const statusColors: Record<string, string> = {
 };
 
 export function OrdersPage() {
+  const { t, i18n } = useTranslation();
   const { profile } = useAuth();
   const [store, setStore] = useState<Store | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const statusLabels: Record<string, string> = {
+    PENDING: t('orders.status.PENDING'),
+    CONFIRMED: t('orders.status.CONFIRMED'),
+    SHIPPED: t('orders.status.SHIPPED'),
+    DELIVERED: t('orders.status.DELIVERED'),
+    CANCELLED: t('orders.status.CANCELLED'),
+  };
 
   useEffect(() => {
     if (!profile) return;
@@ -68,10 +70,10 @@ export function OrdersPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-4">
         <StoreIcon size={48} className="text-brume mb-4" />
-        <h2 className="font-serif text-xl font-bold mb-2">Aucune boutique</h2>
-        <p className="text-sm text-brume mb-6">Créez d'abord votre boutique pour recevoir et gérer des commandes.</p>
+        <h2 className="font-serif text-xl font-bold mb-2">{t('orders.noShop')}</h2>
+        <p className="text-sm text-brume mb-6">{t('orders.noShopHint')}</p>
         <a href="/vendeur/boutique/nouvelle" className="btn-cta">
-          <Plus size={18} /> Créer ma boutique
+          <Plus size={18} /> {t('orders.createShop')}
         </a>
       </div>
     );
@@ -80,15 +82,15 @@ export function OrdersPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-2xl font-bold">Commandes</h1>
-        <span className="badge bg-brume/20 text-brume">{orders.length} commande{orders.length > 1 ? 's' : ''}</span>
+        <h1 className="font-serif text-2xl font-bold">{t('orders.title')}</h1>
+        <span className="badge bg-brume/20 text-brume">{t('orders.count', { count: orders.length })}</span>
       </div>
 
       {orders.length === 0 ? (
         <div className="flex flex-col items-center py-20 text-center">
           <ShoppingBag size={48} className="text-brume mb-4" />
-          <p className="text-brume">Aucune commande pour le moment.</p>
-          <p className="text-xs text-brume mt-2">Les clients passent commande depuis votre boutique publique.</p>
+          <p className="text-brume">{t('orders.empty')}</p>
+          <p className="text-xs text-brume mt-2">{t('orders.emptyHint')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -103,7 +105,7 @@ export function OrdersPage() {
                     <span className="font-mono text-sm font-bold">#{order.id.slice(0, 8).toUpperCase()}</span>
                     <span className={`badge ${statusColors[order.status]}`}>{statusLabels[order.status]}</span>
                   </div>
-                  <p className="text-xs text-brume mt-1">{new Date(order.created_at).toLocaleString('fr-FR')}</p>
+                  <p className="text-xs text-brume mt-1">{new Date(order.created_at).toLocaleString(i18n.language.startsWith('en') ? 'en-US' : 'fr-FR')}</p>
                 </div>
                 <div className="text-right mr-2">
                   <p className="font-mono font-bold">{order.total} {order.currency}</p>
@@ -138,17 +140,17 @@ export function OrdersPage() {
 
                   {order.notes && (
                     <div className="rounded-xl bg-sable-chaud dark:bg-encre-nuit/40 p-3 text-sm">
-                      <span className="text-brume">Note :</span> {order.notes}
+                      <span className="text-brume">{t('orders.note')} :</span> {order.notes}
                     </div>
                   )}
 
                   <div className="space-y-2">
-                    <h3 className="text-sm font-semibold">Articles</h3>
+                    <h3 className="text-sm font-semibold">{t('orders.items')}</h3>
                     {(order.items || []).map((item: OrderItem) => (
                       <div key={item.id} className="flex items-center justify-between rounded-xl bg-sable-chaud dark:bg-encre-nuit/40 p-3 text-sm">
                         <div>
-                          <p className="font-medium">{item.product?.name || 'Produit'}</p>
-                          <p className="text-xs text-brume">Qté: {item.quantity}</p>
+                          <p className="font-medium">{item.product?.name || t('orders.product')}</p>
+                          <p className="text-xs text-brume">{t('orders.qty')}: {item.quantity}</p>
                         </div>
                         <p className="font-mono font-semibold">{item.price * item.quantity} {item.currency}</p>
                       </div>

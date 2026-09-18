@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Share2, Check, Image as ImageIcon, Link as LinkIcon, Copy } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { getSiteUrl } from '../../utils/siteUrl';
@@ -8,6 +9,7 @@ import { AiGenerateButton, type AiLanguage } from '../../components/AiGenerateBu
 import type { Store, Product } from '../../types';
 
 export function StatusGenerator() {
+  const { t } = useTranslation();
   const { profile, user } = useAuth();
   const [store, setStore] = useState<Store | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -16,7 +18,7 @@ export function StatusGenerator() {
   const [caption, setCaption] = useState('');
   const [generatingCaption, setGeneratingCaption] = useState(false);
   const [captionError, setCaptionError] = useState<string | null>(null);
-  const [shareMessage, setShareMessage] = useState('Découvrez mes produits sur StatusMarket !');
+  const [shareMessage, setShareMessage] = useState(t('statusGenerator.defaultShareMessage'));
   const [publishing, setPublishing] = useState(false);
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -36,7 +38,7 @@ export function StatusGenerator() {
         if (!isMounted) return;
         if (error) {
           console.error('Error fetching store:', error);
-          setFetchError(error.message || 'Erreur de chargement de la boutique');
+          setFetchError(error.message || t('products.errors.loadShop'));
           return;
         }
         const myStore = s ? (s as Store) : null;
@@ -52,14 +54,14 @@ export function StatusGenerator() {
         }
       } catch (err: any) {
         if (!isMounted) return;
-        setFetchError(err?.message || 'Erreur de chargement de la boutique');
+        setFetchError(err?.message || t('products.errors.loadShop'));
         console.error('Error fetching store:', err);
       } finally {
         if (isMounted) setLoading(false);
       }
     })();
     return () => { isMounted = false; };
-  }, [profile?.id, user?.id, refresh]);
+  }, [profile?.id, user?.id, refresh, t]);
 
   const selectedProducts = products.filter((p) => selectedIds.includes(p.id));
 
@@ -103,7 +105,7 @@ export function StatusGenerator() {
       });
       setCaption(result.caption);
     } catch {
-      setCaptionError('Génération indisponible pour le moment, réessayez ou écrivez votre propre texte.');
+      setCaptionError(t('ai.genericError'));
     } finally {
       setGeneratingCaption(false);
     }
@@ -167,13 +169,13 @@ export function StatusGenerator() {
     return (
       <div className="flex flex-col items-center py-20 text-center px-4">
         <p className="text-corail-alerte mb-4 text-sm text-center">{fetchError}</p>
-        <button onClick={() => setRefresh(r => r + 1)} className="btn-primary text-xs">Réessayer</button>
+        <button onClick={() => setRefresh(r => r + 1)} className="btn-primary text-xs">{t('products.retry')}</button>
       </div>
     );
   }
 
   if (!store) {
-    return <p className="text-center text-brume py-20">Créez d'abord votre boutique.</p>;
+    return <p className="text-center text-brume py-20">{t('categories.createShopFirst')}</p>;
   }
 
   if (publishedSlug) {
@@ -183,14 +185,14 @@ export function StatusGenerator() {
           <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-full bg-vert-marche/10">
             <Check size={32} className="text-vert-marche" />
           </div>
-          <h2 className="font-serif text-xl font-bold">Publication créée !</h2>
+          <h2 className="font-serif text-xl font-bold">{t('statusGenerator.postCreated')}</h2>
           <p className="text-sm text-brume">
-            Votre statut est prêt. Partagez ce lien sur WhatsApp — une photo de couverture accompagnera automatiquement le lien.
+            {t('statusGenerator.postCreatedHint')}
           </p>
 
           {coverImage && (
             <div className="mx-auto max-w-[200px] rounded-xl overflow-hidden border border-brume/20">
-              <img src={coverImage} alt="Couverture" className="w-full object-cover" />
+              <img src={coverImage} alt={t('statusGenerator.cover')} className="w-full object-cover" />
             </div>
           )}
 
@@ -212,7 +214,7 @@ export function StatusGenerator() {
             rel="noopener noreferrer"
             className="btn-cta w-full"
           >
-            <Share2 size={18} /> Partager sur WhatsApp
+            <Share2 size={18} /> {t('shareDialog.shareOnWhatsapp')}
           </a>
 
           <button
@@ -221,11 +223,11 @@ export function StatusGenerator() {
               setSelectedIds([]);
               setCoverImage(null);
               setCaption('');
-              setShareMessage('Découvrez mes produits sur StatusMarket !');
+              setShareMessage(t('statusGenerator.defaultShareMessage'));
             }}
             className="btn-outline w-full"
           >
-            Créer une nouvelle publication
+            {t('statusGenerator.createNewPost')}
           </button>
         </div>
       </div>
@@ -235,21 +237,21 @@ export function StatusGenerator() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-serif text-2xl font-bold">Créer une publication</h1>
+        <h1 className="font-serif text-2xl font-bold">{t('statusGenerator.title')}</h1>
         <p className="text-sm text-brume mt-1">
-          Sélectionnez plusieurs produits, choisissez une photo de couverture, puis publiez. Le lien généré peut être partagé sur WhatsApp avec la photo.
+          {t('statusGenerator.subtitle')}
         </p>
       </div>
 
       {products.length === 0 ? (
         <div className="card p-6 text-center">
           <ImageIcon size={32} className="text-brume mx-auto mb-3" />
-          <p className="text-sm text-brume mb-4">Aucun produit disponible. Ajoutez d'abord des produits à votre boutique.</p>
+          <p className="text-sm text-brume mb-4">{t('statusGenerator.noProducts')}</p>
         </div>
       ) : (
         <>
           <div className="card p-4">
-            <label className="label">1. Sélectionnez vos produits ({selectedIds.length} sélectionné{selectedIds.length > 1 ? 's' : ''})</label>
+            <label className="label">{t('statusGenerator.step1', { count: selectedIds.length })}</label>
             <div className="grid grid-cols-2 gap-3 mt-3">
               {products.map((p) => {
                 const isSelected = selectedIds.includes(p.id);
@@ -287,8 +289,8 @@ export function StatusGenerator() {
 
           {coverCandidates.length > 0 && (
             <div className="card p-4">
-              <label className="label">2. Photo de couverture du statut</label>
-              <p className="text-xs text-brume mb-3">Cette photo accompagnera le lien lorsque vous le partagerez sur WhatsApp.</p>
+              <label className="label">{t('statusGenerator.step2')}</label>
+              <p className="text-xs text-brume mb-3">{t('statusGenerator.step2Hint')}</p>
               <div className="grid grid-cols-3 gap-2">
                 {coverCandidates.map((c) => (
                   <button
@@ -298,7 +300,7 @@ export function StatusGenerator() {
                       coverImage === c.url ? 'border-vert-marche ring-2 ring-vert-marche/20' : 'border-transparent'
                     }`}
                   >
-                    <img src={c.url} alt="Cover" className="aspect-square w-full object-cover" />
+                    <img src={c.url} alt={t('statusGenerator.cover')} className="aspect-square w-full object-cover" />
                     {coverImage === c.url && (
                       <div className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-vert-marche">
                         <Check size={12} className="text-white" />
@@ -312,40 +314,40 @@ export function StatusGenerator() {
 
           <div className="card p-4">
             <div className="flex items-center justify-between mb-1.5">
-              <label className="label mb-0">3. Légende (optionnel)</label>
+              <label className="label mb-0">{t('statusGenerator.step3')}</label>
               <AiGenerateButton
                 ready={!!coverImage}
                 hasResult={!!caption.trim()}
                 generating={generatingCaption}
                 onGenerate={handleGenerateCaption}
-                disabledTitle="Choisissez une photo de couverture pour activer la génération IA"
+                disabledTitle={t('statusGenerator.aiDisabledHint')}
               />
             </div>
             <input
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               className="input"
-              placeholder="Promo du jour ! Nouveautés disponibles..."
+              placeholder={t('statusGenerator.captionPlaceholder')}
             />
             {captionError && <p className="text-xs text-corail-alerte mt-1">{captionError}</p>}
           </div>
 
           <div className="card p-4">
-            <label className="label">4. Message de partage WhatsApp</label>
-            <p className="text-xs text-brume mb-2">Ce message accompagnera le lien lorsque vous partagez sur WhatsApp.</p>
+            <label className="label">{t('statusGenerator.step4')}</label>
+            <p className="text-xs text-brume mb-2">{t('statusGenerator.step4Hint')}</p>
             <textarea
               value={shareMessage}
               onChange={(e) => setShareMessage(e.target.value)}
               className="input min-h-[60px] resize-y"
-              placeholder="Découvrez mes produits sur StatusMarket !"
+              placeholder={t('statusGenerator.defaultShareMessage')}
             />
           </div>
 
           <div className="card p-4">
-            <label className="label">Aperçu du partage</label>
+            <label className="label">{t('statusGenerator.sharePreview')}</label>
             <div className="mt-2 rounded-xl overflow-hidden border border-brume/20">
               {coverImage ? (
-                <img src={coverImage} alt="Aperçu couverture" className="w-full max-h-[200px] object-cover" />
+                <img src={coverImage} alt={t('statusGenerator.coverPreview')} className="w-full max-h-[200px] object-cover" />
               ) : (
                 <div className="flex h-[120px] items-center justify-center bg-sable-chaud dark:bg-encre-nuit/40">
                   <ImageIcon size={28} className="text-brume" />
@@ -354,7 +356,7 @@ export function StatusGenerator() {
               <div className="p-3">
                 <p className="text-sm font-semibold truncate">{store.name}</p>
                 <p className="text-xs text-brume truncate">
-                  {caption || `${selectedIds.length} produit${selectedIds.length > 1 ? 's' : ''} disponible${selectedIds.length > 1 ? 's' : ''}`}
+                  {caption || t('statusGenerator.productsAvailable', { count: selectedIds.length })}
                 </p>
                 <p className="text-xs text-vert-marche mt-1 truncate">{window.location.origin}/pub/...</p>
               </div>
@@ -366,9 +368,9 @@ export function StatusGenerator() {
             disabled={publishing || selectedIds.length === 0}
             className="btn-cta w-full"
           >
-            {publishing ? 'Publication...' : (
+            {publishing ? t('statusGenerator.publishing') : (
               <>
-                <Share2 size={18} /> Mettre sur statut
+                <Share2 size={18} /> {t('statusGenerator.putOnStatus')}
               </>
             )}
           </button>

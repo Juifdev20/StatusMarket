@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import type { GlobalCategory } from '../../types';
 
 export function CategoriesListPage() {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState<GlobalCategory[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +29,7 @@ export function CategoriesListPage() {
           <Link to="/" className="text-brume hover:text-vert-marche">
             <ArrowLeft size={20} />
           </Link>
-          <h1 className="font-serif text-lg font-bold">Toutes les catégories</h1>
+          <h1 className="font-serif text-lg font-bold">{t('categoriesList.title')}</h1>
         </div>
       </div>
 
@@ -37,11 +39,11 @@ export function CategoriesListPage() {
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-vert-marche border-t-transparent" />
           </div>
         ) : categories.length === 0 ? (
-          <div className="text-center py-20 text-brume">Aucune catégorie disponible.</div>
+          <div className="text-center py-20 text-brume">{t('categoriesList.empty')}</div>
         ) : (
           <>
             <p className="text-sm text-brume mb-6">
-              Choisissez une catégorie pour découvrir tous les produits des boutiques StatusMarket.
+              {t('categoriesList.subtitle')}
             </p>
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
               {categories.map((cat) => (

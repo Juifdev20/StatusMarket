@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Search, Home, ShoppingCart, MessageCircle, ArrowLeft, Package, Plus, Flag, MapPin, ExternalLink, Eye } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { PWAInstallPrompt } from '../../components/PWAInstallPrompt';
 import { ReportModal } from '../../components/ReportModal';
@@ -12,6 +13,7 @@ import { StarRating } from '../../components/StarRating';
 import type { Store, Product, Category, GlobalCategory, RatingSummary } from '../../types';
 
 export function PublicShopPage() {
+  const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const [store, setStore] = useState<Store | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -50,7 +52,7 @@ export function PublicShopPage() {
         .eq('is_suspended', false)
         .single();
       if (storeErr || !storeData) {
-        setError('Boutique introuvable ou désactivée.');
+        setError(t('publicShop.notFound'));
         setLoading(false);
         return;
       }
@@ -151,8 +153,8 @@ export function PublicShopPage() {
   if (error || !store) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
-        <p className="text-corail-alerte">{error ?? 'Erreur'}</p>
-        <Link to="/" className="btn-outline">← Retour à l'accueil</Link>
+        <p className="text-corail-alerte">{error ?? t('common.error')}</p>
+        <Link to="/" className="btn-outline">← {t('auth.backToHome')}</Link>
       </div>
     );
   }
@@ -195,7 +197,7 @@ export function PublicShopPage() {
                     rel="noopener noreferrer"
                     className="mt-2 inline-flex items-center gap-1 rounded-full bg-vert-marche/10 px-2 py-1 text-xs font-medium text-vert-marche"
                   >
-                    <ExternalLink size={10} /> Voir sur Maps
+                    <ExternalLink size={10} /> {t('publicShop.viewOnMaps')}
                   </a>
                 )}
                 {store.store_front_image_url && (
@@ -212,7 +214,7 @@ export function PublicShopPage() {
                 onClick={() => setShowReport(true)}
                 className="flex items-center gap-1 rounded-full bg-corail-alerte/10 px-3 py-1 text-xs font-medium text-corail-alerte shrink-0"
               >
-                <Flag size={14} /> Signaler
+                <Flag size={14} /> {t('report.title')}
               </button>
             </div>
           </div>
@@ -225,7 +227,7 @@ export function PublicShopPage() {
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-brume" />
           <input
             type="text"
-            placeholder="Rechercher un produit..."
+            placeholder={t('publicShop.searchProduct')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="input pl-10"
@@ -238,7 +240,7 @@ export function PublicShopPage() {
               onClick={() => setActiveGlobalCategory(null)}
               className={`badge shrink-0 ${!activeGlobalCategory ? 'bg-vert-marche text-white' : 'bg-white dark:bg-encre-nuit/60 text-brume border border-brume/30'}`}
             >
-              Toutes catégories
+              {t('publicShop.allCategories')}
             </button>
             {globalCategories.map((cat) => (
               <button
@@ -258,7 +260,7 @@ export function PublicShopPage() {
               onClick={() => setActiveCategory(null)}
               className={`badge shrink-0 ${!activeCategory ? 'bg-vert-marche text-white' : 'bg-white dark:bg-encre-nuit/60 text-brume border border-brume/30'}`}
             >
-              Tous
+              {t('publicShop.all')}
             </button>
             {categories.map((cat) => (
               <button
@@ -278,7 +280,7 @@ export function PublicShopPage() {
         {filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Package size={48} className="text-brume mb-4" />
-            <p className="text-brume">Aucun produit disponible pour le moment.</p>
+            <p className="text-brume">{t('publicShop.noProducts')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
@@ -286,11 +288,11 @@ export function PublicShopPage() {
               <div key={product.id} className="card overflow-hidden">
                 <div className="aspect-square bg-sable-chaud dark:bg-encre-nuit/40 relative">
                   {product.image_url ? (
-                    <img src={product.image_url} alt={product.name || 'Produit'} className="h-full w-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    <img src={product.image_url} alt={product.name || t('publicShop.product')} className="h-full w-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                   ) : (
                     <div className="flex h-full w-full flex-col items-center justify-center text-brume">
                       <Package size={32} />
-                      <span className="text-[10px] mt-1">Image manquante</span>
+                      <span className="text-[10px] mt-1">{t('publicShop.missingImage')}</span>
                     </div>
                   )}
                   {product.discount_price && product.discount_price < product.price && (
@@ -300,14 +302,14 @@ export function PublicShopPage() {
                   )}
                   {product.stock <= 3 && product.stock > 0 && (
                     <span className="absolute top-2 right-2 badge bg-ambre-pagne text-white text-[10px]">
-                      Plus que {product.stock}
+                      {t('publicShop.onlyLeft', { count: product.stock })}
                     </span>
                   )}
                   <FavoriteButton productId={product.id} className="absolute bottom-2 right-2 !p-1.5" size={14} />
                 </div>
                 <div className="p-3">
                   <h3 className="text-sm font-semibold text-encre-nuit dark:text-sable-chaud line-clamp-2">
-                    {product.name || 'Produit sans nom'}
+                    {product.name || t('publicShop.unnamedProduct')}
                   </h3>
                   {productRatings[product.id] && productRatings[product.id].review_count > 0 && (
                     <StarRating
@@ -329,14 +331,14 @@ export function PublicShopPage() {
                       </p>
                     )
                   ) : (
-                    <p className="mt-1 text-xs text-corail-alerte">Prix non défini</p>
+                    <p className="mt-1 text-xs text-corail-alerte">{t('publicShop.priceNotSet')}</p>
                   )}
                   <div className="mt-1 flex items-center gap-3 text-[10px] text-brume">
                     <span className="flex items-center gap-0.5"><Eye size={11} /> {productViews[product.id] || 0}</span>
                     {product.stock > 0 ? (
-                      <span className="text-vert-marche">En stock</span>
+                      <span className="text-vert-marche">{t('publicShop.inStock')}</span>
                     ) : (
-                      <span className="text-corail-alerte">Rupture</span>
+                      <span className="text-corail-alerte">{t('publicShop.outOfStock')}</span>
                     )}
                   </div>
                   <div className="flex gap-2 mt-2">
@@ -345,7 +347,7 @@ export function PublicShopPage() {
                       store={{ whatsapp_number: store?.whatsapp_number }}
                       className="flex-1"
                     />
-                    <button onClick={() => addToCart(product)} className="btn-outline p-2" title="Ajouter au panier">
+                    <button onClick={() => addToCart(product)} className="btn-outline p-2" title={t('publicShop.addToCart')}>
                       <Plus size={16} />
                     </button>
                   </div>
@@ -366,11 +368,11 @@ export function PublicShopPage() {
         <div className="flex items-center justify-around py-2">
           <Link to={`/boutique/${store.slug}`} className="flex flex-col items-center gap-0.5 text-vert-marche">
             <Home size={20} />
-            <span className="text-[10px] font-medium">Accueil</span>
+            <span className="text-[10px] font-medium">{t('nav.home')}</span>
           </Link>
           <button onClick={() => document.querySelector('input')?.focus()} className="flex flex-col items-center gap-0.5 text-brume">
             <Search size={20} />
-            <span className="text-[10px] font-medium">Recherche</span>
+            <span className="text-[10px] font-medium">{t('common.search')}</span>
           </button>
           <Link to="/panier" className="flex flex-col items-center gap-0.5 text-brume relative">
             <ShoppingCart size={20} />
@@ -379,7 +381,7 @@ export function PublicShopPage() {
                 {cartCount > 9 ? '9+' : cartCount}
               </span>
             )}
-            <span className="text-[10px] font-medium">Panier</span>
+            <span className="text-[10px] font-medium">{t('cart.title')}</span>
           </Link>
           <a
             href={`https://wa.me/${store.whatsapp_number?.replace(/[^0-9]/g, '') ?? ''}`}
@@ -388,7 +390,7 @@ export function PublicShopPage() {
             className="flex flex-col items-center gap-0.5 text-vert-marche"
           >
             <MessageCircle size={20} />
-            <span className="text-[10px] font-medium">WhatsApp</span>
+            <span className="text-[10px] font-medium">{t('common.whatsapp')}</span>
           </a>
         </div>
       </nav>

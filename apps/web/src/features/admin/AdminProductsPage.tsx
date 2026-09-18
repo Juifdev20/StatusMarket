@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Package, Search } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import type { Product } from '../../types';
 
 export function AdminProductsPage() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -40,13 +42,13 @@ export function AdminProductsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-2xl font-bold">Produits</h1>
-        <span className="badge bg-brume/20 text-brume">{products.length} produit{products.length > 1 ? 's' : ''}</span>
+        <h1 className="font-serif text-2xl font-bold">{t('products.title')}</h1>
+        <span className="badge bg-brume/20 text-brume">{t('adminProducts.count', { count: products.length })}</span>
       </div>
 
       <div className="relative">
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-brume" />
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher..." className="input pl-10" />
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('common.search') + '...'} className="input pl-10" />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -62,7 +64,7 @@ export function AdminProductsPage() {
             <p className="font-mono text-sm font-semibold text-vert-marche mt-1">{product.price} {product.currency}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <button onClick={() => toggleAvailability(product.id, product.is_available)} className={`badge ${product.is_available ? 'bg-vert-marche/10 text-vert-marche' : 'bg-corail-alerte/10 text-corail-alerte'}`}>
-                {product.is_available ? 'Disponible' : 'Indisponible'}
+                {product.is_available ? t('products.available') : t('adminProducts.unavailable')}
               </button>
             </div>
           </div>

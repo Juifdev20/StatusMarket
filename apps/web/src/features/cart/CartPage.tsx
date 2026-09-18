@@ -1,12 +1,14 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Trash2, Minus, Plus, ArrowLeft, Package } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import type { Product } from '../../types';
 
 type CartItem = { product: Product; quantity: number };
 
 export function CartPage() {
+  const { t } = useTranslation();
   const [items, setItems] = useState<CartItem[]>([]);
   const [store, setStore] = useState<{ id: string; whatsapp_number: string | null; slug: string; name: string } | null>(null);
   const [customer, setCustomer] = useState({ name: '', phone: '', email: '', address: '', notes: '' });
@@ -49,7 +51,7 @@ export function CartPage() {
     e.preventDefault();
     if (!store || items.length === 0) return;
     if (!customer.phone.trim() || !customer.address.trim()) {
-      alert('Le numéro de téléphone et l\'adresse complète sont obligatoires pour la livraison.');
+      alert(t('cart.errors.phoneAndAddressRequired'));
       return;
     }
     setSubmitting(true);
@@ -88,10 +90,10 @@ export function CartPage() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-vert-marche/10">
             <ShoppingCart size={24} className="text-vert-marche" />
           </div>
-          <h1 className="font-serif text-2xl font-bold">Commande envoyée !</h1>
-          <p className="mt-2 text-sm text-brume">Le vendeur vous contactera par WhatsApp pour confirmer.</p>
-          {store && <a href={`https://wa.me/${store.whatsapp_number?.replace(/[^0-9]/g, '') ?? ''}`} className="btn-cta mt-6 inline-flex" target="_blank" rel="noopener noreferrer">Contacter sur WhatsApp</a>}
-          <Link to="/" className="btn-outline mt-3 w-full block">Retour à l'accueil</Link>
+          <h1 className="font-serif text-2xl font-bold">{t('cart.orderSent')}</h1>
+          <p className="mt-2 text-sm text-brume">{t('cart.sellerWillContact')}</p>
+          {store && <a href={`https://wa.me/${store.whatsapp_number?.replace(/[^0-9]/g, '') ?? ''}`} className="btn-cta mt-6 inline-flex" target="_blank" rel="noopener noreferrer">{t('cart.contactOnWhatsapp')}</a>}
+          <Link to="/" className="btn-outline mt-3 w-full block">{t('auth.backToHome')}</Link>
         </div>
       </div>
     );
@@ -103,15 +105,15 @@ export function CartPage() {
         <button onClick={() => navigate(-1)} className="text-brume hover:text-vert-marche">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="font-serif text-lg font-bold">Panier</h1>
+        <h1 className="font-serif text-lg font-bold">{t('cart.title')}</h1>
       </header>
 
       <main className="mx-auto max-w-2xl px-4 pt-24">
         {items.length === 0 ? (
           <div className="flex flex-col items-center py-20 text-center">
             <Package size={48} className="text-brume mb-4" />
-            <p className="text-brume">Votre panier est vide.</p>
-            <Link to="/" className="btn-primary mt-4">Explorer les boutiques</Link>
+            <p className="text-brume">{t('cart.empty')}</p>
+            <Link to="/" className="btn-primary mt-4">{t('cart.exploreShops')}</Link>
           </div>
         ) : (
           <div className="space-y-6">
@@ -137,35 +139,35 @@ export function CartPage() {
 
             <div className="card p-4">
               <div className="flex items-center justify-between text-lg font-bold">
-                <span>Total</span>
+                <span>{t('cart.total')}</span>
                 <span className="font-mono text-vert-marche">{total} {currency}</span>
               </div>
             </div>
 
             <form onSubmit={handleSubmit} className="card p-4 space-y-4">
-              <h2 className="font-serif text-lg font-bold">Informations de livraison</h2>
+              <h2 className="font-serif text-lg font-bold">{t('cart.deliveryInfo')}</h2>
               <div>
-                <label className="label">Téléphone *</label>
+                <label className="label">{t('cart.phoneRequired')}</label>
                 <input required value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })} className="input" placeholder="+243..." />
               </div>
               <div>
-                <label className="label">Nom</label>
-                <input value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} className="input" placeholder="Votre nom" />
+                <label className="label">{t('account.name')}</label>
+                <input value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} className="input" placeholder={t('cart.yourName')} />
               </div>
               <div>
-                <label className="label">Adresse complète *</label>
-                <input required value={customer.address} onChange={(e) => setCustomer({ ...customer, address: e.target.value })} className="input" placeholder="Quartier, avenue, numéro de porte..." />
+                <label className="label">{t('cart.addressRequired')}</label>
+                <input required value={customer.address} onChange={(e) => setCustomer({ ...customer, address: e.target.value })} className="input" placeholder={t('cart.addressPlaceholder')} />
               </div>
               <div>
-                <label className="label">Email <span className="text-brume font-normal">(optionnel)</span></label>
+                <label className="label">{t('account.emailLabel')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                 <input type="email" value={customer.email} onChange={(e) => setCustomer({ ...customer, email: e.target.value })} className="input" placeholder="vous@exemple.com" />
               </div>
               <div>
-                <label className="label">Notes</label>
-                <textarea value={customer.notes} onChange={(e) => setCustomer({ ...customer, notes: e.target.value })} className="input min-h-[80px]" placeholder="Couleur, taille..." />
+                <label className="label">{t('cart.notes')}</label>
+                <textarea value={customer.notes} onChange={(e) => setCustomer({ ...customer, notes: e.target.value })} className="input min-h-[80px]" placeholder={t('cart.notesPlaceholder')} />
               </div>
               <button type="submit" disabled={submitting} className="btn-primary w-full">
-                {submitting ? 'Envoi...' : 'Confirmer la commande'}
+                {submitting ? t('report.sending') : t('cart.confirmOrder')}
               </button>
             </form>
           </div>

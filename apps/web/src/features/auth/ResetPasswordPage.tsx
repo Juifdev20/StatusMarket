@@ -1,9 +1,11 @@
 import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { KeyRound, Eye, EyeOff, ArrowLeft, UserCircle, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { StatusRing } from '../../components/StatusRing';
 
 export function ResetPasswordPage() {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<'reset' | 'recover'>('reset');
   const [username, setUsername] = useState('');
   const [phone, setPhone] = useState('');
@@ -24,11 +26,11 @@ export function ResetPasswordPage() {
     setSuccess(null);
 
     if (newPassword.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères.');
+      setError(t('resetPassword.errors.tooShort'));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.');
+      setError(t('auth.errors.passwordMismatch'));
       return;
     }
 
@@ -41,9 +43,9 @@ export function ResetPasswordPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error || 'Une erreur est survenue.');
+        setError(data.error || t('common.error'));
       } else {
-        setSuccess('Mot de passe réinitialisé avec succès. Connectez-vous avec votre nom d\'utilisateur et votre nouveau mot de passe.');
+        setSuccess(t('resetPassword.success'));
         setUsername('');
         setPhone('');
         setRecoveryPin('');
@@ -51,7 +53,7 @@ export function ResetPasswordPage() {
         setConfirmPassword('');
       }
     } catch {
-      setError('Problème de connexion internet. Vérifiez votre réseau.');
+      setError(t('auth.errors.network'));
     }
     setLoading(false);
   };
@@ -71,12 +73,12 @@ export function ResetPasswordPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error || 'Aucun compte trouvé avec ce numéro.');
+        setError(data.error || t('resetPassword.noAccountFound'));
       } else {
         setRecovered({ username: data.username, fullName: data.fullName });
       }
     } catch {
-      setError('Problème de connexion internet. Vérifiez votre réseau.');
+      setError(t('auth.errors.network'));
     }
     setLoading(false);
   };
@@ -87,12 +89,10 @@ export function ResetPasswordPage() {
         <div className="mb-8 flex flex-col items-center text-center">
           <StatusRing progress={0} size={80} color="#2D6A4F" />
           <h1 className="font-serif mt-6 text-2xl font-bold text-encre-nuit dark:text-sable-chaud">
-            {mode === 'reset' ? 'Réinitialiser le mot de passe' : 'Retrouver mon identifiant'}
+            {mode === 'reset' ? t('resetPassword.title') : t('resetPassword.recoverTitle')}
           </h1>
           <p className="mt-2 text-sm text-brume">
-            {mode === 'reset'
-              ? 'Entrez votre nom d\'utilisateur, numéro de téléphone et code de récupération pour définir un nouveau mot de passe.'
-              : 'Entrez votre numéro de téléphone pour retrouver votre nom d\'utilisateur.'}
+            {mode === 'reset' ? t('resetPassword.resetHint') : t('resetPassword.recoverHint')}
           </p>
         </div>
 
@@ -102,13 +102,13 @@ export function ResetPasswordPage() {
               onClick={() => setMode('reset')}
               className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-colors ${mode === 'reset' ? 'bg-white dark:bg-encre-nuit shadow-sm text-vert-marche' : 'text-brume'}`}
             >
-              <KeyRound size={14} className="inline mr-1" /> Mot de passe
+              <KeyRound size={14} className="inline mr-1" /> {t('auth.password')}
             </button>
             <button
               onClick={() => setMode('recover')}
               className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-colors ${mode === 'recover' ? 'bg-white dark:bg-encre-nuit shadow-sm text-vert-marche' : 'text-brume'}`}
             >
-              <UserCircle size={14} className="inline mr-1" /> Identifiant
+              <UserCircle size={14} className="inline mr-1" /> {t('auth.username')}
             </button>
           </div>
 
@@ -129,7 +129,7 @@ export function ResetPasswordPage() {
           {mode === 'reset' ? (
             <form onSubmit={handleReset} className="space-y-4">
               <div>
-                <label className="label">Nom d'utilisateur</label>
+                <label className="label">{t('auth.username')}</label>
                 <input
                   type="text"
                   required
@@ -140,7 +140,7 @@ export function ResetPasswordPage() {
                 />
               </div>
               <div>
-                <label className="label">Numéro de téléphone</label>
+                <label className="label">{t('auth.phone')}</label>
                 <input
                   type="tel"
                   required
@@ -151,7 +151,7 @@ export function ResetPasswordPage() {
                 />
               </div>
               <div>
-                <label className="label">Code de récupération</label>
+                <label className="label">{t('auth.recoveryPin')}</label>
                 <input
                   type="password"
                   inputMode="numeric"
@@ -161,11 +161,11 @@ export function ResetPasswordPage() {
                   value={recoveryPin}
                   onChange={(e) => setRecoveryPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   className="input w-full"
-                  placeholder="4 à 6 chiffres"
+                  placeholder={t('auth.recoveryPinPlaceholder')}
                 />
               </div>
               <div>
-                <label className="label">Nouveau mot de passe</label>
+                <label className="label">{t('resetPassword.newPassword')}</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -186,7 +186,7 @@ export function ResetPasswordPage() {
                 </div>
               </div>
               <div>
-                <label className="label">Confirmer le mot de passe</label>
+                <label className="label">{t('auth.confirmPassword')}</label>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
@@ -198,13 +198,13 @@ export function ResetPasswordPage() {
                 />
               </div>
               <button type="submit" disabled={loading} className="btn-primary w-full">
-                {loading ? 'Traitement...' : 'Réinitialiser le mot de passe'}
+                {loading ? t('resetPassword.processing') : t('resetPassword.title')}
               </button>
             </form>
           ) : (
             <form onSubmit={handleRecover} className="space-y-4">
               <div>
-                <label className="label">Numéro de téléphone</label>
+                <label className="label">{t('auth.phone')}</label>
                 <input
                   type="tel"
                   required
@@ -215,11 +215,11 @@ export function ResetPasswordPage() {
                 />
               </div>
               <button type="submit" disabled={loading} className="btn-primary w-full">
-                {loading ? 'Recherche...' : 'Retrouver mon identifiant'}
+                {loading ? t('resetPassword.searching') : t('resetPassword.recoverTitle')}
               </button>
               {recovered && (
                 <div className="rounded-lg bg-vert-marche/10 p-4 text-center">
-                  <p className="text-sm text-brume">Nom d'utilisateur</p>
+                  <p className="text-sm text-brume">{t('auth.username')}</p>
                   <p className="mt-1 font-mono text-lg font-bold text-vert-marche">{recovered.username}</p>
                   {recovered.fullName && <p className="text-xs text-brume mt-1">{recovered.fullName}</p>}
                 </div>
@@ -229,7 +229,7 @@ export function ResetPasswordPage() {
 
           <div className="mt-6 text-center">
             <Link to="/connexion" className="text-sm text-brume hover:text-vert-marche transition-colors inline-flex items-center gap-1">
-              <ArrowLeft size={14} /> Retour à la connexion
+              <ArrowLeft size={14} /> {t('resetPassword.backToLogin')}
             </Link>
           </div>
         </div>

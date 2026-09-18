@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { Session, User } from '@supabase/supabase-js';
+import i18n from '../../lib/i18n';
 import { supabase } from '../../lib/supabase';
 import type { Profile, UserRole } from '../../types';
 
@@ -14,22 +15,22 @@ export function toAuthEmail(username: string): string {
 function translateAuthError(msg: string): string {
   if (!msg) return '';
   const lower = msg.toLowerCase();
-  if (lower.includes('invalid login credentials')) return 'Nom d\'utilisateur ou mot de passe incorrect.';
-  if (lower.includes('invalid credentials')) return 'Nom d\'utilisateur ou mot de passe incorrect.';
-  if (lower.includes('user already registered') || lower.includes('already been registered')) return 'Ce nom d\'utilisateur est déjà utilisé. Choisissez-en un autre.';
-  if (lower.includes('already') && lower.includes('taken')) return 'Ce nom d\'utilisateur est déjà pris.';
-  if (lower.includes('duplicate key')) return 'Ce nom d\'utilisateur est déjà pris. Choisissez-en un autre.';
-  if (lower.includes('numéro de téléphone') && lower.includes('déjà utilisé')) return 'Ce numéro de téléphone est déjà utilisé par un autre compte.';
-  if (lower.includes('email rate limit')) return 'Trop de tentatives. Patientez quelques minutes avant de réessayer.';
-  if (lower.includes('rate limit')) return 'Trop de tentatives. Patientez quelques minutes avant de réessayer.';
-  if (lower.includes('password') && lower.includes('short')) return 'Le mot de passe est trop court (minimum 6 caractères).';
-  if (lower.includes('password') && lower.includes('weak')) return 'Le mot de passe est trop faible. Utilisez au moins 6 caractères.';
-  if (lower.includes('network') || lower.includes('fetch') || lower.includes('failed to fetch')) return 'Problème de connexion internet. Vérifiez votre réseau.';
-  if (lower.includes('timeout')) return 'Le serveur met trop de temps à répondre. Réessayez.';
-  if (lower.includes('overload')) return 'Le serveur est surchargé. Réessayez dans un instant.';
-  if (lower.includes('user not found')) return 'Aucun compte trouvé avec ce nom d\'utilisateur.';
-  if (lower.includes('not confirmed')) return 'Votre compte n\'est pas encore confirmé. Contactez le support.';
-  if (lower.includes('jwt') || lower.includes('token')) return 'Session expirée. Reconnectez-vous.';
+  if (lower.includes('invalid login credentials')) return i18n.t('auth.errors.invalidCredentials');
+  if (lower.includes('invalid credentials')) return i18n.t('auth.errors.invalidCredentials');
+  if (lower.includes('user already registered') || lower.includes('already been registered')) return i18n.t('auth.errors.usernameTaken');
+  if (lower.includes('already') && lower.includes('taken')) return i18n.t('auth.errors.usernameTakenShort');
+  if (lower.includes('duplicate key')) return i18n.t('auth.errors.usernameTaken');
+  if (lower.includes('numéro de téléphone') && lower.includes('déjà utilisé')) return i18n.t('auth.errors.phoneTaken');
+  if (lower.includes('email rate limit')) return i18n.t('auth.errors.rateLimit');
+  if (lower.includes('rate limit')) return i18n.t('auth.errors.rateLimit');
+  if (lower.includes('password') && lower.includes('short')) return i18n.t('auth.errors.passwordTooShort');
+  if (lower.includes('password') && lower.includes('weak')) return i18n.t('auth.errors.passwordWeak');
+  if (lower.includes('network') || lower.includes('fetch') || lower.includes('failed to fetch')) return i18n.t('auth.errors.network');
+  if (lower.includes('timeout')) return i18n.t('auth.errors.timeout');
+  if (lower.includes('overload')) return i18n.t('auth.errors.overload');
+  if (lower.includes('user not found')) return i18n.t('auth.errors.userNotFound');
+  if (lower.includes('not confirmed')) return i18n.t('auth.errors.notConfirmed');
+  if (lower.includes('jwt') || lower.includes('token')) return i18n.t('auth.errors.sessionExpired');
   return msg;
 }
 
@@ -129,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return { error: null };
     } catch {
-      return { error: 'Problème de connexion internet. Vérifiez votre réseau et réessayez.' };
+      return { error: i18n.t('auth.errors.networkRetry') };
     }
   };
 
@@ -157,10 +158,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return { error: firstField };
           }
         }
-        return { error: 'Une erreur est survenue lors de l\'inscription.' };
+        return { error: i18n.t('auth.errors.signupFailed') };
       }
     } catch {
-      return { error: 'Problème de connexion internet. Vérifiez votre réseau et réessayez.' };
+      return { error: i18n.t('auth.errors.networkRetry') };
     }
     try {
       const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -172,7 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return { error: null };
     } catch {
-      return { error: 'Inscription réussie mais connexion automatique impossible. Essayez de vous connecter manuellement.' };
+      return { error: i18n.t('auth.errors.signupAutoLoginFailed') };
     }
   };
 

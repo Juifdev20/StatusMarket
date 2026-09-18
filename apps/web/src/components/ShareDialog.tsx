@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X, Share2, MessageCircle, Copy, Check, Image as ImageIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { getSiteUrl } from '../utils/siteUrl';
 import type { Product, Store } from '../types';
@@ -14,6 +15,7 @@ interface ShareDialogProps {
 }
 
 export function ShareDialog({ product, store, onClose, onPreviewImageChange }: ShareDialogProps) {
+  const { t } = useTranslation();
   const [message, setMessage] = useState('');
   const [copied, setCopied] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(
@@ -70,7 +72,7 @@ export function ShareDialog({ product, store, onClose, onPreviewImageChange }: S
       <div className="card w-full max-w-md flex flex-col rounded-b-none md:rounded-2xl max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="border-b border-brume/10 p-4 flex items-center justify-between">
           <h2 className="font-serif text-lg font-bold flex items-center gap-2">
-            <Share2 size={18} /> Partager le produit
+            <Share2 size={18} /> {t('shareDialog.title')}
           </h2>
           <button onClick={onClose} className="btn-ghost p-1"><X size={20} /></button>
         </div>
@@ -80,9 +82,9 @@ export function ShareDialog({ product, store, onClose, onPreviewImageChange }: S
           {allImages.length > 0 && (
             <div>
               <label className="label flex items-center gap-1">
-                <ImageIcon size={14} /> Image d'aperçu
+                <ImageIcon size={14} /> {t('shareDialog.previewImage')}
               </label>
-              <p className="text-xs text-brume mb-2">Choisissez l'image affichée dans l'aperçu WhatsApp</p>
+              <p className="text-xs text-brume mb-2">{t('shareDialog.previewImageHint')}</p>
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {allImages.map((img) => (
                   <button
@@ -99,13 +101,13 @@ export function ShareDialog({ product, store, onClose, onPreviewImageChange }: S
                   </button>
                 ))}
               </div>
-              {savingImage && <p className="text-xs text-brume">Enregistrement...</p>}
+              {savingImage && <p className="text-xs text-brume">{t('shareDialog.saving')}</p>}
             </div>
           )}
 
           {/* Aperçu WhatsApp */}
           <div>
-            <label className="label">Aperçu du partage</label>
+            <label className="label">{t('shareDialog.previewLabel')}</label>
             <div className="rounded-xl border border-brume/20 overflow-hidden bg-white dark:bg-encre-nuit/60">
               <div className="aspect-[1.91:1] bg-sable-chaud dark:bg-encre-nuit/40 overflow-hidden">
                 {selectedImage ? (
@@ -119,7 +121,7 @@ export function ShareDialog({ product, store, onClose, onPreviewImageChange }: S
               <div className="p-3">
                 <p className="text-sm font-semibold truncate">{product.name} — {store.name}</p>
                 <p className="text-xs text-brume line-clamp-2 mt-0.5">
-                  {product.description || `${product.name} disponible chez ${store.name}`} — {displayPrice}
+                  {product.description || t('shareDialog.availableAt', { name: product.name, store: store.name })} — {displayPrice}
                 </p>
                 <p className="text-[10px] text-brume mt-1">{SITE_URL.replace(/^https?:\/\//, '')}</p>
               </div>
@@ -128,19 +130,19 @@ export function ShareDialog({ product, store, onClose, onPreviewImageChange }: S
 
           {/* Message personnalisé */}
           <div>
-            <label className="label">Message WhatsApp (optionnel)</label>
+            <label className="label">{t('shareDialog.messageLabel')}</label>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="input min-h-[80px]"
-              placeholder="🔥 Nouvelle arrivage !&#10;Découvrez ce produit sur ma boutique 👇"
+              placeholder={t('shareDialog.messagePlaceholder')}
             />
-            <p className="text-xs text-brume mt-1">Votre message sera suivi du lien du produit.</p>
+            <p className="text-xs text-brume mt-1">{t('shareDialog.messageHint')}</p>
           </div>
 
           {/* Lien OG */}
           <div>
-            <label className="label">Lien de partage</label>
+            <label className="label">{t('shareDialog.linkLabel')}</label>
             <div className="flex items-center gap-2">
               <input
                 readOnly
@@ -148,7 +150,7 @@ export function ShareDialog({ product, store, onClose, onPreviewImageChange }: S
                 className="input flex-1 text-xs"
                 onClick={(e) => (e.target as HTMLInputElement).select()}
               />
-              <button onClick={handleCopyLink} className="btn-outline p-2 shrink-0" title="Copier le lien">
+              <button onClick={handleCopyLink} className="btn-outline p-2 shrink-0" title={t('shareDialog.copyLink')}>
                 {copied ? <Check size={16} className="text-vert-marche" /> : <Copy size={16} />}
               </button>
             </div>
@@ -156,9 +158,9 @@ export function ShareDialog({ product, store, onClose, onPreviewImageChange }: S
         </div>
 
         <div className="sticky bottom-0 border-t border-brume/10 bg-inherit p-4 flex gap-2">
-          <button type="button" onClick={onClose} className="btn-ghost flex-1">Fermer</button>
+          <button type="button" onClick={onClose} className="btn-ghost flex-1">{t('common.close')}</button>
           <button type="button" onClick={handleShareWhatsApp} className="btn-cta flex-1 flex items-center justify-center gap-2">
-            <MessageCircle size={18} /> Partager sur WhatsApp
+            <MessageCircle size={18} /> {t('shareDialog.shareOnWhatsapp')}
           </button>
         </div>
       </div>

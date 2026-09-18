@@ -1,10 +1,12 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { Plus, Pencil, Trash2, X, Tag } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import { useAuth } from '../auth/authContext';
 import type { Store, Category } from '../../types';
 
 export function CategoriesPage() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const [store, setStore] = useState<Store | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -70,7 +72,7 @@ export function CategoriesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Supprimer cette catégorie ?')) return;
+    if (!confirm(t('categories.confirmDelete'))) return;
     try {
       await api.deleteCategory(id);
       await load();
@@ -89,26 +91,26 @@ export function CategoriesPage() {
   }
 
   if (!store) {
-    return <p className="text-center text-brume py-20">Créez d'abord votre boutique.</p>;
+    return <p className="text-center text-brume py-20">{t('categories.createShopFirst')}</p>;
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-bold">Catégories</h1>
+      <h1 className="font-serif text-2xl font-bold">{t('categories.title')}</h1>
 
       <form onSubmit={handleSubmit} className="card p-4 space-y-4">
         <div>
-          <label className="label">{editing ? 'Modifier la catégorie' : 'Nouvelle catégorie'}</label>
+          <label className="label">{editing ? t('categories.editCategory') : t('categories.newCategory')}</label>
           <div className="flex gap-2">
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="input flex-1"
-              placeholder="Ex: Chaussures"
+              placeholder={t('categories.placeholder')}
             />
             <button type="submit" disabled={saving} className="btn-primary">
               {editing ? <Pencil size={16} /> : <Plus size={16} />}
-              {editing ? 'Modifier' : 'Ajouter'}
+              {editing ? t('common.edit') : t('common.add')}
             </button>
             {editing && (
               <button type="button" onClick={cancelEdit} className="btn-ghost px-3">
@@ -122,7 +124,7 @@ export function CategoriesPage() {
       {categories.length === 0 ? (
         <div className="flex flex-col items-center py-16 text-center">
           <Tag size={48} className="text-brume mb-4" />
-          <p className="text-brume">Aucune catégorie. Ajoutez-en pour mieux organiser vos produits.</p>
+          <p className="text-brume">{t('categories.empty')}</p>
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

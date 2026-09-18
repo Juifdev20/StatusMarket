@@ -1,12 +1,14 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Package, Store, TrendingUp, CreditCard, Plus, ExternalLink, Share2, ShoppingBag, ArrowRight, Upload, Star, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { StatusRing } from '../../components/StatusRing';
 import type { Store as StoreType, Product, Subscription } from '../../types';
 
 export function SellerDashboard() {
+  const { t, i18n } = useTranslation();
   const { profile } = useAuth();
   const [store, setStore] = useState<StoreType | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -131,13 +133,13 @@ export function SellerDashboard() {
     const fileName = `logos/${profile.id}/${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage.from('product-images').upload(fileName, file);
     if (upErr) {
-      setLogoError('Erreur lors du téléchargement du logo.');
+      setLogoError(t('dashboard.errors.logoUpload'));
     } else {
       const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
       const url = data.publicUrl;
       const { error: updateErr } = await supabase.from('stores').update({ logo_url: url }).eq('id', store.id);
       if (updateErr) {
-        setLogoError('Erreur lors de la mise à jour du logo.');
+        setLogoError(t('dashboard.errors.logoUpdate'));
       } else {
         setStore({ ...store, logo_url: url });
         setLogoUrl(url);
@@ -154,13 +156,13 @@ export function SellerDashboard() {
     const fileName = `store-fronts/${profile.id}/${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage.from('product-images').upload(fileName, file);
     if (upErr) {
-      setStoreFrontError('Erreur lors du téléchargement de la photo.');
+      setStoreFrontError(t('dashboard.errors.photoUpload'));
     } else {
       const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
       const url = data.publicUrl;
       const { error: updateErr } = await supabase.from('stores').update({ store_front_image_url: url }).eq('id', store.id);
       if (updateErr) {
-        setStoreFrontError('Erreur lors de la mise à jour de la photo.');
+        setStoreFrontError(t('dashboard.errors.photoUpdate'));
       } else {
         setStore({ ...store, store_front_image_url: url });
       }
@@ -185,7 +187,7 @@ export function SellerDashboard() {
     };
     const { error } = await supabase.from('stores').update(payload).eq('id', store.id);
     if (error) {
-      setLocationError('Erreur lors de la sauvegarde de la localisation.');
+      setLocationError(t('dashboard.errors.locationSave'));
     } else {
       setStore({ ...store, ...payload });
       setLocationSaved(true);
@@ -206,10 +208,10 @@ export function SellerDashboard() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <Store size={48} className="text-brume mb-4" />
-        <h2 className="font-serif text-xl font-bold mb-2">Créez votre boutique</h2>
-        <p className="text-sm text-brume mb-6">Lancez votre boutique en ligne en quelques clics.</p>
+        <h2 className="font-serif text-xl font-bold mb-2">{t('dashboard.createShop')}</h2>
+        <p className="text-sm text-brume mb-6">{t('dashboard.createShopHint')}</p>
         <Link to="/vendeur/boutique/nouvelle" className="btn-cta">
-          <Plus size={18} /> Créer ma boutique
+          <Plus size={18} /> {t('createStore.title')}
         </Link>
       </div>
     );
@@ -227,12 +229,12 @@ export function SellerDashboard() {
     <div className="space-y-6 lg:space-y-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-bold lg:text-3xl">Bonjour, {profile?.full_name || 'Vendeur'}</h1>
-          <p className="text-sm text-brume mt-0.5">Voici un aperçu de votre boutique</p>
+          <h1 className="font-serif text-2xl font-bold lg:text-3xl">{t('dashboard.greeting', { name: profile?.full_name || t('account.defaultSeller') })}</h1>
+          <p className="text-sm text-brume mt-0.5">{t('dashboard.overview')}</p>
         </div>
         <div className="flex items-center gap-3">
           <Link to="/vendeur/statut" className="btn-cta">
-            <Share2 size={16} /> Nouvelle publication
+            <Share2 size={16} /> {t('dashboard.newPost')}
           </Link>
           <a
             href={`${window.location.origin}/boutique/${store.slug}`}
@@ -240,7 +242,7 @@ export function SellerDashboard() {
             rel="noopener noreferrer"
             className="btn-outline text-xs lg:text-sm"
           >
-            <ExternalLink size={14} /> Voir ma boutique
+            <ExternalLink size={14} /> {t('dashboard.viewMyShop')}
           </a>
         </div>
       </div>
@@ -249,14 +251,14 @@ export function SellerDashboard() {
         <div className="card flex flex-col gap-4 p-4 border-corail-alerte/30 lg:flex-row lg:items-center">
           <StatusRing progress={trialProgress} size={56} color="#E2572B">
             <div className="flex h-full w-full items-center justify-center bg-corail-alerte/10 rounded-full">
-              <span className="font-mono text-xs font-bold text-corail-alerte">{daysLeft}j</span>
+              <span className="font-mono text-xs font-bold text-corail-alerte">{t('dashboard.daysShort', { count: daysLeft })}</span>
             </div>
           </StatusRing>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-corail-alerte">Essai PRO en cours</p>
-            <p className="text-xs text-brume">Plus que {daysLeft} jours d'essai. Passez à PRO pour continuer à profiter de toutes les fonctionnalités.</p>
+            <p className="text-sm font-semibold text-corail-alerte">{t('dashboard.trialInProgress')}</p>
+            <p className="text-xs text-brume">{t('dashboard.trialDaysLeft', { count: daysLeft })}</p>
           </div>
-          <Link to="/vendeur/abonnement" className="btn-cta text-xs">Passer à PRO</Link>
+          <Link to="/vendeur/abonnement" className="btn-cta text-xs">{t('dashboard.upgradeToPro')}</Link>
         </div>
       )}
 
@@ -264,28 +266,28 @@ export function SellerDashboard() {
         <div className="card p-4">
           <div className="flex items-center gap-2 text-brume mb-2">
             <Package size={18} />
-            <span className="text-xs font-medium">Produits</span>
+            <span className="text-xs font-medium">{t('products.title')}</span>
           </div>
           <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">{products.length}</p>
         </div>
         <div className="card p-4">
           <div className="flex items-center gap-2 text-brume mb-2">
             <TrendingUp size={18} />
-            <span className="text-xs font-medium">Vues boutique</span>
+            <span className="text-xs font-medium">{t('dashboard.shopViews')}</span>
           </div>
           <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">{storeViews}</p>
         </div>
         <div className="card p-4">
           <div className="flex items-center gap-2 text-brume mb-2">
             <Share2 size={18} />
-            <span className="text-xs font-medium">Publications</span>
+            <span className="text-xs font-medium">{t('dashboard.publications')}</span>
           </div>
           <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">{publicationsCount}</p>
         </div>
         <div className="card p-4">
           <div className="flex items-center gap-2 text-brume mb-2">
             <ShoppingBag size={18} />
-            <span className="text-xs font-medium">Commandes</span>
+            <span className="text-xs font-medium">{t('orders.title')}</span>
           </div>
           <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">{ordersCount}</p>
         </div>
@@ -295,7 +297,7 @@ export function SellerDashboard() {
         <div className="card p-4">
           <div className="flex items-center gap-2 text-brume mb-2">
             <Star size={18} />
-            <span className="text-xs font-medium">Note moyenne</span>
+            <span className="text-xs font-medium">{t('dashboard.avgRating')}</span>
           </div>
           <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">
             {avgRating ? avgRating.toFixed(1) : '—'}
@@ -305,14 +307,14 @@ export function SellerDashboard() {
         <div className="card p-4">
           <div className="flex items-center gap-2 text-brume mb-2">
             <Share2 size={18} />
-            <span className="text-xs font-medium">Partages (7j)</span>
+            <span className="text-xs font-medium">{t('dashboard.sharesWeek')}</span>
           </div>
           <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">{sharesCount}</p>
         </div>
         <div className="card p-4">
           <div className="flex items-center gap-2 text-brume mb-2">
             <Users size={18} />
-            <span className="text-xs font-medium">Abonnés</span>
+            <span className="text-xs font-medium">{t('dashboard.followers')}</span>
           </div>
           <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">{followerCount}</p>
         </div>
@@ -321,15 +323,15 @@ export function SellerDashboard() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="card p-4 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold">Produits récents</h2>
-            <Link to="/vendeur/produits" className="text-xs text-vert-marche font-medium flex items-center gap-1">Voir tout <ArrowRight size={12} /></Link>
+            <h2 className="font-semibold">{t('dashboard.recentProducts')}</h2>
+            <Link to="/vendeur/produits" className="text-xs text-vert-marche font-medium flex items-center gap-1">{t('common.seeAll')} <ArrowRight size={12} /></Link>
           </div>
           {products.length === 0 ? (
             <div className="flex flex-col items-center py-8 text-center">
               <Package size={32} className="text-brume mb-3" />
-              <p className="text-sm text-brume mb-4">Aucun produit pour le moment</p>
+              <p className="text-sm text-brume mb-4">{t('dashboard.noProductsYet')}</p>
               <Link to="/vendeur/produits" className="btn-primary text-xs">
-                <Plus size={14} /> Ajouter un produit
+                <Plus size={14} /> {t('dashboard.addProduct')}
               </Link>
             </div>
           ) : (
@@ -344,7 +346,7 @@ export function SellerDashboard() {
                     <p className="font-mono text-xs text-vert-marche">{p.price} {p.currency}</p>
                   </div>
                   <span className={`badge text-[10px] ${p.is_available ? 'bg-vert-marche/10 text-vert-marche' : 'bg-brume/20 text-brume'}`}>
-                    {p.is_available ? 'Disponible' : 'Rupture'}
+                    {p.is_available ? t('products.available') : t('publicShop.outOfStock')}
                   </span>
                 </div>
               ))}
@@ -356,7 +358,7 @@ export function SellerDashboard() {
           <div className="card p-4">
             <div className="flex items-center gap-2 mb-3">
               <CreditCard size={18} className="text-brume" />
-              <h2 className="font-semibold">Abonnement</h2>
+              <h2 className="font-semibold">{t('dashboard.subscription')}</h2>
             </div>
             {subscription ? (
               <div>
@@ -364,19 +366,19 @@ export function SellerDashboard() {
                   {subscription.plan?.name ?? '—'} · {subscription.status}
                 </span>
                 {subscription.expires_at && (
-                  <p className="text-xs text-brume mt-2">Expire le {new Date(subscription.expires_at).toLocaleDateString('fr-FR')}</p>
+                  <p className="text-xs text-brume mt-2">{t('dashboard.expiresOn', { date: new Date(subscription.expires_at).toLocaleDateString(i18n.language.startsWith('en') ? 'en-US' : 'fr-FR') })}</p>
                 )}
               </div>
             ) : (
               <div>
-                <p className="text-sm text-brume mb-3">Plan gratuit</p>
-                <Link to="/vendeur/abonnement" className="btn-primary text-xs">Améliorer mon plan</Link>
+                <p className="text-sm text-brume mb-3">{t('dashboard.freePlan')}</p>
+                <Link to="/vendeur/abonnement" className="btn-primary text-xs">{t('dashboard.upgradePlan')}</Link>
               </div>
             )}
           </div>
 
           <div className="card p-4">
-            <h2 className="font-semibold mb-3">Logo de la boutique</h2>
+            <h2 className="font-semibold mb-3">{t('dashboard.shopLogo')}</h2>
             <div className="flex items-start gap-3">
               {logoUrl ? (
                 <img src={logoUrl} alt="Logo" className="h-16 w-16 rounded-full object-cover border-2 border-vert-marche/30" />
@@ -402,7 +404,7 @@ export function SellerDashboard() {
                   disabled={logoUploading}
                   className="btn-outline text-xs w-full flex items-center justify-center gap-2"
                 >
-                  <Upload size={14} /> {logoUploading ? 'Téléchargement...' : 'Changer le logo'}
+                  <Upload size={14} /> {logoUploading ? t('createStore.uploading') : t('dashboard.changeLogo')}
                 </button>
                 {logoError && <p className="text-xs text-corail-alerte mt-2 break-words">{logoError}</p>}
               </div>
@@ -410,10 +412,10 @@ export function SellerDashboard() {
           </div>
 
           <form onSubmit={handleSaveLocation} className="card p-4">
-            <h2 className="font-semibold mb-3">Localisation</h2>
+            <h2 className="font-semibold mb-3">{t('dashboard.location')}</h2>
             <div className="space-y-3">
               <div>
-                <label className="label">Ville <span className="text-brume font-normal">(optionnel)</span></label>
+                <label className="label">{t('account.city')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                 <input
                   type="text"
                   value={locationDraft.city}
@@ -424,7 +426,7 @@ export function SellerDashboard() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="label">Quartier <span className="text-brume font-normal">(optionnel)</span></label>
+                  <label className="label">{t('account.quartier')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                   <input
                     type="text"
                     value={locationDraft.quartier}
@@ -434,7 +436,7 @@ export function SellerDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="label">Avenue <span className="text-brume font-normal">(optionnel)</span></label>
+                  <label className="label">{t('account.avenue')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                   <input
                     type="text"
                     value={locationDraft.avenue}
@@ -445,7 +447,7 @@ export function SellerDashboard() {
                 </div>
               </div>
               <div>
-                <label className="label">Numéro de porte <span className="text-brume font-normal">(optionnel)</span></label>
+                <label className="label">{t('createStore.doorNumber')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                 <input
                   type="text"
                   value={locationDraft.numero_porte}
@@ -456,7 +458,7 @@ export function SellerDashboard() {
               </div>
 
               <div>
-                <label className="label">Lien Google Maps <span className="text-brume font-normal">(optionnel)</span></label>
+                <label className="label">{t('createStore.mapsLink')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                 <input
                   type="url"
                   value={locationDraft.map_link}
@@ -467,7 +469,7 @@ export function SellerDashboard() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="label">Latitude <span className="text-brume font-normal">(optionnel)</span></label>
+                  <label className="label">{t('createStore.latitude')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                   <input
                     type="number"
                     step="any"
@@ -478,7 +480,7 @@ export function SellerDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="label">Longitude <span className="text-brume font-normal">(optionnel)</span></label>
+                  <label className="label">{t('createStore.longitude')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                   <input
                     type="number"
                     step="any"
@@ -490,7 +492,7 @@ export function SellerDashboard() {
                 </div>
               </div>
               <div>
-                <label className="label">Photo de la devanture <span className="text-brume font-normal">(optionnel)</span></label>
+                <label className="label">{t('account.storefrontPhoto')} <span className="text-brume font-normal">({t('common.optional')})</span></label>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
@@ -498,7 +500,7 @@ export function SellerDashboard() {
                     disabled={storeFrontUploading}
                     className="btn-outline text-xs flex items-center gap-2"
                   >
-                    <Upload size={14} /> {storeFrontUploading ? 'Téléchargement...' : 'Changer la photo'}
+                    <Upload size={14} /> {storeFrontUploading ? t('createStore.uploading') : t('dashboard.changePhoto')}
                   </button>
                   {store.store_front_image_url ? (
                     <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 border-vert-marche">
@@ -506,7 +508,7 @@ export function SellerDashboard() {
                     </div>
                   ) : (
                     <div className="flex h-14 w-20 shrink-0 items-center justify-center rounded-lg bg-brume/10 text-brume text-xs text-center">
-                      Aucune photo
+                      {t('account.noPhoto')}
                     </div>
                   )}
                 </div>
@@ -524,33 +526,33 @@ export function SellerDashboard() {
               </div>
             </div>
             <button type="submit" disabled={savingLocation} className="btn-primary w-full mt-4">
-              {savingLocation ? 'Enregistrement...' : 'Enregistrer'}
+              {savingLocation ? t('account.saving') : t('common.save')}
             </button>
             {locationSaved && (
-              <p className="text-center text-sm text-vert-marche mt-2">Boutique mise à jour avec succès !</p>
+              <p className="text-center text-sm text-vert-marche mt-2">{t('dashboard.shopUpdated')}</p>
             )}
             {locationError && (
               <p className="text-center text-sm text-corail-alerte mt-2">{locationError}</p>
             )}
-            <p className="text-xs text-brume mt-2">Ces informations aident les clients à vous trouver sur la page d'accueil.</p>
+            <p className="text-xs text-brume mt-2">{t('dashboard.locationHint')}</p>
           </form>
 
           <div className="card p-4">
-            <h2 className="font-semibold mb-3">Actions rapides</h2>
+            <h2 className="font-semibold mb-3">{t('dashboard.quickActions')}</h2>
             <div className="grid gap-2">
               <Link to="/vendeur/produits" className="btn-outline text-xs justify-start">
-                <Plus size={14} /> Ajouter un produit
+                <Plus size={14} /> {t('dashboard.addProduct')}
               </Link>
               <Link to="/vendeur/statut" className="btn-outline text-xs justify-start">
-                <Share2 size={14} /> Créer un statut
+                <Share2 size={14} /> {t('dashboard.createStatus')}
               </Link>
               <a
-                href={`https://wa.me/?text=${encodeURIComponent(`Découvrez ma boutique sur StatusMarket : ${window.location.origin}/boutique/${store.slug}`)}`}
+                href={`https://wa.me/?text=${encodeURIComponent(t('dashboard.shareShopMessage', { url: `${window.location.origin}/boutique/${store.slug}` }))}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-outline text-xs justify-start"
               >
-                <ShoppingBag size={14} /> Partager sur WhatsApp
+                <ShoppingBag size={14} /> {t('shareDialog.shareOnWhatsapp')}
               </a>
             </div>
           </div>

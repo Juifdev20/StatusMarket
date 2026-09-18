@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
 import { Home, Package, CirclePlus, ShoppingBag, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { StatusRing } from './StatusRing';
 
 export interface BottomNavTab {
@@ -11,23 +12,23 @@ export interface BottomNavTab {
   elevated?: boolean;
 }
 
-const vendorTabs: BottomNavTab[] = [
-  { to: '/vendeur', icon: Home, label: 'Accueil', end: true },
-  { to: '/vendeur/produits', icon: Package, label: 'Produits', end: false },
-  { to: '/vendeur/statut', icon: CirclePlus, label: 'Statut', end: false, elevated: true },
-  { to: '/vendeur/commandes', icon: ShoppingBag, label: 'Commandes', end: false },
-  { to: '/vendeur/compte', icon: User, label: 'Compte', end: false },
-];
-
 interface BottomNavProps {
   tabs?: BottomNavTab[];
 }
 
-export function BottomNav({ tabs = vendorTabs }: BottomNavProps) {
+export function BottomNav({ tabs }: BottomNavProps) {
+  const { t } = useTranslation();
+  const resolvedTabs: BottomNavTab[] = tabs ?? [
+    { to: '/vendeur', icon: Home, label: t('nav.home'), end: true },
+    { to: '/vendeur/produits', icon: Package, label: t('products.title'), end: false },
+    { to: '/vendeur/statut', icon: CirclePlus, label: t('vendorNav.status'), end: false, elevated: true },
+    { to: '/vendeur/commandes', icon: ShoppingBag, label: t('orders.title'), end: false },
+    { to: '/vendeur/compte', icon: User, label: t('vendorNav.account'), end: false },
+  ];
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-brume/30 bg-white dark:bg-encre-nuit md:hidden">
       <div className="flex items-end justify-around px-2 pb-[env(safe-area-inset-bottom)] pt-1">
-        {tabs.map((tab) => {
+        {resolvedTabs.map((tab) => {
           const Icon = tab.icon;
           if (tab.elevated) {
             return (

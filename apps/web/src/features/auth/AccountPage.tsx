@@ -1,11 +1,13 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth, toAuthEmail } from '../auth/authContext';
 import { supabase } from '../../lib/supabase';
 import { LogOut, User, Eye, EyeOff } from 'lucide-react';
 import type { Store } from '../../types';
 
 export function AccountPage() {
+  const { t } = useTranslation();
   const { profile, session, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [fullName, setFullName] = useState(profile?.full_name ?? '');
@@ -80,15 +82,15 @@ export function AccountPage() {
     setPasswordSaved(false);
 
     if (!profile?.username) {
-      setPasswordError('Profil non trouvé.');
+      setPasswordError(t('account.errors.profileNotFound'));
       return;
     }
     if (newPassword.length < 6) {
-      setPasswordError('Le nouveau mot de passe doit faire au moins 6 caractères.');
+      setPasswordError(t('account.errors.newPasswordTooShort'));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError('Les mots de passe ne correspondent pas.');
+      setPasswordError(t('auth.errors.passwordMismatch'));
       return;
     }
 
@@ -101,7 +103,7 @@ export function AccountPage() {
     });
 
     if (signInError) {
-      setPasswordError('Mot de passe actuel incorrect.');
+      setPasswordError(t('account.errors.currentPasswordIncorrect'));
       setPasswordSaving(false);
       return;
     }
@@ -125,7 +127,7 @@ export function AccountPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-bold">Mon compte</h1>
+      <h1 className="font-serif text-2xl font-bold">{t('account.title')}</h1>
 
       <div className="card p-4 flex items-center gap-4">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-vert-marche/10">
@@ -136,44 +138,44 @@ export function AccountPage() {
           )}
         </div>
         <div>
-          <p className="font-semibold">{profile?.full_name ?? 'Vendeur'}</p>
-          <p className="text-sm text-brume">@{profile?.username ?? 'utilisateur'}</p>
-          <p className="text-xs text-brume">{profile?.email ?? session?.user?.email ?? 'Aucun email renseigné'}</p>
+          <p className="font-semibold">{profile?.full_name ?? t('account.defaultSeller')}</p>
+          <p className="text-sm text-brume">@{profile?.username ?? t('account.defaultUser')}</p>
+          <p className="text-xs text-brume">{profile?.email ?? session?.user?.email ?? t('account.noEmail')}</p>
           <span className="badge bg-vert-marche/10 text-vert-marche mt-1">{profile?.role}</span>
         </div>
       </div>
 
       <form onSubmit={handleSave} className="card p-4 space-y-4">
         <div>
-          <label className="label">Nom complet</label>
+          <label className="label">{t('auth.fullName')}</label>
           <input value={fullName} onChange={(e) => setFullName(e.target.value)} className="input" />
         </div>
         <div>
-          <label className="label">Téléphone</label>
+          <label className="label">{t('account.phoneLabel')}</label>
           <input value={phone} onChange={(e) => setPhone(e.target.value)} className="input" placeholder="+243..." />
         </div>
         <div>
-          <label className="label">Email <span className="text-brume text-xs">(optionnel)</span></label>
+          <label className="label">{t('account.emailLabel')} <span className="text-brume text-xs">({t('common.optional')})</span></label>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" placeholder="vous@exemple.com" />
         </div>
         <button type="submit" disabled={saving} className="btn-primary w-full">
-          {saving ? 'Enregistrement...' : 'Enregistrer'}
+          {saving ? t('account.saving') : t('common.save')}
         </button>
-        {saved && <p className="text-center text-sm text-vert-marche">Profil mis à jour !</p>}
+        {saved && <p className="text-center text-sm text-vert-marche">{t('account.profileUpdated')}</p>}
       </form>
 
       <form onSubmit={handlePasswordChange} className="card p-4 space-y-4">
-        <h2 className="font-semibold">Modifier le mot de passe</h2>
+        <h2 className="font-semibold">{t('account.changePassword')}</h2>
 
         {passwordError && (
           <p className="text-sm text-corail-alerte">{passwordError}</p>
         )}
         {passwordSaved && (
-          <p className="text-sm text-vert-marche">Mot de passe mis à jour avec succès.</p>
+          <p className="text-sm text-vert-marche">{t('account.passwordUpdated')}</p>
         )}
 
         <div>
-          <label className="label">Mot de passe actuel</label>
+          <label className="label">{t('account.currentPassword')}</label>
           <div className="relative">
             <input
               type={showCurrent ? 'text' : 'password'}
@@ -194,7 +196,7 @@ export function AccountPage() {
         </div>
 
         <div>
-          <label className="label">Nouveau mot de passe</label>
+          <label className="label">{t('resetPassword.newPassword')}</label>
           <div className="relative">
             <input
               type={showNew ? 'text' : 'password'}
@@ -216,7 +218,7 @@ export function AccountPage() {
         </div>
 
         <div>
-          <label className="label">Confirmer le nouveau mot de passe</label>
+          <label className="label">{t('account.confirmNewPassword')}</label>
           <input
             type="password"
             required
@@ -229,19 +231,19 @@ export function AccountPage() {
         </div>
 
         <button type="submit" disabled={passwordSaving} className="btn-primary w-full">
-          {passwordSaving ? 'Modification...' : 'Changer le mot de passe'}
+          {passwordSaving ? t('account.changing') : t('account.changePassword')}
         </button>
       </form>
 
       {store && (
         <>
           <form onSubmit={handleWhatsappSave} className="card p-4 space-y-4">
-            <h2 className="font-semibold">Numéro WhatsApp de la boutique</h2>
+            <h2 className="font-semibold">{t('account.whatsappNumber')}</h2>
             <p className="text-sm text-brume">
-              Ce numéro sera utilisé par les clients pour vous contacter sur WhatsApp.
+              {t('account.whatsappHint')}
             </p>
             <div>
-              <label className="label">Numéro WhatsApp</label>
+              <label className="label">{t('common.whatsapp')}</label>
               <input
                 type="tel"
                 value={whatsappNumber}
@@ -251,33 +253,33 @@ export function AccountPage() {
               />
             </div>
             <button type="submit" disabled={whatsappSaving} className="btn-primary w-full">
-              {whatsappSaving ? 'Enregistrement...' : 'Enregistrer le numéro'}
+              {whatsappSaving ? t('account.saving') : t('account.saveNumber')}
             </button>
             {whatsappSaved && (
-              <p className="text-center text-sm text-vert-marche">Numéro WhatsApp mis à jour !</p>
+              <p className="text-center text-sm text-vert-marche">{t('account.whatsappUpdated')}</p>
             )}
           </form>
 
           <div className="card p-4 space-y-4">
-            <h2 className="font-semibold">Ma boutique</h2>
+            <h2 className="font-semibold">{t('account.myShop')}</h2>
             <div className="flex items-start gap-4">
               {store.store_front_image_url ? (
                 <img
                   src={store.store_front_image_url}
-                  alt="Photo de la devanture"
+                  alt={t('account.storefrontPhoto')}
                   className="h-20 w-28 rounded-lg object-cover border border-brume/20"
                 />
               ) : (
                 <div className="h-20 w-28 rounded-lg bg-brume/10 flex items-center justify-center text-xs text-brume text-center">
-                  Aucune photo
+                  {t('account.noPhoto')}
                 </div>
               )}
               <div className="space-y-1 text-sm">
-                <p><span className="font-medium">Nom :</span> {store.name}</p>
-                {store.city && <p><span className="font-medium">Ville :</span> {store.city}</p>}
-                {store.quartier && <p><span className="font-medium">Quartier :</span> {store.quartier}</p>}
-                {store.avenue && <p><span className="font-medium">Avenue :</span> {store.avenue}</p>}
-                {store.numero_porte && <p><span className="font-medium">N° :</span> {store.numero_porte}</p>}
+                <p><span className="font-medium">{t('account.name')} :</span> {store.name}</p>
+                {store.city && <p><span className="font-medium">{t('account.city')} :</span> {store.city}</p>}
+                {store.quartier && <p><span className="font-medium">{t('account.quartier')} :</span> {store.quartier}</p>}
+                {store.avenue && <p><span className="font-medium">{t('account.avenue')} :</span> {store.avenue}</p>}
+                {store.numero_porte && <p><span className="font-medium">{t('account.doorNumber')} :</span> {store.numero_porte}</p>}
                 {store.map_link && (
                   <a
                     href={store.map_link}
@@ -285,7 +287,7 @@ export function AccountPage() {
                     rel="noopener noreferrer"
                     className="text-vert-marche underline text-xs break-all"
                   >
-                    Voir sur Google Maps
+                    {t('account.viewOnMaps')}
                   </a>
                 )}
               </div>
@@ -295,7 +297,7 @@ export function AccountPage() {
       )}
 
       <button onClick={handleSignOut} className="btn-danger w-full">
-        <LogOut size={18} /> Se déconnecter
+        <LogOut size={18} /> {t('account.signOut')}
       </button>
     </div>
   );

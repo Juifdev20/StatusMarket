@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Star } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { StarRating } from '../../components/StarRating';
@@ -12,6 +13,7 @@ interface ReviewRow extends Review {
 }
 
 export function ReviewsTab() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,18 +50,18 @@ export function ReviewsTab() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <Star size={48} className="text-brume mb-4" />
-        <p className="text-brume">Vous n'avez laissé aucun avis pour le moment.</p>
+        <p className="text-brume">{t('reviewsTab.empty')}</p>
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="font-serif text-xl font-bold mb-4">Mes avis</h1>
+      <h1 className="font-serif text-xl font-bold mb-4">{t('reviewsTab.title')}</h1>
       <div className="space-y-3">
         {reviews.map((r) => {
           const link = r.product ? `/boutique/${r.product.store?.slug}` : r.store ? `/boutique/${r.store.slug}` : '#';
-          const name = r.product?.name || r.store?.name || 'Produit/Boutique supprimé';
+          const name = r.product?.name || r.store?.name || t('reviewsTab.deletedItem');
           return (
             <div key={r.id} className="card p-4">
               <div className="flex items-start justify-between gap-2">
@@ -67,7 +69,7 @@ export function ReviewsTab() {
                   <Link to={link} className="text-sm font-semibold hover:text-vert-marche">{name}</Link>
                   <StarRating value={r.rating} readOnly size={13} />
                 </div>
-                <button onClick={() => handleDelete(r.id)} className="text-xs text-corail-alerte">Supprimer</button>
+                <button onClick={() => handleDelete(r.id)} className="text-xs text-corail-alerte">{t('common.delete')}</button>
               </div>
               {r.comment && <p className="text-sm text-brume mt-2">{r.comment}</p>}
             </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Store as StoreIcon, ShoppingBag } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { FavoriteButton } from '../../components/FavoriteButton';
@@ -12,6 +13,7 @@ interface FavoriteRow extends Favorite {
 }
 
 export function FavoritesTab() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const [favorites, setFavorites] = useState<FavoriteRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,15 +43,15 @@ export function FavoritesTab() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <Heart size={48} className="text-brume mb-4" />
-        <p className="text-brume">Aucun favori pour le moment.</p>
-        <Link to="/" className="btn-primary text-sm mt-4">Découvrir des boutiques</Link>
+        <p className="text-brume">{t('favorites.empty')}</p>
+        <Link to="/" className="btn-primary text-sm mt-4">{t('favorites.discoverShops')}</Link>
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="font-serif text-xl font-bold mb-4">Mes favoris</h1>
+      <h1 className="font-serif text-xl font-bold mb-4">{t('favorites.title')}</h1>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {favorites.map((f) => {
           if (f.product) {

@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Share2, Eye, Trash2, Plus, ExternalLink, Image as ImageIcon, Store as StoreIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { getSiteUrl } from '../../utils/siteUrl';
 import type { Store, StatusPost } from '../../types';
 
 export function PublicationsPage() {
+  const { t, i18n } = useTranslation();
   const { profile } = useAuth();
   const [store, setStore] = useState<Store | null>(null);
   const [posts, setPosts] = useState<StatusPost[]>([]);
@@ -42,7 +44,7 @@ export function PublicationsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Supprimer cette publication ?')) return;
+    if (!confirm(t('publications.confirmDelete'))) return;
     await supabase.from('status_posts').delete().eq('id', id);
     if (store) await loadPosts(store.id);
   };
@@ -88,10 +90,10 @@ export function PublicationsPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-4">
         <StoreIcon size={48} className="text-brume mb-4" />
-        <h2 className="font-serif text-xl font-bold mb-2">Aucune boutique</h2>
-        <p className="text-sm text-brume mb-6">Créez d'abord votre boutique pour gérer vos publications.</p>
+        <h2 className="font-serif text-xl font-bold mb-2">{t('orders.noShop')}</h2>
+        <p className="text-sm text-brume mb-6">{t('publications.noShopHint')}</p>
         <a href="/vendeur/boutique/nouvelle" className="btn-cta">
-          <Plus size={18} /> Créer ma boutique
+          <Plus size={18} /> {t('createStore.title')}
         </a>
       </div>
     );
@@ -100,16 +102,16 @@ export function PublicationsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-2xl font-bold">Mes publications</h1>
+        <h1 className="font-serif text-2xl font-bold">{t('publications.title')}</h1>
         <Link to="/vendeur/statut" className="btn-primary text-xs">
-          <Plus size={16} /> Nouvelle
+          <Plus size={16} /> {t('publications.newOne')}
         </Link>
       </div>
 
       {posts.length === 0 ? (
         <div className="flex flex-col items-center py-20 text-center">
           <Share2 size={48} className="text-brume mb-4" />
-          <p className="text-brume">Aucune publication. Créez votre première !</p>
+          <p className="text-brume">{t('publications.empty')}</p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -125,20 +127,20 @@ export function PublicationsPage() {
                 )}
               </div>
               <div className="p-4 flex-1 flex flex-col">
-                <p className="text-sm font-semibold line-clamp-2">{post.caption || 'Publication sans titre'}</p>
+                <p className="text-sm font-semibold line-clamp-2">{post.caption || t('publications.untitled')}</p>
                 <div className="mt-2 flex items-center gap-3 text-xs text-brume">
                   <span className="flex items-center gap-1"><Eye size={14} /> {post.views}</span>
-                  <span>{new Date(post.created_at).toLocaleDateString('fr-FR')}</span>
+                  <span>{new Date(post.created_at).toLocaleDateString(i18n.language.startsWith('en') ? 'en-US' : 'fr-FR')}</span>
                 </div>
                 <div className="mt-4 flex gap-2">
                   <a href={`/pub/${post.slug}`} target="_blank" rel="noopener noreferrer" className="btn-outline flex-1 text-xs">
-                    <ExternalLink size={14} /> Voir
+                    <ExternalLink size={14} /> {t('landing.view')}
                   </a>
-                  <button onClick={() => sharePost(post)} className="btn-ghost p-2" title={copiedId === post.id ? 'Lien copié' : 'Partager'}>
+                  <button onClick={() => sharePost(post)} className="btn-ghost p-2" title={copiedId === post.id ? t('publications.linkCopied') : t('common.share')}>
                     <Share2 size={16} />
-                    {copiedId === post.id && <span className="sr-only">Lien copié</span>}
+                    {copiedId === post.id && <span className="sr-only">{t('publications.linkCopied')}</span>}
                   </button>
-                  <button onClick={() => handleDelete(post.id)} className="btn-ghost p-2 text-corail-alerte" title="Supprimer">
+                  <button onClick={() => handleDelete(post.id)} className="btn-ghost p-2 text-corail-alerte" title={t('common.delete')}>
                     <Trash2 size={16} />
                   </button>
                 </div>

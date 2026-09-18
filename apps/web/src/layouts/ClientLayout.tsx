@@ -1,23 +1,26 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
 import { Store as StoreIcon, Heart, Star, Users, ShoppingBag, LogOut, Menu, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { BottomNav } from '../components/BottomNav';
 import type { BottomNavTab } from '../components/BottomNav';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { NotificationsDropdown } from '../components/NotificationsDropdown';
 import { useAuth } from '../features/auth/authContext';
 
-const navItems: BottomNavTab[] = [
-  { to: '/mon-compte', icon: Heart, label: 'Favoris', end: true },
-  { to: '/mon-compte/avis', icon: Star, label: 'Avis', end: false },
-  { to: '/mon-compte/boutiques-suivies', icon: Users, label: 'Suivies', end: false },
-  { to: '/panier', icon: ShoppingBag, label: 'Panier', end: false },
-];
-
 export function ClientLayout() {
+  const { t } = useTranslation();
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const navItems: BottomNavTab[] = [
+    { to: '/mon-compte', icon: Heart, label: t('favorites.title'), end: true },
+    { to: '/mon-compte/avis', icon: Star, label: t('reviewsTab.title'), end: false },
+    { to: '/mon-compte/boutiques-suivies', icon: Users, label: t('follows.title'), end: false },
+    { to: '/panier', icon: ShoppingBag, label: t('cart.title'), end: false },
+  ];
 
   const handleSignOut = async () => {
     await signOut();
@@ -34,7 +37,7 @@ export function ClientLayout() {
           </div>
           <div>
             <span className="font-serif text-lg font-bold text-vert-marche leading-none">StatusMarket</span>
-            <p className="text-[10px] text-brume">Mon compte</p>
+            <p className="text-[10px] text-brume">{t('account.title')}</p>
           </div>
         </div>
 
@@ -67,7 +70,7 @@ export function ClientLayout() {
               {profile?.full_name?.[0]?.toUpperCase() ?? 'C'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{profile?.full_name || 'Client'}</p>
+              <p className="text-sm font-medium truncate">{profile?.full_name || t('clientNav.client')}</p>
               <p className="text-xs text-brume truncate">{profile?.role}</p>
             </div>
           </div>
@@ -76,7 +79,7 @@ export function ClientLayout() {
             className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-corail-alerte hover:bg-corail-alerte/10 transition-colors"
           >
             <LogOut size={18} />
-            Déconnexion
+            {t('account.signOut')}
           </button>
         </div>
       </aside>
@@ -87,7 +90,7 @@ export function ClientLayout() {
           <div className="absolute inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
           <aside className="absolute left-0 top-0 h-full w-64 bg-white dark:bg-encre-nuit">
             <div className="flex h-16 items-center justify-between border-b border-brume/30 px-6">
-              <span className="font-serif text-lg font-bold text-vert-marche">Mon compte</span>
+              <span className="font-serif text-lg font-bold text-vert-marche">{t('account.title')}</span>
               <button onClick={() => setSidebarOpen(false)}>
                 <X size={20} />
               </button>
@@ -125,13 +128,14 @@ export function ClientLayout() {
           <span className="font-serif text-lg font-bold text-vert-marche">StatusMarket</span>
         </div>
         <div className="hidden lg:block">
-          <h1 className="font-serif text-lg font-bold text-encre-nuit dark:text-sable-chaud">Mon compte</h1>
+          <h1 className="font-serif text-lg font-bold text-encre-nuit dark:text-sable-chaud">{t('account.title')}</h1>
         </div>
         <div className="flex items-center gap-2">
           <NotificationsDropdown />
+          <LanguageSwitcher />
           <ThemeToggle />
           <Link to="/" className="text-sm text-brume hover:text-vert-marche transition-colors hidden sm:block">
-            Continuer mes achats
+            {t('clientNav.continueShopping')}
           </Link>
         </div>
       </header>

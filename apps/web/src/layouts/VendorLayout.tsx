@@ -1,28 +1,31 @@
 import { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
 import { Home, Package, CirclePlus, ShoppingBag, User, LogOut, Menu, X, Store as StoreIcon, Tag, Newspaper, ExternalLink } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { BottomNav } from '../components/BottomNav';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { NotificationsDropdown } from '../components/NotificationsDropdown';
 import { useAuth } from '../features/auth/authContext';
 import { supabase } from '../lib/supabase';
 import type { Store } from '../types';
 
-const navItems = [
-  { to: '/vendeur', icon: Home, label: 'Tableau de bord', end: true },
-  { to: '/vendeur/produits', icon: Package, label: 'Produits', end: false },
-  { to: '/vendeur/categories', icon: Tag, label: 'Catégories', end: false },
-  { to: '/vendeur/statut', icon: CirclePlus, label: 'Nouvelle pub', end: false },
-  { to: '/vendeur/publications', icon: Newspaper, label: 'Publications', end: false },
-  { to: '/vendeur/commandes', icon: ShoppingBag, label: 'Commandes', end: false },
-  { to: '/vendeur/compte', icon: User, label: 'Compte', end: false },
-];
-
 export function VendorLayout() {
+  const { t } = useTranslation();
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [store, setStore] = useState<Store | null>(null);
+
+  const navItems = [
+    { to: '/vendeur', icon: Home, label: t('vendorNav.dashboard'), end: true },
+    { to: '/vendeur/produits', icon: Package, label: t('products.title'), end: false },
+    { to: '/vendeur/categories', icon: Tag, label: t('categories.title'), end: false },
+    { to: '/vendeur/statut', icon: CirclePlus, label: t('vendorNav.newPost'), end: false },
+    { to: '/vendeur/publications', icon: Newspaper, label: t('publications.title'), end: false },
+    { to: '/vendeur/commandes', icon: ShoppingBag, label: t('orders.title'), end: false },
+    { to: '/vendeur/compte', icon: User, label: t('vendorNav.account'), end: false },
+  ];
 
   useEffect(() => {
     if (!profile) return;
@@ -51,7 +54,7 @@ export function VendorLayout() {
           </div>
           <div>
             <span className="font-serif text-lg font-bold text-vert-marche leading-none">StatusMarket</span>
-            <p className="text-[10px] text-brume">Vendeur</p>
+            <p className="text-[10px] text-brume">{t('vendorNav.seller')}</p>
           </div>
         </div>
 
@@ -84,7 +87,7 @@ export function VendorLayout() {
               {profile?.full_name?.[0]?.toUpperCase() ?? 'V'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{profile?.full_name || 'Vendeur'}</p>
+              <p className="text-sm font-medium truncate">{profile?.full_name || t('account.defaultSeller')}</p>
               <p className="text-xs text-brume truncate">{profile?.role}</p>
             </div>
           </div>
@@ -93,7 +96,7 @@ export function VendorLayout() {
             className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-corail-alerte hover:bg-corail-alerte/10 transition-colors"
           >
             <LogOut size={18} />
-            Déconnexion
+            {t('account.signOut')}
           </button>
         </div>
       </aside>
@@ -104,7 +107,7 @@ export function VendorLayout() {
           <div className="absolute inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
           <aside className="absolute left-0 top-0 h-full w-64 bg-white dark:bg-encre-nuit">
             <div className="flex h-16 items-center justify-between border-b border-brume/30 px-6">
-              <span className="font-serif text-lg font-bold text-vert-marche">Vendeur</span>
+              <span className="font-serif text-lg font-bold text-vert-marche">{t('vendorNav.seller')}</span>
               <button onClick={() => setSidebarOpen(false)}>
                 <X size={20} />
               </button>
@@ -142,10 +145,11 @@ export function VendorLayout() {
           <span className="font-serif text-lg font-bold text-vert-marche">StatusMarket</span>
         </div>
         <div className="hidden lg:block">
-          <h1 className="font-serif text-lg font-bold text-encre-nuit dark:text-sable-chaud">Espace vendeur</h1>
+          <h1 className="font-serif text-lg font-bold text-encre-nuit dark:text-sable-chaud">{t('vendorNav.sellerSpace')}</h1>
         </div>
         <div className="flex items-center gap-2">
           <NotificationsDropdown />
+          <LanguageSwitcher />
           <ThemeToggle />
           {store ? (
             <a
@@ -154,11 +158,11 @@ export function VendorLayout() {
               rel="noopener noreferrer"
               className="text-sm text-brume hover:text-vert-marche transition-colors hidden sm:flex items-center gap-1"
             >
-              <ExternalLink size={14} /> Voir ma boutique
+              <ExternalLink size={14} /> {t('dashboard.viewMyShop')}
             </a>
           ) : (
             <Link to="/" className="text-sm text-brume hover:text-vert-marche transition-colors hidden sm:block">
-              Voir le site
+              {t('vendorNav.viewSite')}
             </Link>
           )}
         </div>

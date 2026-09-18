@@ -1,0 +1,651 @@
+{
+  "common": {
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "back": "Retour",
+    "loading": "Chargement...",
+    "yes": "Oui",
+    "no": "Non",
+    "confirm": "Confirmer",
+    "search": "Rechercher",
+    "seeAll": "Voir tout",
+    "seeMore": "Voir plus",
+    "seeLess": "Voir moins",
+    "optional": "optionnel",
+    "required": "obligatoire",
+    "error": "Une erreur est survenue",
+    "success": "Succès",
+    "add": "Ajouter",
+    "create": "Créer",
+    "update": "Mettre à jour",
+    "send": "Envoyer",
+    "copy": "Copier",
+    "copied": "Copié !",
+    "share": "Partager",
+    "whatsapp": "WhatsApp",
+    "language": "Langue"
+  },
+  "footer": {
+    "help": "Aide",
+    "privacy": "Confidentialité",
+    "email": "Email",
+    "rights": "© {{year}} StatusMarket. Tous droits réservés.",
+    "designedBy": "Designed by Juif"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Tout marquer comme lu",
+    "markAllReadShort": "Tout lire",
+    "empty": "Aucune notification pour le moment."
+  },
+  "pwa": {
+    "title": "Installer StatusMarket",
+    "description": "Accédez à votre boutique plus rapidement, même hors connexion.",
+    "install": "Installer l'application"
+  },
+  "report": {
+    "title": "Signaler",
+    "thanks": "Merci, votre signalement a été transmis.",
+    "description": "Décrivez la raison du signalement. Notre équipe examinera sous 24h.",
+    "placeholder": "Contenu inapproprié, arnaque, contrefaçon...",
+    "sending": "Envoi..."
+  },
+  "reviews": {
+    "count_one": "{{count}} avis",
+    "count_other": "{{count}} avis",
+    "seeOthers": "Voir les {{count}} autres avis",
+    "placeholder": "Votre avis (optionnel)...",
+    "loginToReview": "Connectez-vous pour laisser un avis."
+  },
+  "shareDialog": {
+    "title": "Partager le produit",
+    "previewImage": "Image d'aperçu",
+    "previewImageHint": "Choisissez l'image affichée dans l'aperçu WhatsApp",
+    "saving": "Enregistrement...",
+    "previewLabel": "Aperçu du partage",
+    "availableAt": "{{name}} disponible chez {{store}}",
+    "messageLabel": "Message WhatsApp (optionnel)",
+    "messagePlaceholder": "🔥 Nouvelle arrivage !\nDécouvrez ce produit sur ma boutique 👇",
+    "messageHint": "Votre message sera suivi du lien du produit.",
+    "linkLabel": "Lien de partage",
+    "copyLink": "Copier le lien",
+    "shareOnWhatsapp": "Partager sur WhatsApp"
+  },
+  "help": {
+    "title": "Centre d'aide",
+    "subtitle": "Trouvez rapidement des réponses à vos questions.",
+    "findProduct": {
+      "q": "Comment trouver un produit ?",
+      "a": "Utilisez la barre de recherche en haut de la page d'accueil pour rechercher un produit, une boutique ou une catégorie. Vous pouvez aussi parcourir les catégories et les sections tendances."
+    },
+    "howToBuy": {
+      "q": "Comment acheter ?",
+      "a": "Cliquez sur un produit pour voir ses détails, ajoutez-le au panier si disponible, puis contactez le vendeur directement par WhatsApp pour finaliser la commande."
+    },
+    "howToPay": {
+      "q": "Comment payer ?",
+      "a": "StatusMarket met en relation acheteurs et vendeurs. Le paiement se fait directement entre vous et le vendeur selon les modalités convenues (mobile money, espèces, virement, etc.)."
+    },
+    "createShop": {
+      "q": "Comment créer ma boutique ?",
+      "aBefore": "Cliquez sur",
+      "aBold": "Créer un compte",
+      "aAfter": ", créez un compte vendeur, puis remplissez le formulaire de création de boutique. Vous pourrez ensuite ajouter vos produits et gérer vos commandes."
+    },
+    "report": {
+      "q": "Signaler un problème",
+      "a": "Si vous rencontrez un contenu inapproprié ou une arnaque, utilisez le bouton de signalement sur la page de la boutique ou du produit concerné."
+    },
+    "needMore": "Besoin de plus d'aide ?",
+    "contactUs": "Contactez-nous"
+  },
+  "privacy": {
+    "title": "Politique de confidentialité",
+    "lastUpdated": "Dernière mise à jour : août 2026",
+    "dataCollected": {
+      "title": "1. Données collectées",
+      "body": "StatusMarket collecte les informations nécessaires au fonctionnement de la plateforme : nom, adresse e-mail, numéro WhatsApp, informations de boutique et produits. Nous ne collectons pas d'informations bancaires."
+    },
+    "dataUse": {
+      "title": "2. Utilisation des données",
+      "body": "Les données sont utilisées pour afficher les boutiques et produits, permettre les contacts entre acheteurs et vendeurs, et améliorer l'expérience utilisateur. Nous ne revendons ni ne partageons vos données personnelles à des tiers à des fins commerciales."
+    },
+    "security": {
+      "title": "3. Sécurité",
+      "body": "Nous mettons en œuvre des mesures techniques et organisationnelles pour protéger vos données contre l'accès non autorisé, la perte ou l'altération."
+    },
+    "rights": {
+      "title": "4. Vos droits",
+      "body": "Vous pouvez demander la modification ou la suppression de vos données en nous contactant à"
+    },
+    "contact": {
+      "title": "5. Contact",
+      "body": "Pour toute question relative à cette politique, contactez-nous à"
+    }
+  },
+  "auth": {
+    "errors": {
+      "usernameTooShort": "Le nom d'utilisateur doit faire au moins 4 caractères.",
+      "usernameTooLong": "Le nom d'utilisateur ne doit pas dépasser 20 caractères.",
+      "usernameAlphanumeric": "Lettres et chiffres uniquement.",
+      "usernameNeedsLetter": "Le nom d'utilisateur doit contenir au moins une lettre.",
+      "usernameNeedsDigit": "Le nom d'utilisateur doit contenir au moins un chiffre.",
+      "passwordMismatch": "Les mots de passe ne correspondent pas.",
+      "passwordMismatchLong": "Les mots de passe ne correspondent pas. Vérifiez votre saisie.",
+      "fullNameRequired": "Le nom complet est obligatoire.",
+      "phoneRequired": "Le numéro de téléphone est obligatoire.",
+      "pinRequired": "Le code de récupération est obligatoire.",
+      "pinFormat": "Le code de récupération doit contenir 4 à 6 chiffres.",
+      "invalidCredentials": "Nom d'utilisateur ou mot de passe incorrect.",
+      "usernameTaken": "Ce nom d'utilisateur est déjà utilisé. Choisissez-en un autre.",
+      "usernameTakenShort": "Ce nom d'utilisateur est déjà pris.",
+      "phoneTaken": "Ce numéro de téléphone est déjà utilisé par un autre compte.",
+      "rateLimit": "Trop de tentatives. Patientez quelques minutes avant de réessayer.",
+      "passwordTooShort": "Le mot de passe est trop court (minimum 6 caractères).",
+      "passwordWeak": "Le mot de passe est trop faible. Utilisez au moins 6 caractères.",
+      "network": "Problème de connexion internet. Vérifiez votre réseau.",
+      "networkRetry": "Problème de connexion internet. Vérifiez votre réseau et réessayez.",
+      "timeout": "Le serveur met trop de temps à répondre. Réessayez.",
+      "overload": "Le serveur est surchargé. Réessayez dans un instant.",
+      "userNotFound": "Aucun compte trouvé avec ce nom d'utilisateur.",
+      "notConfirmed": "Votre compte n'est pas encore confirmé. Contactez le support.",
+      "sessionExpired": "Session expirée. Reconnectez-vous.",
+      "signupFailed": "Une erreur est survenue lors de l'inscription.",
+      "signupAutoLoginFailed": "Inscription réussie mais connexion automatique impossible. Essayez de vous connecter manuellement."
+    },
+    "marketing": {
+      "headline1": "Ta boutique,",
+      "headline2": "un seul lien.",
+      "subtitle": "Transformez vos statuts WhatsApp en véritable canal de vente. Catalogue, produits, contact direct — le tout sur un lien unique à partager.",
+      "point1": "Vendez directement sur WhatsApp",
+      "point2": "Suivez vos statistiques en temps réel",
+      "point3": "Paiements et abonnements sécurisés"
+    },
+    "tagline": "Ta boutique, un seul lien.",
+    "login": "Connexion",
+    "register": "Inscription",
+    "loginSubtitle": "Connectez-vous à votre espace vendeur.",
+    "registerSubtitle": "Créez votre compte vendeur.",
+    "fullName": "Nom complet",
+    "phone": "Numéro de téléphone",
+    "recoveryPin": "Code de récupération",
+    "recoveryPinPlaceholder": "4 à 6 chiffres",
+    "recoveryPinHint": "Gardez ce code secret. Il servira à réinitialiser votre mot de passe.",
+    "username": "Nom d'utilisateur",
+    "usernameHint": "Lettres + chiffres, minimum 4 caractères.",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "hidePassword": "Cacher le mot de passe",
+    "showPassword": "Afficher le mot de passe",
+    "signIn": "Se connecter",
+    "createAccount": "Créer un compte",
+    "forgotPassword": "Mot de passe oublié ?",
+    "forgotUsername": "Identifiant oublié ?",
+    "backToHome": "Retour à l'accueil"
+  },
+  "resetPassword": {
+    "title": "Réinitialiser le mot de passe",
+    "recoverTitle": "Retrouver mon identifiant",
+    "resetHint": "Entrez votre nom d'utilisateur, numéro de téléphone et code de récupération pour définir un nouveau mot de passe.",
+    "recoverHint": "Entrez votre numéro de téléphone pour retrouver votre nom d'utilisateur.",
+    "errors": {
+      "tooShort": "Le mot de passe doit contenir au moins 6 caractères."
+    },
+    "success": "Mot de passe réinitialisé avec succès. Connectez-vous avec votre nom d'utilisateur et votre nouveau mot de passe.",
+    "noAccountFound": "Aucun compte trouvé avec ce numéro.",
+    "newPassword": "Nouveau mot de passe",
+    "processing": "Traitement...",
+    "searching": "Recherche...",
+    "backToLogin": "Retour à la connexion"
+  },
+  "account": {
+    "title": "Mon compte",
+    "defaultSeller": "Vendeur",
+    "defaultUser": "utilisateur",
+    "noEmail": "Aucun email renseigné",
+    "phoneLabel": "Téléphone",
+    "emailLabel": "Email",
+    "saving": "Enregistrement...",
+    "profileUpdated": "Profil mis à jour !",
+    "changePassword": "Modifier le mot de passe",
+    "changing": "Modification...",
+    "passwordUpdated": "Mot de passe mis à jour avec succès.",
+    "currentPassword": "Mot de passe actuel",
+    "confirmNewPassword": "Confirmer le nouveau mot de passe",
+    "whatsappNumber": "Numéro WhatsApp de la boutique",
+    "whatsappHint": "Ce numéro sera utilisé par les clients pour vous contacter sur WhatsApp.",
+    "saveNumber": "Enregistrer le numéro",
+    "whatsappUpdated": "Numéro WhatsApp mis à jour !",
+    "myShop": "Ma boutique",
+    "storefrontPhoto": "Photo de la devanture",
+    "noPhoto": "Aucune photo",
+    "name": "Nom",
+    "city": "Ville",
+    "quartier": "Quartier",
+    "avenue": "Avenue",
+    "doorNumber": "N°",
+    "viewOnMaps": "Voir sur Google Maps",
+    "signOut": "Se déconnecter",
+    "errors": {
+      "profileNotFound": "Profil non trouvé.",
+      "newPasswordTooShort": "Le nouveau mot de passe doit faire au moins 6 caractères.",
+      "currentPasswordIncorrect": "Mot de passe actuel incorrect."
+    }
+  },
+  "cart": {
+    "title": "Panier",
+    "empty": "Votre panier est vide.",
+    "exploreShops": "Explorer les boutiques",
+    "total": "Total",
+    "deliveryInfo": "Informations de livraison",
+    "phoneRequired": "Téléphone *",
+    "yourName": "Votre nom",
+    "addressRequired": "Adresse complète *",
+    "addressPlaceholder": "Quartier, avenue, numéro de porte...",
+    "notes": "Notes",
+    "notesPlaceholder": "Couleur, taille...",
+    "confirmOrder": "Confirmer la commande",
+    "orderSent": "Commande envoyée !",
+    "sellerWillContact": "Le vendeur vous contactera par WhatsApp pour confirmer.",
+    "contactOnWhatsapp": "Contacter sur WhatsApp",
+    "errors": {
+      "phoneAndAddressRequired": "Le numéro de téléphone et l'adresse complète sont obligatoires pour la livraison."
+    }
+  },
+  "categories": {
+    "title": "Catégories",
+    "createShopFirst": "Créez d'abord votre boutique.",
+    "editCategory": "Modifier la catégorie",
+    "newCategory": "Nouvelle catégorie",
+    "placeholder": "Ex: Chaussures",
+    "empty": "Aucune catégorie. Ajoutez-en pour mieux organiser vos produits.",
+    "confirmDelete": "Supprimer cette catégorie ?"
+  },
+  "favorites": {
+    "title": "Mes favoris",
+    "empty": "Aucun favori pour le moment.",
+    "discoverShops": "Découvrir des boutiques"
+  },
+  "follows": {
+    "title": "Boutiques suivies",
+    "empty": "Vous ne suivez aucune boutique pour le moment."
+  },
+  "reviewsTab": {
+    "title": "Mes avis",
+    "empty": "Vous n'avez laissé aucun avis pour le moment.",
+    "deletedItem": "Produit/Boutique supprimé"
+  },
+  "orders": {
+    "title": "Commandes",
+    "count_one": "{{count}} commande",
+    "count_other": "{{count}} commandes",
+    "noShop": "Aucune boutique",
+    "noShopHint": "Créez d'abord votre boutique pour recevoir et gérer des commandes.",
+    "createShop": "Créer ma boutique",
+    "empty": "Aucune commande pour le moment.",
+    "emptyHint": "Les clients passent commande depuis votre boutique publique.",
+    "note": "Note",
+    "items": "Articles",
+    "product": "Produit",
+    "qty": "Qté",
+    "status": {
+      "PENDING": "En attente",
+      "CONFIRMED": "Confirmée",
+      "SHIPPED": "Expédiée",
+      "DELIVERED": "Livrée",
+      "CANCELLED": "Annulée"
+    }
+  },
+  "ai": {
+    "genericError": "Génération indisponible pour le moment, réessayez ou écrivez votre propre texte."
+  },
+  "products": {
+    "title": "Produits",
+    "empty": "Aucun produit. Ajoutez votre premier produit !",
+    "createShopFirst": "Créez d'abord votre boutique pour gérer vos produits.",
+    "retry": "Réessayer",
+    "confirmDelete": "Supprimer ce produit ?",
+    "errors": {
+      "loadShop": "Erreur de chargement de la boutique"
+    },
+    "editProduct": "Modifier produit",
+    "newProduct": "Nouveau produit",
+    "name": "Nom",
+    "namePlaceholder": "Nom du produit",
+    "description": "Description",
+    "descriptionPlaceholder": "Description du produit",
+    "aiDisabledHint": "Ajoutez une photo (plus bas) et un nom pour activer la génération IA",
+    "price": "Prix",
+    "currency": "Devise",
+    "category": "Catégorie",
+    "chooseCategory": "Choisir une catégorie...",
+    "subcategory": "Sous-catégorie",
+    "none": "Aucune",
+    "image": "Image",
+    "uploading": "Upload en cours...",
+    "preview": "Aperçu",
+    "stock": "Stock",
+    "available": "Disponible",
+    "discountPrice": "Prix promo",
+    "discountPlaceholder": "Laisser vide si pas de promo",
+    "promo": "Promo",
+    "featured": "Mettre en avant (promotion)"
+  },
+  "createStore": {
+    "title": "Créer ma boutique",
+    "subtitle": "Quelques informations pour démarrer. Le reste se configurera plus tard.",
+    "shopName": "Nom de la boutique",
+    "shopNamePlaceholder": "Ma Boutique",
+    "slug": "Lien (slug)",
+    "descriptionPlaceholder": "Décrivez votre boutique en quelques mots...",
+    "logo": "Logo",
+    "uploading": "Téléchargement...",
+    "chooseLogo": "Choisir un logo",
+    "moreOptions": "Plus d'options (adresse, localisation, photo)",
+    "address": "Adresse",
+    "doorNumber": "Numéro de porte",
+    "gpsLocation": "Localisation GPS",
+    "mapsLink": "Lien Google Maps",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "creating": "Création...",
+    "errors": {
+      "logoUpload": "Erreur lors du téléchargement du logo.",
+      "storefrontUpload": "Erreur lors du téléchargement de la photo de la devanture.",
+      "nameSlugRequired": "Le nom et le slug sont obligatoires.",
+      "slugTaken": "Ce slug est déjà utilisé. Choisissez-en un autre."
+    }
+  },
+  "categoriesList": {
+    "title": "Toutes les catégories",
+    "empty": "Aucune catégorie disponible.",
+    "subtitle": "Choisissez une catégorie pour découvrir tous les produits des boutiques StatusMarket."
+  },
+  "nav": {
+    "home": "Accueil"
+  },
+  "categoryBrowse": {
+    "notFound": "Catégorie introuvable.",
+    "productsFound_one": "{{count}} produit trouvé",
+    "productsFound_other": "{{count}} produits trouvés",
+    "filterPlaceholder": "Filtrer dans cette catégorie...",
+    "sortRecent": "Plus récents",
+    "sortPriceLow": "Prix croissant",
+    "sortPriceHigh": "Prix décroissant",
+    "sortPromo": "Promotions d'abord",
+    "allCities": "Toutes villes",
+    "empty": "Aucun produit dans cette catégorie pour le moment."
+  },
+  "landing": {
+    "searchPlaceholder": "Rechercher boutiques, produits...",
+    "noResults": "Aucun résultat pour \"{{query}}\"",
+    "products": "Produits",
+    "shops": "Boutiques",
+    "mySpace": "Mon espace",
+    "theme": "Thème",
+    "heroTitle1": "Découvrez les boutiques",
+    "heroTitle2": "près de vous",
+    "heroSubtitle": "Parcourez des centaines de produits, trouvez votre prochaine boutique préférée, et achetez directement via WhatsApp.",
+    "createMyShop": "Créer ma boutique",
+    "exploreCategories": "Explorer les catégories",
+    "trending": "Tendances",
+    "mostShared": "Les plus partagés",
+    "shopsToDiscover": "Boutiques à découvrir",
+    "view": "Voir",
+    "page": "Page {{current}} / {{total}}",
+    "next": "Suivant",
+    "currentDeals": "Offres du moment",
+    "mostPopular": "Les plus populaires",
+    "nearYou": "Près de vous",
+    "latestArrivals": "Dernières nouveautés",
+    "featuresTitle": "Tout pour vendre sur WhatsApp",
+    "featuresSubtitle": "Une suite complète pensée pour les commerçants africains qui veulent vendre simplement et professionnellement.",
+    "ctaTitle": "Prêt à vendre sur WhatsApp ?",
+    "ctaSubtitle": "Rejoignez les commerçants qui utilisent StatusMarket pour transformer leurs statuts en ventes.",
+    "ctaButton": "Commencer maintenant",
+    "views_one": "{{count}} vue",
+    "views_other": "{{count}} vues",
+    "viewShop": "Voir boutique",
+    "fallbackCategories": {
+      "fashion": "Mode",
+      "phones": "Téléphones",
+      "shoes": "Chaussures",
+      "beauty": "Beauté",
+      "home": "Maison",
+      "restaurant": "Restaurant",
+      "computing": "Informatique",
+      "accessories": "Accessoires"
+    },
+    "features": {
+      "onlineShop": { "title": "Boutique en ligne", "desc": "Un lien unique pour toute votre boutique. Catalogue organisé, fiches produits, contact WhatsApp." },
+      "statusGenerator": { "title": "Générateur de statuts", "desc": "Créez des publications multi-produits avec photo de couverture et lien de partage." },
+      "stats": { "title": "Statistiques", "desc": "Suivez les vues de votre boutique, de vos publications et de vos produits en temps réel." },
+      "whatsappShare": { "title": "Partage WhatsApp", "desc": "Partagez un lien avec image de couverture, comme YouTube ou TikTok." },
+      "directSales": { "title": "Ventes directes", "desc": "Vos clients commandent par WhatsApp en un clic depuis vos fiches produits." },
+      "mobileFirst": { "title": "Mobile-first", "desc": "Gérez votre boutique depuis votre téléphone, partout en RDC et en Afrique." }
+    }
+  },
+  "publicShop": {
+    "notFound": "Boutique introuvable ou désactivée.",
+    "viewOnMaps": "Voir sur Maps",
+    "searchProduct": "Rechercher un produit...",
+    "allCategories": "Toutes catégories",
+    "all": "Tous",
+    "noProducts": "Aucun produit disponible pour le moment.",
+    "product": "Produit",
+    "missingImage": "Image manquante",
+    "onlyLeft_one": "Plus que {{count}}",
+    "onlyLeft_other": "Plus que {{count}}",
+    "unnamedProduct": "Produit sans nom",
+    "priceNotSet": "Prix non défini",
+    "inStock": "En stock",
+    "outOfStock": "Rupture",
+    "addToCart": "Ajouter au panier"
+  },
+  "dashboard": {
+    "createShop": "Créez votre boutique",
+    "createShopHint": "Lancez votre boutique en ligne en quelques clics.",
+    "greeting": "Bonjour, {{name}}",
+    "overview": "Voici un aperçu de votre boutique",
+    "newPost": "Nouvelle publication",
+    "viewMyShop": "Voir ma boutique",
+    "daysShort": "{{count}}j",
+    "trialInProgress": "Essai PRO en cours",
+    "trialDaysLeft": "Plus que {{count}} jours d'essai. Passez à PRO pour continuer à profiter de toutes les fonctionnalités.",
+    "upgradeToPro": "Passer à PRO",
+    "shopViews": "Vues boutique",
+    "publications": "Publications",
+    "avgRating": "Note moyenne",
+    "sharesWeek": "Partages (7j)",
+    "followers": "Abonnés",
+    "recentProducts": "Produits récents",
+    "noProductsYet": "Aucun produit pour le moment",
+    "addProduct": "Ajouter un produit",
+    "subscription": "Abonnement",
+    "expiresOn": "Expire le {{date}}",
+    "freePlan": "Plan gratuit",
+    "upgradePlan": "Améliorer mon plan",
+    "shopLogo": "Logo de la boutique",
+    "changeLogo": "Changer le logo",
+    "location": "Localisation",
+    "changePhoto": "Changer la photo",
+    "shopUpdated": "Boutique mise à jour avec succès !",
+    "locationHint": "Ces informations aident les clients à vous trouver sur la page d'accueil.",
+    "quickActions": "Actions rapides",
+    "createStatus": "Créer un statut",
+    "shareShopMessage": "Découvrez ma boutique sur StatusMarket : {{url}}",
+    "errors": {
+      "logoUpload": "Erreur lors du téléchargement du logo.",
+      "logoUpdate": "Erreur lors de la mise à jour du logo.",
+      "photoUpload": "Erreur lors du téléchargement de la photo.",
+      "photoUpdate": "Erreur lors de la mise à jour de la photo.",
+      "locationSave": "Erreur lors de la sauvegarde de la localisation."
+    }
+  },
+  "statusGenerator": {
+    "defaultShareMessage": "Découvrez mes produits sur StatusMarket !",
+    "postCreated": "Publication créée !",
+    "postCreatedHint": "Votre statut est prêt. Partagez ce lien sur WhatsApp — une photo de couverture accompagnera automatiquement le lien.",
+    "cover": "Couverture",
+    "createNewPost": "Créer une nouvelle publication",
+    "title": "Créer une publication",
+    "subtitle": "Sélectionnez plusieurs produits, choisissez une photo de couverture, puis publiez. Le lien généré peut être partagé sur WhatsApp avec la photo.",
+    "noProducts": "Aucun produit disponible. Ajoutez d'abord des produits à votre boutique.",
+    "step1_one": "1. Sélectionnez vos produits ({{count}} sélectionné)",
+    "step1_other": "1. Sélectionnez vos produits ({{count}} sélectionnés)",
+    "step2": "2. Photo de couverture du statut",
+    "step2Hint": "Cette photo accompagnera le lien lorsque vous le partagerez sur WhatsApp.",
+    "step3": "3. Légende (optionnel)",
+    "aiDisabledHint": "Choisissez une photo de couverture pour activer la génération IA",
+    "captionPlaceholder": "Promo du jour ! Nouveautés disponibles...",
+    "step4": "4. Message de partage WhatsApp",
+    "step4Hint": "Ce message accompagnera le lien lorsque vous partagez sur WhatsApp.",
+    "sharePreview": "Aperçu du partage",
+    "coverPreview": "Aperçu couverture",
+    "productsAvailable_one": "{{count}} produit disponible",
+    "productsAvailable_other": "{{count}} produits disponibles",
+    "publishing": "Publication...",
+    "putOnStatus": "Mettre sur statut"
+  },
+  "publications": {
+    "confirmDelete": "Supprimer cette publication ?",
+    "noShopHint": "Créez d'abord votre boutique pour gérer vos publications.",
+    "title": "Mes publications",
+    "newOne": "Nouvelle",
+    "empty": "Aucune publication. Créez votre première !",
+    "untitled": "Publication sans titre",
+    "linkCopied": "Lien copié"
+  },
+  "publicationPage": {
+    "notFound": "Publication introuvable",
+    "notFoundHint": "Cette publication n'existe plus ou a été supprimée.",
+    "viewFullShop": "Voir la boutique complète",
+    "orderMessage": "Bonjour, je suis intéressé(e) par \"{{productName}}\" vu sur StatusMarket.",
+    "order": "Commander",
+    "viewWholeShop": "Voir toute la boutique",
+    "poweredBy": "Propulsé par"
+  },
+  "subscription": {
+    "daysRemaining_one": "{{count}} jour restant",
+    "daysRemaining_other": "{{count}} jours restants",
+    "active": "Actif",
+    "free": "Gratuit",
+    "days_one": "{{count}} jour",
+    "days_other": "{{count}} jours",
+    "switchTo": "Passer à {{name}}",
+    "comingSoon": "Bientôt disponible — contactez-nous",
+    "proofSubmitted": "Preuve soumise !",
+    "proofPending": "Votre paiement est en attente de validation par l'administrateur.",
+    "paymentTitle": "Paiement — Plan {{name}}",
+    "paymentInstructions": "Effectuez votre paiement ({{price}}$) via Mobile Money ou virement, puis soumettez la preuve ci-dessous.",
+    "transactionRef": "Référence / ID de transaction",
+    "paymentScreenshot": "Capture d'écran du paiement",
+    "proof": "Preuve",
+    "submit": "Soumettre"
+  },
+  "vendorNav": {
+    "dashboard": "Tableau de bord",
+    "newPost": "Nouvelle pub",
+    "account": "Compte",
+    "seller": "Vendeur",
+    "sellerSpace": "Espace vendeur",
+    "viewSite": "Voir le site",
+    "status": "Statut"
+  },
+  "adminNav": {
+    "sellers": "Vendeurs",
+    "payments": "Paiements",
+    "subscriptions": "Abonnements",
+    "reports": "Signalements",
+    "settings": "Paramètres",
+    "administration": "Administration",
+    "controlPanel": "Panneau d'administration"
+  },
+  "clientNav": {
+    "client": "Client",
+    "continueShopping": "Continuer mes achats"
+  },
+  "adminDashboard": {
+    "pendingPayments": "Paiements en attente",
+    "paymentsAwaitingReview": "Paiements en attente de validation",
+    "noPendingPayments": "Aucun paiement en attente.",
+    "viewProof": "Voir preuve",
+    "subscriptionPlans": "Plans d'abonnement",
+    "active": "Actif",
+    "inactive": "Inactif"
+  },
+  "adminPayments": {
+    "count_one": "{{count}} paiement",
+    "count_other": "{{count}} paiements",
+    "searchPlaceholder": "Rechercher par vendeur ou référence...",
+    "allStatuses": "Tous les statuts",
+    "status": {
+      "PENDING": "En attente",
+      "APPROVED": "Approuvé",
+      "REJECTED": "Rejeté"
+    },
+    "statusPlural": {
+      "APPROVED": "Approuvés",
+      "REJECTED": "Rejetés"
+    },
+    "noneFound": "Aucun paiement trouvé.",
+    "ref": "Réf",
+    "reason": "Motif",
+    "approve": "Approuver",
+    "reject": "Rejeter"
+  },
+  "adminProducts": {
+    "count_one": "{{count}} produit",
+    "count_other": "{{count}} produits",
+    "unavailable": "Indisponible"
+  },
+  "adminReports": {
+    "count_one": "{{count}} signalement",
+    "count_other": "{{count}} signalements",
+    "status": {
+      "OPEN": "Ouvert",
+      "RESOLVED": "Résolu",
+      "DISMISSED": "Rejeté"
+    },
+    "resolve": "Résoudre",
+    "none": "Aucun signalement."
+  },
+  "adminSellers": {
+    "count_one": "{{count}} vendeur",
+    "count_other": "{{count}} vendeurs",
+    "createdOn": "Créé le",
+    "none": "Aucun vendeur trouvé."
+  },
+  "adminSettings": {
+    "saved": "Enregistré",
+    "platformConfig": "Configuration de la plateforme",
+    "trialDuration": "Durée de l'essai (jours)",
+    "trialDurationHint": "Nombre de jours pour la période d'essai gratuite des nouveaux vendeurs.",
+    "expiryAlert": "Alerte d'expiration (jours)",
+    "expiryAlertHint": "Nombre de jours avant l'expiration de l'essai pour envoyer une alerte.",
+    "systemInfo": "Informations système",
+    "lastUpdated": "Dernière mise à jour"
+  },
+  "adminShops": {
+    "count_one": "{{count}} boutique",
+    "count_other": "{{count}} boutiques",
+    "suspended": "Suspendu"
+  },
+  "adminSubscriptions": {
+    "title": "Abonnements & Plans",
+    "count_one": "{{count}} plan",
+    "count_other": "{{count}} plans",
+    "none": "Aucun plan d'abonnement trouvé.",
+    "priceUsd": "Prix (USD)",
+    "durationDays": "Durée (jours)",
+    "duration": "Durée",
+    "maxProducts": "Max produits",
+    "maxShops": "Max boutiques",
+    "order": "Ordre",
+    "unlimited": "Illimité",
+    "features": "Fonctionnalités"
+  }
+}

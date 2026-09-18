@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, HelpCircle, Search, ShoppingBag, CreditCard, MessageCircle, ShieldCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function HelpPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -12,7 +14,7 @@ export function HelpPage() {
             onClick={() => navigate(-1)}
             className="flex items-center gap-1 text-sm text-brume hover:text-vert-marche transition-colors"
           >
-            <ArrowLeft size={16} /> Retour
+            <ArrowLeft size={16} /> {t('common.back')}
           </button>
         </div>
       </header>
@@ -22,64 +24,64 @@ export function HelpPage() {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-vert-marche/10">
             <HelpCircle size={28} className="text-vert-marche" />
           </div>
-          <h1 className="font-serif text-3xl font-bold text-encre-nuit dark:text-sable-chaud">Centre d'aide</h1>
-          <p className="mt-2 text-brume">Trouvez rapidement des réponses à vos questions.</p>
+          <h1 className="font-serif text-3xl font-bold text-encre-nuit dark:text-sable-chaud">{t('help.title')}</h1>
+          <p className="mt-2 text-brume">{t('help.subtitle')}</p>
         </div>
 
         <div className="card p-6 space-y-6">
           <section className="space-y-3">
             <div className="flex items-center gap-2 font-semibold text-encre-nuit dark:text-sable-chaud">
               <Search size={18} className="text-vert-marche" />
-              <h2>Comment trouver un produit ?</h2>
+              <h2>{t('help.findProduct.q')}</h2>
             </div>
             <p className="text-brume text-sm leading-relaxed">
-              Utilisez la barre de recherche en haut de la page d'accueil pour rechercher un produit, une boutique ou une catégorie. Vous pouvez aussi parcourir les catégories et les sections tendances.
+              {t('help.findProduct.a')}
             </p>
           </section>
 
           <section className="space-y-3">
             <div className="flex items-center gap-2 font-semibold text-encre-nuit dark:text-sable-chaud">
               <ShoppingBag size={18} className="text-vert-marche" />
-              <h2>Comment acheter ?</h2>
+              <h2>{t('help.howToBuy.q')}</h2>
             </div>
             <p className="text-brume text-sm leading-relaxed">
-              Cliquez sur un produit pour voir ses détails, ajoutez-le au panier si disponible, puis contactez le vendeur directement par WhatsApp pour finaliser la commande.
+              {t('help.howToBuy.a')}
             </p>
           </section>
 
           <section className="space-y-3">
             <div className="flex items-center gap-2 font-semibold text-encre-nuit dark:text-sable-chaud">
               <CreditCard size={18} className="text-vert-marche" />
-              <h2>Comment payer ?</h2>
+              <h2>{t('help.howToPay.q')}</h2>
             </div>
             <p className="text-brume text-sm leading-relaxed">
-              StatusMarket met en relation acheteurs et vendeurs. Le paiement se fait directement entre vous et le vendeur selon les modalités convenues (mobile money, espèces, virement, etc.).
+              {t('help.howToPay.a')}
             </p>
           </section>
 
           <section className="space-y-3">
             <div className="flex items-center gap-2 font-semibold text-encre-nuit dark:text-sable-chaud">
               <MessageCircle size={18} className="text-vert-marche" />
-              <h2>Comment créer ma boutique ?</h2>
+              <h2>{t('help.createShop.q')}</h2>
             </div>
             <p className="text-brume text-sm leading-relaxed">
-              Cliquez sur <strong>Créer un compte</strong>, créez un compte vendeur, puis remplissez le formulaire de création de boutique. Vous pourrez ensuite ajouter vos produits et gérer vos commandes.
+              {t('help.createShop.aBefore')} <strong>{t('help.createShop.aBold')}</strong> {t('help.createShop.aAfter')}
             </p>
           </section>
 
           <section className="space-y-3">
             <div className="flex items-center gap-2 font-semibold text-encre-nuit dark:text-sable-chaud">
               <ShieldCheck size={18} className="text-vert-marche" />
-              <h2>Signaler un problème</h2>
+              <h2>{t('help.report.q')}</h2>
             </div>
             <p className="text-brume text-sm leading-relaxed">
-              Si vous rencontrez un contenu inapproprié ou une arnaque, utilisez le bouton de signalement sur la page de la boutique ou du produit concerné.
+              {t('help.report.a')}
             </p>
           </section>
         </div>
 
         <div className="mt-8 text-center text-sm text-brume">
-          <p>Besoin de plus d'aide ? <a href="mailto:dieudonnemerci20@gmail.com" className="text-vert-marche hover:underline">Contactez-nous</a>.</p>
+          <p>{t('help.needMore')} <a href="mailto:dieudonnemerci20@gmail.com" className="text-vert-marche hover:underline">{t('help.contactUs')}</a>.</p>
         </div>
       </main>
     </div>

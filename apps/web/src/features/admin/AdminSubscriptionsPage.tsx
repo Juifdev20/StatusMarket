@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { BarChart3, Save, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import type { SubscriptionPlan } from '../../types';
 
 export function AdminSubscriptionsPage() {
+  const { t } = useTranslation();
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -64,14 +66,14 @@ export function AdminSubscriptionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-2xl font-bold">Abonnements & Plans</h1>
-        <span className="badge bg-brume/20 text-brume">{plans.length} plan{plans.length > 1 ? 's' : ''}</span>
+        <h1 className="font-serif text-2xl font-bold">{t('adminSubscriptions.title')}</h1>
+        <span className="badge bg-brume/20 text-brume">{t('adminSubscriptions.count', { count: plans.length })}</span>
       </div>
 
       {plans.length === 0 ? (
         <div className="flex flex-col items-center py-20 text-center">
           <BarChart3 size={48} className="text-brume mb-4" />
-          <p className="text-brume">Aucun plan d'abonnement trouvé.</p>
+          <p className="text-brume">{t('adminSubscriptions.none')}</p>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -96,14 +98,14 @@ export function AdminSubscriptionsPage() {
                     onClick={() => isEditing ? cancelEdit() : startEdit(plan)}
                     className="text-xs text-vert-marche hover:underline"
                   >
-                    {isEditing ? 'Annuler' : 'Modifier'}
+                    {isEditing ? t('common.cancel') : t('common.edit')}
                   </button>
                 </div>
 
                 {isEditing ? (
                   <div className="space-y-3">
                     <div>
-                      <label className="text-xs text-brume">Description</label>
+                      <label className="text-xs text-brume">{t('products.description')}</label>
                       <textarea
                         value={editValues.description ?? ''}
                         onChange={(e) => setEditValues((v) => ({ ...v, description: e.target.value }))}
@@ -113,7 +115,7 @@ export function AdminSubscriptionsPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="text-xs text-brume">Prix (USD)</label>
+                        <label className="text-xs text-brume">{t('adminSubscriptions.priceUsd')}</label>
                         <input
                           type="number"
                           value={editValues.price_usd ?? 0}
@@ -122,7 +124,7 @@ export function AdminSubscriptionsPage() {
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-brume">Durée (jours)</label>
+                        <label className="text-xs text-brume">{t('adminSubscriptions.durationDays')}</label>
                         <input
                           type="number"
                           value={editValues.duration_days ?? 0}
@@ -131,7 +133,7 @@ export function AdminSubscriptionsPage() {
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-brume">Max produits</label>
+                        <label className="text-xs text-brume">{t('adminSubscriptions.maxProducts')}</label>
                         <input
                           type="number"
                           value={editValues.max_products ?? 0}
@@ -140,7 +142,7 @@ export function AdminSubscriptionsPage() {
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-brume">Max boutiques</label>
+                        <label className="text-xs text-brume">{t('adminSubscriptions.maxShops')}</label>
                         <input
                           type="number"
                           value={editValues.max_stores ?? 0}
@@ -149,7 +151,7 @@ export function AdminSubscriptionsPage() {
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-brume">Ordre</label>
+                        <label className="text-xs text-brume">{t('adminSubscriptions.order')}</label>
                         <input
                           type="number"
                           value={editValues.sort_order ?? 0}
@@ -158,14 +160,14 @@ export function AdminSubscriptionsPage() {
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-brume">Actif</label>
+                        <label className="text-xs text-brume">{t('adminDashboard.active')}</label>
                         <select
                           value={editValues.is_active ? 'true' : 'false'}
                           onChange={(e) => setEditValues((v) => ({ ...v, is_active: e.target.value === 'true' }))}
                           className="input text-sm"
                         >
-                          <option value="true">Oui</option>
-                          <option value="false">Non</option>
+                          <option value="true">{t('common.yes')}</option>
+                          <option value="false">{t('common.no')}</option>
                         </select>
                       </div>
                     </div>
@@ -174,7 +176,7 @@ export function AdminSubscriptionsPage() {
                       disabled={saving}
                       className="btn-primary text-sm w-full flex items-center justify-center gap-2"
                     >
-                      <Save size={16} /> Enregistrer
+                      <Save size={16} /> {t('common.save')}
                     </button>
                   </div>
                 ) : (
@@ -182,25 +184,25 @@ export function AdminSubscriptionsPage() {
                     <p className="text-sm text-brume">{plan.description ?? '—'}</p>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-brume">Prix</span>
-                        <span className="font-mono font-semibold">{plan.price_usd === 0 ? 'Gratuit' : `${plan.price_usd} $`}</span>
+                        <span className="text-brume">{t('products.price')}</span>
+                        <span className="font-mono font-semibold">{plan.price_usd === 0 ? t('subscription.free') : `${plan.price_usd} $`}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-brume">Durée</span>
-                        <span>{plan.duration_days} jours</span>
+                        <span className="text-brume">{t('adminSubscriptions.duration')}</span>
+                        <span>{t('subscription.days', { count: plan.duration_days })}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-brume">Max produits</span>
-                        <span>{plan.max_products ?? 'Illimité'}</span>
+                        <span className="text-brume">{t('adminSubscriptions.maxProducts')}</span>
+                        <span>{plan.max_products ?? t('adminSubscriptions.unlimited')}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-brume">Max boutiques</span>
+                        <span className="text-brume">{t('adminSubscriptions.maxShops')}</span>
                         <span>{plan.max_stores}</span>
                       </div>
                     </div>
                     {plan.features.length > 0 && (
                       <div className="space-y-1">
-                        <p className="text-xs font-semibold text-brume">Fonctionnalités</p>
+                        <p className="text-xs font-semibold text-brume">{t('adminSubscriptions.features')}</p>
                         {plan.features.map((f, i) => (
                           <p key={i} className="text-xs flex items-center gap-1">
                             <Check size={12} className="text-vert-marche" /> {f}
@@ -210,9 +212,9 @@ export function AdminSubscriptionsPage() {
                     )}
                     <div className="flex items-center justify-between pt-2 border-t border-brume/20">
                       <span className={`badge ${plan.is_active ? 'bg-vert-marche/10 text-vert-marche' : 'bg-brume/20 text-brume'}`}>
-                        {plan.is_active ? 'Actif' : 'Inactif'}
+                        {plan.is_active ? t('adminDashboard.active') : t('adminDashboard.inactive')}
                       </span>
-                      <span className="text-xs text-brume">Ordre: {plan.sort_order}</span>
+                      <span className="text-xs text-brume">{t('adminSubscriptions.order')}: {plan.sort_order}</span>
                     </div>
                   </>
                 )}

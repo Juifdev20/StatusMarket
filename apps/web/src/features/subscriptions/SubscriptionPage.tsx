@@ -1,11 +1,13 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { StatusRing } from '../../components/StatusRing';
 import type { SubscriptionPlan, Subscription } from '../../types';
 
 export function SubscriptionPage() {
+  const { t, i18n } = useTranslation();
   const { profile } = useAuth();
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
@@ -39,27 +41,27 @@ export function SubscriptionPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-bold">Abonnement</h1>
+      <h1 className="font-serif text-2xl font-bold">{t('dashboard.subscription')}</h1>
 
       {subscription?.status === 'TRIAL' && (
         <div className="card flex items-center gap-4 p-4 border-corail-alerte/30">
           <StatusRing progress={trialProgress} size={56} color="#E2572B">
             <div className="flex h-full w-full items-center justify-center bg-corail-alerte/10 rounded-full">
-              <span className="font-mono text-xs font-bold text-corail-alerte">{daysLeft}j</span>
+              <span className="font-mono text-xs font-bold text-corail-alerte">{t('dashboard.daysShort', { count: daysLeft })}</span>
             </div>
           </StatusRing>
           <div>
-            <p className="text-sm font-semibold text-corail-alerte">Essai PRO en cours</p>
-            <p className="text-xs text-brume">{daysLeft} jours restants</p>
+            <p className="text-sm font-semibold text-corail-alerte">{t('dashboard.trialInProgress')}</p>
+            <p className="text-xs text-brume">{t('subscription.daysRemaining', { count: daysLeft })}</p>
           </div>
         </div>
       )}
 
       {subscription?.status === 'ACTIVE' && (
         <div className="card p-4">
-          <span className="badge bg-vert-marche/10 text-vert-marche">{subscription.plan?.name} · Actif</span>
+          <span className="badge bg-vert-marche/10 text-vert-marche">{subscription.plan?.name} · {t('subscription.active')}</span>
           {subscription.expires_at && (
-            <p className="text-xs text-brume mt-2">Expire le {new Date(subscription.expires_at).toLocaleDateString('fr-FR')}</p>
+            <p className="text-xs text-brume mt-2">{t('dashboard.expiresOn', { date: new Date(subscription.expires_at).toLocaleDateString(i18n.language.startsWith('en') ? 'en-US' : 'fr-FR') })}</p>
           )}
         </div>
       )}
@@ -74,9 +76,9 @@ export function SubscriptionPage() {
               </div>
               <div className="text-right">
                 <p className="font-mono text-xl font-bold text-vert-marche">
-                  {plan.price_usd === 0 ? 'Gratuit' : `${plan.price_usd}$`}
+                  {plan.price_usd === 0 ? t('subscription.free') : `${plan.price_usd}$`}
                 </p>
-                {plan.duration_days > 0 && <p className="text-xs text-brume">/ {plan.duration_days} jours</p>}
+                {plan.duration_days > 0 && <p className="text-xs text-brume">/ {t('subscription.days', { count: plan.duration_days })}</p>}
               </div>
             </div>
             <ul className="mt-4 space-y-1">
@@ -91,11 +93,11 @@ export function SubscriptionPage() {
                 onClick={() => { setSelectedPlan(plan); setShowPaymentForm(true); }}
                 className="btn-cta mt-4 w-full text-xs"
               >
-                Passer à {plan.name}
+                {t('subscription.switchTo', { name: plan.name })}
               </button>
             )}
             {plan.code === 'BUSINESS' && (
-              <p className="mt-4 text-xs text-brume text-center">Bientôt disponible — contactez-nous</p>
+              <p className="mt-4 text-xs text-brume text-center">{t('subscription.comingSoon')}</p>
             )}
           </div>
         ))}
@@ -117,6 +119,7 @@ function PaymentForm({ plan, sellerId, onClose }: {
   sellerId: string;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [reference, setReference] = useState('');
   const [proofUrl, setProofUrl] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -159,11 +162,11 @@ function PaymentForm({ plan, sellerId, onClose }: {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-vert-marche/10">
               <Check size={24} className="text-vert-marche" />
             </div>
-            <h2 className="font-serif text-lg font-bold">Preuve soumise !</h2>
-            <p className="text-sm text-brume mt-2">Votre paiement est en attente de validation par l'administrateur.</p>
+            <h2 className="font-serif text-lg font-bold">{t('subscription.proofSubmitted')}</h2>
+            <p className="text-sm text-brume mt-2">{t('subscription.proofPending')}</p>
           </div>
           <div className="mt-auto border-t border-brume/10 p-4 md:p-6">
-            <button onClick={onClose} className="btn-primary w-full">Fermer</button>
+            <button onClick={onClose} className="btn-primary w-full">{t('common.close')}</button>
           </div>
         </div>
       </div>
@@ -174,28 +177,28 @@ function PaymentForm({ plan, sellerId, onClose }: {
     <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 p-0 md:items-center md:p-4" onClick={onClose}>
       <div className="card h-[100dvh] w-full max-w-md flex flex-col rounded-b-none md:h-auto md:max-h-[85vh] md:rounded-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="border-b border-brume/10 p-4 md:p-6">
-          <h2 className="font-serif text-lg font-bold">Paiement — Plan {plan.name}</h2>
+          <h2 className="font-serif text-lg font-bold">{t('subscription.paymentTitle', { name: plan.name })}</h2>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
           <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
             <div className="card bg-sable-chaud dark:bg-encre-nuit/40 p-3">
-              <p className="text-xs text-brume">Effectuez votre paiement ({plan.price_usd}$) via Mobile Money ou virement, puis soumettez la preuve ci-dessous.</p>
+              <p className="text-xs text-brume">{t('subscription.paymentInstructions', { price: plan.price_usd })}</p>
             </div>
             <div>
-              <label className="label">Référence / ID de transaction</label>
+              <label className="label">{t('subscription.transactionRef')}</label>
               <input required value={reference} onChange={(e) => setReference(e.target.value)} className="input" placeholder="EX123456789" />
             </div>
             <div>
-              <label className="label">Capture d'écran du paiement</label>
+              <label className="label">{t('subscription.paymentScreenshot')}</label>
               <input type="file" accept="image/*" required onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} className="input" />
-              {uploading && <p className="text-xs text-brume mt-1">Upload en cours...</p>}
-              {proofUrl && <img src={proofUrl} alt="Preuve" className="mt-2 h-20 w-20 rounded-lg object-cover" />}
+              {uploading && <p className="text-xs text-brume mt-1">{t('createStore.uploading')}</p>}
+              {proofUrl && <img src={proofUrl} alt={t('subscription.proof')} className="mt-2 h-20 w-20 rounded-lg object-cover" />}
             </div>
           </div>
           <div className="sticky bottom-0 border-t border-brume/10 bg-inherit p-4 md:p-6 flex gap-2">
-            <button type="button" onClick={onClose} className="btn-ghost flex-1">Annuler</button>
+            <button type="button" onClick={onClose} className="btn-ghost flex-1">{t('common.cancel')}</button>
             <button type="submit" disabled={submitting || !proofUrl} className="btn-primary flex-1">
-              {submitting ? 'Envoi...' : 'Soumettre'}
+              {submitting ? t('report.sending') : t('subscription.submit')}
             </button>
           </div>
         </form>

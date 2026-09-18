@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Download, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -7,6 +8,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function PWAInstallPrompt() {
+  const { t } = useTranslation();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -50,12 +52,12 @@ export function PWAInstallPrompt() {
           <Download size={20} className="text-vert-marche" />
         </div>
         <div className="flex-1">
-          <h3 className="text-sm font-bold text-encre-nuit dark:text-sable-chaud">Installer StatusMarket</h3>
+          <h3 className="text-sm font-bold text-encre-nuit dark:text-sable-chaud">{t('pwa.title')}</h3>
           <p className="mt-1 text-xs text-brume">
-            Accédez à votre boutique plus rapidement, même hors connexion.
+            {t('pwa.description')}
           </p>
           <button onClick={handleInstall} className="btn-primary mt-3 w-full text-xs">
-            Installer l'application
+            {t('pwa.install')}
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Bell, X, CheckCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../features/auth/authContext';
 import type { Notification } from '../types';
@@ -8,6 +9,7 @@ import type { Notification } from '../types';
 const READ_RETENTION_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 export function NotificationsDropdown() {
+  const { t, i18n } = useTranslation();
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -89,7 +91,7 @@ export function NotificationsDropdown() {
 
   return (
     <div className="relative" ref={ref}>
-      <button onClick={() => setOpen((o) => !o)} className="btn-ghost p-2 relative" title="Notifications">
+      <button onClick={() => setOpen((o) => !o)} className="btn-ghost p-2 relative" title={t('notifications.title')}>
         <Bell size={18} />
         {unread > 0 && (
           <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-corail-alerte text-[10px] text-white font-bold">
@@ -101,18 +103,18 @@ export function NotificationsDropdown() {
       {open && (
         <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-2xl border border-brume/20 bg-white dark:bg-encre-nuit/90 p-2 shadow-xl">
           <div className="flex items-center justify-between p-2 border-b border-brume/20">
-            <span className="text-sm font-semibold">Notifications</span>
+            <span className="text-sm font-semibold">{t('notifications.title')}</span>
             <div className="flex items-center gap-1">
               {unread > 0 && (
-                <button onClick={markAllAsRead} className="btn-ghost p-1 text-xs text-vert-marche flex items-center gap-1" title="Tout marquer comme lu">
-                  <CheckCheck size={14} /> Tout lire
+                <button onClick={markAllAsRead} className="btn-ghost p-1 text-xs text-vert-marche flex items-center gap-1" title={t('notifications.markAllRead')}>
+                  <CheckCheck size={14} /> {t('notifications.markAllReadShort')}
                 </button>
               )}
               <button onClick={() => setOpen(false)} className="btn-ghost p-1"><X size={14} /></button>
             </div>
           </div>
           {visibleNotifications.length === 0 ? (
-            <p className="p-4 text-center text-sm text-brume">Aucune notification pour le moment.</p>
+            <p className="p-4 text-center text-sm text-brume">{t('notifications.empty')}</p>
           ) : (
             <div className="max-h-80 overflow-y-auto">
               {visibleNotifications.map((n) => (
@@ -126,7 +128,7 @@ export function NotificationsDropdown() {
                     <div className="flex-1 min-w-0">
                       <p className="font-medium">{n.title}</p>
                       {n.body && <p className="mt-0.5 text-xs text-brume line-clamp-2">{n.body}</p>}
-                      <p className="mt-1 text-[10px] text-brume">{new Date(n.created_at).toLocaleString('fr-FR')}</p>
+                      <p className="mt-1 text-[10px] text-brume">{new Date(n.created_at).toLocaleString(i18n.language.startsWith('en') ? 'en-US' : 'fr-FR')}</p>
                     </div>
                   </div>
                 </button>
