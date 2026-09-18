@@ -59,8 +59,8 @@ export const api = {
   deleteCategory: (id: string) => fetcher(`/api/categories/${id}`, { method: 'DELETE' }),
 
   // AI generation
-  generateCaption: (body: { imageUrl: string; productNames: string[] }) =>
+  generateCaption: (body: { imageUrl: string; productNames: string[]; language: string; previousText?: string }) =>
     fetcher('/api/ai/generate-caption', { method: 'POST', body: JSON.stringify(body) }),
-  generateDescription: (body: { imageUrl: string; name: string; price?: number; currency?: string }) =>
+  generateDescription: (body: { imageUrl: string; name: string; price?: number; currency?: string; language: string; previousText?: string }) =>
     fetcher('/api/ai/generate-description', { method: 'POST', body: JSON.stringify(body) }),
 };

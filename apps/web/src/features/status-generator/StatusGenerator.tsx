@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Share2, Check, Image as ImageIcon, Link as LinkIcon, Copy, Sparkles } from 'lucide-react';
+import { Share2, Check, Image as ImageIcon, Link as LinkIcon, Copy } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { getSiteUrl } from '../../utils/siteUrl';
 import { api } from '../../lib/api';
+import { AiGenerateButton, type AiLanguage } from '../../components/AiGenerateButton';
 import type { Store, Product } from '../../types';
 
 export function StatusGenerator() {
@@ -89,7 +90,7 @@ export function StatusGenerator() {
     });
   };
 
-  const handleGenerateCaption = async () => {
+  const handleGenerateCaption = async (language: AiLanguage) => {
     if (!coverImage) return;
     setGeneratingCaption(true);
     setCaptionError(null);
@@ -97,6 +98,8 @@ export function StatusGenerator() {
       const result = await api.generateCaption({
         imageUrl: coverImage,
         productNames: selectedProducts.map((p) => p.name),
+        language,
+        previousText: caption.trim() || undefined,
       });
       setCaption(result.caption);
     } catch {
@@ -310,16 +313,13 @@ export function StatusGenerator() {
           <div className="card p-4">
             <div className="flex items-center justify-between mb-1.5">
               <label className="label mb-0">3. Légende (optionnel)</label>
-              <button
-                type="button"
-                onClick={handleGenerateCaption}
-                disabled={!coverImage || generatingCaption}
-                className="btn-outline text-xs flex items-center gap-1 py-1 px-2 disabled:opacity-40"
-                title={!coverImage ? 'Choisissez une photo de couverture pour activer la génération IA' : 'Générer une légende avec l\'IA'}
-              >
-                <Sparkles size={12} className={generatingCaption ? 'animate-pulse' : ''} />
-                {generatingCaption ? 'Génération...' : 'Générer pour moi'}
-              </button>
+              <AiGenerateButton
+                ready={!!coverImage}
+                hasResult={!!caption.trim()}
+                generating={generatingCaption}
+                onGenerate={handleGenerateCaption}
+                disabledTitle="Choisissez une photo de couverture pour activer la génération IA"
+              />
             </div>
             <input
               value={caption}

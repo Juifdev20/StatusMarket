@@ -1,9 +1,10 @@
 import { useEffect, useState, FormEvent } from 'react';
-import { Plus, Pencil, Trash2, X, Package, Share2, Sparkles } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Package, Share2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { ShareDialog } from '../../components/ShareDialog';
 import { api } from '../../lib/api';
+import { AiGenerateButton, type AiLanguage } from '../../components/AiGenerateButton';
 import type { Store, Product, Category, GlobalCategory } from '../../types';
 
 export function ProductsPage() {
@@ -221,7 +222,7 @@ function ProductForm({ store, categories, globalCategories, product, onClose, on
     setUploading(false);
   };
 
-  const handleGenerateDescription = async () => {
+  const handleGenerateDescription = async (language: AiLanguage) => {
     if (!imageUrl || !name.trim()) return;
     setGeneratingDesc(true);
     setDescError(null);
@@ -231,6 +232,8 @@ function ProductForm({ store, categories, globalCategories, product, onClose, on
         name: name.trim(),
         price: price ? parseFloat(price) : undefined,
         currency,
+        language,
+        previousText: description.trim() || undefined,
       });
       setDescription(result.description);
     } catch {
@@ -282,16 +285,13 @@ function ProductForm({ store, categories, globalCategories, product, onClose, on
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="label mb-0">Description</label>
-                <button
-                  type="button"
-                  onClick={handleGenerateDescription}
-                  disabled={!imageUrl || !name.trim() || generatingDesc}
-                  className="btn-outline text-xs flex items-center gap-1 py-1 px-2 disabled:opacity-40"
-                  title={!imageUrl ? 'Ajoutez une photo (plus bas) pour activer la génération IA' : 'Générer une description avec l\'IA'}
-                >
-                  <Sparkles size={12} className={generatingDesc ? 'animate-pulse' : ''} />
-                  {generatingDesc ? 'Génération...' : 'Générer pour moi'}
-                </button>
+                <AiGenerateButton
+                  ready={!!imageUrl && !!name.trim()}
+                  hasResult={!!description.trim()}
+                  generating={generatingDesc}
+                  onGenerate={handleGenerateDescription}
+                  disabledTitle="Ajoutez une photo (plus bas) et un nom pour activer la génération IA"
+                />
               </div>
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="input min-h-[80px]" placeholder="Description du produit" />
               {descError && <p className="text-xs text-corail-alerte mt-1">{descError}</p>}

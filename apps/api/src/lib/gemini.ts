@@ -17,7 +17,7 @@ function getClient(): GoogleGenAI {
 // inline as base64 — Gemini's uri input is documented only for files
 // uploaded via client.files.upload(), not arbitrary public URLs.
 export async function generateFromImage(imageUrl: string, prompt: string): Promise<string> {
-  const imgRes = await fetch(imageUrl);
+  const imgRes = await fetch(imageUrl, { signal: AbortSignal.timeout(15000) });
   if (!imgRes.ok) throw new Error(`Failed to fetch image: ${imgRes.status}`);
   const mimeType = imgRes.headers.get('content-type') || 'image/jpeg';
   const buffer = Buffer.from(await imgRes.arrayBuffer());
@@ -29,7 +29,7 @@ export async function generateFromImage(imageUrl: string, prompt: string): Promi
       { type: 'text', text: prompt },
       { type: 'image', data: base64, mime_type: mimeType },
     ],
-  });
+  }, { timeout: 25000 });
 
   const text = interaction.output_text?.trim();
   if (!text) throw new Error('Gemini returned an empty response');
