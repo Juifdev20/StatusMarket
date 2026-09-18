@@ -8,8 +8,10 @@ import { ReportModal } from '../../components/ReportModal';
 import { ReviewSection } from '../../components/ReviewSection';
 import { FavoriteButton } from '../../components/FavoriteButton';
 import { FollowButton } from '../../components/FollowButton';
+import { FollowersListModal } from '../../components/FollowersListModal';
 import { WhatsAppContactButton } from '../../components/WhatsAppContactButton';
 import { StarRating } from '../../components/StarRating';
+import { useFollowerCount } from '../../hooks/useFollowerCount';
 import type { Store, Product, Category, GlobalCategory, RatingSummary } from '../../types';
 
 export function PublicShopPage() {
@@ -23,12 +25,14 @@ export function PublicShopPage() {
   const [activeGlobalCategory, setActiveGlobalCategory] = useState<string | null>(null);
   const [globalCategories, setGlobalCategories] = useState<GlobalCategory[]>([]);
   const [showReport, setShowReport] = useState(false);
+  const [showFollowers, setShowFollowers] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cartCount, setCartCount] = useState(0);
   const [productViews, setProductViews] = useState<Record<string, number>>({});
   const [storeRating, setStoreRating] = useState<RatingSummary | null>(null);
   const [productRatings, setProductRatings] = useState<Record<string, RatingSummary>>({});
+  const followerCount = useFollowerCount(store?.id || '');
 
   useEffect(() => {
     const updateCount = () => {
@@ -183,6 +187,12 @@ export function PublicShopPage() {
                 {storeRating && storeRating.review_count > 0 && (
                   <StarRating value={storeRating.avg_rating || 0} readOnly size={13} showCount={storeRating.review_count} />
                 )}
+                <button
+                  onClick={() => setShowFollowers(true)}
+                  className="mt-0.5 block text-xs font-medium text-brume hover:text-vert-marche hover:underline"
+                >
+                  {t('followers.count', { count: followerCount })}
+                </button>
                 {store.description && <p className="text-sm text-brume mt-0.5 break-words">{store.description}</p>}
                 {store.city && (
                   <p className="text-xs text-brume mt-1 flex items-center gap-1">
@@ -397,6 +407,10 @@ export function PublicShopPage() {
 
       {showReport && store && (
         <ReportModal targetType="STORE" targetId={store.id} onClose={() => setShowReport(false)} />
+      )}
+
+      {showFollowers && store && (
+        <FollowersListModal storeId={store.id} onClose={() => setShowFollowers(false)} />
       )}
 
       <PWAInstallPrompt />

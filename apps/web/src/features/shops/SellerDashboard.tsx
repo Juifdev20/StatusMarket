@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { StatusRing } from '../../components/StatusRing';
+import { FollowersListModal } from '../../components/FollowersListModal';
 import type { Store as StoreType, Product, Subscription } from '../../types';
 
 export function SellerDashboard() {
@@ -20,6 +21,7 @@ export function SellerDashboard() {
   const [reviewCount, setReviewCount] = useState(0);
   const [sharesCount, setSharesCount] = useState(0);
   const [followerCount, setFollowerCount] = useState(0);
+  const [showFollowers, setShowFollowers] = useState(false);
   const [loading, setLoading] = useState(true);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
@@ -311,14 +313,18 @@ export function SellerDashboard() {
           </div>
           <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">{sharesCount}</p>
         </div>
-        <div className="card p-4">
+        <button type="button" onClick={() => setShowFollowers(true)} className="card p-4 text-left hover:border-vert-marche/40">
           <div className="flex items-center gap-2 text-brume mb-2">
             <Users size={18} />
             <span className="text-xs font-medium">{t('dashboard.followers')}</span>
           </div>
           <p className="font-mono text-2xl font-bold text-encre-nuit dark:text-sable-chaud">{followerCount}</p>
-        </div>
+        </button>
       </div>
+
+      {showFollowers && store && (
+        <FollowersListModal storeId={store.id} onClose={() => setShowFollowers(false)} />
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="card p-4 lg:col-span-2">

@@ -252,7 +252,8 @@
     "sellerWillContact": "The seller will contact you on WhatsApp to confirm.",
     "contactOnWhatsapp": "Contact on WhatsApp",
     "errors": {
-      "phoneAndAddressRequired": "Phone number and full address are required for delivery."
+      "phoneAndAddressRequired": "Phone number and full address are required for delivery.",
+      "orderFailed": "The order could not be saved. Please try again."
     }
   },
   "categories": {
@@ -272,6 +273,13 @@
   "follows": {
     "title": "Followed shops",
     "empty": "You're not following any shop yet."
+  },
+  "followers": {
+    "title": "Followers",
+    "count_one": "{{count}} follower",
+    "count_other": "{{count}} followers",
+    "empty": "No followers yet.",
+    "loadMore": "Load more"
   },
   "reviewsTab": {
     "title": "My reviews",

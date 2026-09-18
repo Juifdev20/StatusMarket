@@ -14,6 +14,7 @@ export function CartPage() {
   const [customer, setCustomer] = useState({ name: '', phone: '', email: '', address: '', notes: '' });
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,8 +56,11 @@ export function CartPage() {
       return;
     }
     setSubmitting(true);
+    setError(null);
 
-    const { data: orderData } = await supabase.from('orders').insert({
+    const orderId = crypto.randomUUID();
+    const { error: orderError } = await supabase.from('orders').insert({
+      id: orderId,
       store_id: store.id,
       customer_name: customer.name || null,
       customer_phone: customer.phone,
@@ -65,21 +69,32 @@ export function CartPage() {
       notes: customer.notes || null,
       total,
       currency,
-    }).select('id').single();
+    });
 
-    if (orderData) {
-      const orderItems = items.map((item) => ({
-        order_id: orderData.id,
-        product_id: item.product.id,
-        quantity: item.quantity,
-        price: item.product.price,
-        currency: item.product.currency,
-      }));
-      await supabase.from('order_items').insert(orderItems);
-      localStorage.removeItem('cart');
-      setItems([]);
-      setDone(true);
+    if (orderError) {
+      setError(orderError.message || t('cart.errors.orderFailed'));
+      setSubmitting(false);
+      return;
     }
+
+    const orderItems = items.map((item) => ({
+      order_id: orderId,
+      product_id: item.product.id,
+      quantity: item.quantity,
+      price: item.product.price,
+      currency: item.product.currency,
+    }));
+    const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
+
+    if (itemsError) {
+      setError(itemsError.message || t('cart.errors.orderFailed'));
+      setSubmitting(false);
+      return;
+    }
+
+    localStorage.removeItem('cart');
+    setItems([]);
+    setDone(true);
     setSubmitting(false);
   };
 
@@ -166,6 +181,9 @@ export function CartPage() {
                 <label className="label">{t('cart.notes')}</label>
                 <textarea value={customer.notes} onChange={(e) => setCustomer({ ...customer, notes: e.target.value })} className="input min-h-[80px]" placeholder={t('cart.notesPlaceholder')} />
               </div>
+              {error && (
+                <p className="rounded-lg bg-corail-alerte/10 px-3 py-2 text-sm text-corail-alerte">{error}</p>
+              )}
               <button type="submit" disabled={submitting} className="btn-primary w-full">
                 {submitting ? t('report.sending') : t('cart.confirmOrder')}
               </button>

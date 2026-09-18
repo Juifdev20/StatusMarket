@@ -252,7 +252,8 @@
     "sellerWillContact": "Le vendeur vous contactera par WhatsApp pour confirmer.",
     "contactOnWhatsapp": "Contacter sur WhatsApp",
     "errors": {
-      "phoneAndAddressRequired": "Le numéro de téléphone et l'adresse complète sont obligatoires pour la livraison."
+      "phoneAndAddressRequired": "Le numéro de téléphone et l'adresse complète sont obligatoires pour la livraison.",
+      "orderFailed": "La commande n'a pas pu être enregistrée. Veuillez réessayer."
     }
   },
   "categories": {
@@ -272,6 +273,13 @@
   "follows": {
     "title": "Boutiques suivies",
     "empty": "Vous ne suivez aucune boutique pour le moment."
+  },
+  "followers": {
+    "title": "Abonnés",
+    "count_one": "{{count}} abonné",
+    "count_other": "{{count}} abonnés",
+    "empty": "Aucun abonné pour le moment.",
+    "loadMore": "Voir plus"
   },
   "reviewsTab": {
     "title": "Mes avis",
