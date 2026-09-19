@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Users, Store, Package, CreditCard, Flag, Check, X } from 'lucide-react';
+import { Users, UserCircle, Store, Package, CreditCard, Flag, Eye, Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import type { Payment, SubscriptionPlan } from '../../types';
 
 export function AdminDashboard() {
   const { t } = useTranslation();
-  const [stats, setStats] = useState({ sellers: 0, stores: 0, products: 0, pendingPayments: 0, activeTrials: 0, reports: 0 });
+  const [stats, setStats] = useState({ sellers: 0, totalUsers: 0, stores: 0, products: 0, pendingPayments: 0, activeTrials: 0, reports: 0, totalViews: 0 });
   const [recentPayments, setRecentPayments] = useState<Payment[]>([]);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,11 +21,13 @@ export function AdminDashboard() {
         ]);
         setStats({
           sellers: statsRes.sellers ?? 0,
+          totalUsers: statsRes.total_users ?? 0,
           stores: statsRes.stores ?? 0,
           products: statsRes.products ?? 0,
           pendingPayments: statsRes.pending_payments ?? 0,
           activeTrials: statsRes.active_trials ?? 0,
           reports: 0,
+          totalViews: statsRes.total_views ?? 0,
         });
         setRecentPayments((paymentsRes || []).filter((p: Payment) => p.status === 'PENDING'));
         setPlans((plansRes || []).sort((a: SubscriptionPlan, b: SubscriptionPlan) => a.sort_order - b.sort_order));
@@ -51,9 +53,11 @@ export function AdminDashboard() {
   }
 
   const statCards = [
+    { label: t('adminDashboard.totalUsers'), value: stats.totalUsers, icon: UserCircle, color: 'text-vert-marche' },
     { label: t('adminNav.sellers'), value: stats.sellers, icon: Users, color: 'text-vert-marche' },
     { label: t('landing.shops'), value: stats.stores, icon: Store, color: 'text-ambre-pagne' },
     { label: t('products.title'), value: stats.products, icon: Package, color: 'text-vert-marche' },
+    { label: t('adminDashboard.totalViews'), value: stats.totalViews, icon: Eye, color: 'text-ambre-pagne' },
     { label: t('adminDashboard.pendingPayments'), value: stats.pendingPayments, icon: CreditCard, color: 'text-corail-alerte' },
     { label: t('adminNav.reports'), value: stats.reports, icon: Flag, color: 'text-corail-alerte' },
   ];

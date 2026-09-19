@@ -10,19 +10,23 @@ router.use(authGuard, requireRole('SUPER_ADMIN'));
 
 router.get('/dashboard', asyncHandler(async (_req, res) => {
   const supabase = getSupabaseAdmin();
-  const [sellers, stores, products, payments, subscriptions] = await Promise.all([
+  const [sellers, totalUsers, stores, products, payments, subscriptions, totalViews] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'SELLER'),
+    supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('stores').select('*', { count: 'exact', head: true }),
     supabase.from('products').select('*', { count: 'exact', head: true }),
     supabase.from('payments').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
-    supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'TRIAL'),
+    supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'TRIAL').or(`trial_ends_at.is.null,trial_ends_at.gt.${new Date().toISOString()}`),
+    supabase.from('store_views').select('*', { count: 'exact', head: true }),
   ]);
   res.json({
     sellers: sellers.count ?? 0,
+    total_users: totalUsers.count ?? 0,
     stores: stores.count ?? 0,
     products: products.count ?? 0,
     pending_payments: payments.count ?? 0,
     active_trials: subscriptions.count ?? 0,
+    total_views: totalViews.count ?? 0,
   });
 }));
 
@@ -198,8 +202,10 @@ router.get('/settings', asyncHandler(async (_req, res) => {
 }));
 
 const updateSettingsSchema = z.object({
-  trial_duration_days: z.number().int().positive().optional(),
+  trial_duration_value: z.number().int().positive().optional(),
+  trial_duration_unit: z.enum(['minutes', 'hours', 'days', 'years']).optional(),
   trial_alert_days: z.number().int().nonnegative().optional(),
+  ai_daily_limit: z.number().int().positive().optional(),
 });
 
 router.patch('/settings', asyncHandler(async (req: AuthedRequest, res) => {

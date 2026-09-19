@@ -32,8 +32,11 @@ export function SubscriptionPage() {
     return <div className="flex min-h-[40vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-vert-marche border-t-transparent" /></div>;
   }
 
-  const trialProgress = subscription?.trial_ends_at
-    ? Math.min(100, Math.max(0, ((new Date(subscription.trial_ends_at).getTime() - Date.now()) / (7 * 24 * 60 * 60 * 1000)) * 100))
+  const trialTotalSpanMs = subscription?.trial_ends_at
+    ? new Date(subscription.trial_ends_at).getTime() - new Date(subscription.created_at).getTime()
+    : 0;
+  const trialProgress = subscription?.trial_ends_at && trialTotalSpanMs > 0
+    ? Math.min(100, Math.max(0, ((new Date(subscription.trial_ends_at).getTime() - Date.now()) / trialTotalSpanMs) * 100))
     : 0;
   const daysLeft = subscription?.trial_ends_at
     ? Math.max(0, Math.ceil((new Date(subscription.trial_ends_at).getTime() - Date.now()) / (24 * 60 * 60 * 1000)))
@@ -63,6 +66,18 @@ export function SubscriptionPage() {
           {subscription.expires_at && (
             <p className="text-xs text-brume mt-2">{t('dashboard.expiresOn', { date: new Date(subscription.expires_at).toLocaleDateString(i18n.language.startsWith('en') ? 'en-US' : 'fr-FR') })}</p>
           )}
+        </div>
+      )}
+
+      {(subscription?.status === 'EXPIRED' || subscription?.status === 'CANCELLED') && (
+        <div className="card p-4 space-y-2 bg-corail-alerte/10 border-corail-alerte/30">
+          <p className="text-sm font-semibold text-corail-alerte">{t('dashboard.subscriptionExpiredTitle')}</p>
+          <p className="text-xs text-brume">{t('dashboard.subscriptionExpiredHint')}</p>
+          <ul className="text-xs text-brume list-disc list-inside space-y-0.5">
+            <li>{t('dashboard.blockedFeatureProducts')}</li>
+            <li>{t('dashboard.blockedFeatureStatus')}</li>
+            <li>{t('dashboard.blockedFeatureAi')}</li>
+          </ul>
         </div>
       )}
 

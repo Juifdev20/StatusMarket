@@ -308,13 +308,15 @@
     }
   },
   "ai": {
-    "genericError": "Generation unavailable right now, try again or write your own text."
+    "genericError": "Generation unavailable right now, try again or write your own text.",
+    "paidPlanRequired": "AI generation is reserved for paid subscriptions (PRO/BUSINESS). Click to see the plans."
   },
   "products": {
     "title": "Products",
     "empty": "No products yet. Add your first product!",
     "createShopFirst": "First create your shop to manage your products.",
     "retry": "Retry",
+    "subscriptionExpiredHint": "Your trial or subscription has ended — renew to add or edit products.",
     "confirmDelete": "Delete this product?",
     "errors": {
       "loadShop": "Error loading shop"
@@ -464,6 +466,11 @@
     "trialInProgress": "PRO trial in progress",
     "trialDaysLeft": "{{count}} days left in your trial. Upgrade to PRO to keep enjoying all features.",
     "upgradeToPro": "Upgrade to PRO",
+    "subscriptionExpiredTitle": "Subscription expired",
+    "subscriptionExpiredHint": "Your trial or subscription has ended. Your shop is no longer visible to customers until you renew — but you keep full access to your dashboard to review your data and settle your payment. Blocked features in the meantime:",
+    "blockedFeatureProducts": "Adding or editing products",
+    "blockedFeatureStatus": "Publishing new statuses",
+    "blockedFeatureAi": "Generating text with AI",
     "shopViews": "Shop views",
     "publications": "Posts",
     "avgRating": "Average rating",
@@ -494,6 +501,7 @@
     }
   },
   "statusGenerator": {
+    "subscriptionExpiredHint": "Your trial or subscription has ended — renew to publish new statuses.",
     "defaultShareMessage": "Check out my products on StatusMarket!",
     "postCreated": "Post created!",
     "postCreatedHint": "Your status is ready. Share this link on WhatsApp — a cover photo will automatically come with the link.",
@@ -577,6 +585,8 @@
     "continueShopping": "Continue shopping"
   },
   "adminDashboard": {
+    "totalUsers": "Registered users",
+    "totalViews": "Views / link clicks",
     "pendingPayments": "Pending payments",
     "paymentsAwaitingReview": "Payments awaiting review",
     "noPendingPayments": "No pending payments.",
@@ -630,10 +640,18 @@
   "adminSettings": {
     "saved": "Saved",
     "platformConfig": "Platform configuration",
-    "trialDuration": "Trial duration (days)",
-    "trialDurationHint": "Number of days for the free trial period for new sellers.",
+    "trialDuration": "Trial duration",
+    "trialDurationHint": "Duration of the free trial period for new sellers, in the unit of your choice.",
+    "units": {
+      "minutes": "minutes",
+      "hours": "hours",
+      "days": "days",
+      "years": "years"
+    },
     "expiryAlert": "Expiry alert (days)",
     "expiryAlertHint": "Number of days before trial expiry to send an alert.",
+    "aiDailyLimit": "AI generations per day limit",
+    "aiDailyLimitHint": "Maximum number of AI generations (captions/descriptions) per seller per day, across all paid subscriptions.",
     "systemInfo": "System information",
     "lastUpdated": "Last updated"
   },

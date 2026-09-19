@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Share2, Check, Image as ImageIcon, Link as LinkIcon, Copy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
@@ -6,12 +7,15 @@ import { useAuth } from '../auth/authContext';
 import { getSiteUrl } from '../../utils/siteUrl';
 import { api } from '../../lib/api';
 import { AiGenerateButton, type AiLanguage } from '../../components/AiGenerateButton';
-import type { Store, Product } from '../../types';
+import { isSubscriptionActive, hasPaidSubscription } from '../../utils/subscriptionStatus';
+import type { Store, Product, Subscription } from '../../types';
 
 export function StatusGenerator() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { profile, user } = useAuth();
   const [store, setStore] = useState<Store | null>(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [coverImage, setCoverImage] = useState<string | null>(null);
@@ -44,13 +48,17 @@ export function StatusGenerator() {
         const myStore = s ? (s as Store) : null;
         setStore(myStore);
         if (myStore) {
-          const { data: prods } = await supabase
-            .from('products')
-            .select('*')
-            .eq('store_id', myStore.id)
-            .eq('is_available', true)
-            .order('created_at', { ascending: false });
+          const [{ data: prods }, { data: subs }] = await Promise.all([
+            supabase
+              .from('products')
+              .select('*')
+              .eq('store_id', myStore.id)
+              .eq('is_available', true)
+              .order('created_at', { ascending: false }),
+            supabase.from('subscriptions').select('*').eq('seller_id', ownerId).order('created_at', { ascending: false }).limit(1),
+          ]);
           if (isMounted && prods) setProducts(prods as Product[]);
+          if (isMounted) setSubscription((subs?.[0] as Subscription) ?? null);
         }
       } catch (err: any) {
         if (!isMounted) return;
@@ -93,19 +101,24 @@ export function StatusGenerator() {
   };
 
   const handleGenerateCaption = async (language: AiLanguage) => {
-    if (!coverImage) return;
+    if (!coverImage || !store) return;
     setGeneratingCaption(true);
     setCaptionError(null);
     try {
       const result = await api.generateCaption({
+        storeId: store.id,
         imageUrl: coverImage,
         productNames: selectedProducts.map((p) => p.name),
         language,
         previousText: caption.trim() || undefined,
       });
       setCaption(result.caption);
-    } catch {
-      setCaptionError(t('ai.genericError'));
+    } catch (err: any) {
+      if (err?.code === 'AI_DAILY_LIMIT_REACHED' || err?.code === 'AI_REQUIRES_PAID_PLAN') {
+        setCaptionError(err.message);
+      } else {
+        setCaptionError(t('ai.genericError'));
+      }
     } finally {
       setGeneratingCaption(false);
     }
@@ -176,6 +189,15 @@ export function StatusGenerator() {
 
   if (!store) {
     return <p className="text-center text-brume py-20">{t('categories.createShopFirst')}</p>;
+  }
+
+  if (!isSubscriptionActive(subscription)) {
+    return (
+      <div className="card p-6 text-center space-y-4">
+        <p className="text-sm font-medium text-corail-alerte">{t('statusGenerator.subscriptionExpiredHint')}</p>
+        <Link to="/vendeur/abonnement" className="btn-cta inline-flex">{t('dashboard.upgradeToPro')}</Link>
+      </div>
+    );
   }
 
   if (publishedSlug) {
@@ -321,6 +343,9 @@ export function StatusGenerator() {
                 generating={generatingCaption}
                 onGenerate={handleGenerateCaption}
                 disabledTitle={t('statusGenerator.aiDisabledHint')}
+                locked={!hasPaidSubscription(subscription)}
+                lockedReason={t('ai.paidPlanRequired')}
+                onLockedClick={() => navigate('/vendeur/abonnement')}
               />
             </div>
             <input

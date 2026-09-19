@@ -114,6 +114,7 @@ export interface Subscription {
   plan_id: string;
   status: SubscriptionStatus;
   trial_ends_at: string | null;
+  trial_alert_sent: boolean;
   starts_at: string | null;
   expires_at: string | null;
   created_at: string;
@@ -227,10 +228,14 @@ export interface StoreFollow {
   created_at: string;
 }
 
+export type TrialDurationUnit = 'minutes' | 'hours' | 'days' | 'years';
+
 export interface PlatformSettings {
   id: number;
-  trial_duration_days: number;
+  trial_duration_value: number;
+  trial_duration_unit: TrialDurationUnit;
   trial_alert_days: number;
+  ai_daily_limit: number;
   created_at: string;
   updated_at: string;
 }

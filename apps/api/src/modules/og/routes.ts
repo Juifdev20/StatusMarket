@@ -11,6 +11,11 @@ function ensureWww(url: string): string {
   return url.replace('https://statusmarket.store', 'https://www.statusmarket.store');
 }
 
+async function isStoreVisible(supabase: ReturnType<typeof getSupabaseAdmin>, storeId: string): Promise<boolean> {
+  const { data } = await supabase.rpc('store_owner_subscription_active', { p_store_id: storeId });
+  return !!data;
+}
+
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, '&amp;')
@@ -80,7 +85,8 @@ router.get('/product/:id', asyncHandler(async (req, res) => {
     .eq('id', id)
     .maybeSingle();
 
-  if (error || !product) {
+  const productStore = (product?.store as any) || null;
+  if (error || !product || !productStore || !(await isStoreVisible(supabase, productStore.id))) {
     return res.status(404).send(buildOgHtml({
       title: 'Produit introuvable',
       description: 'Ce produit n\'existe plus ou a été supprimé.',
@@ -121,7 +127,7 @@ router.get('/store/:slug', asyncHandler(async (req, res) => {
     .eq('is_suspended', false)
     .maybeSingle();
 
-  if (error || !store) {
+  if (error || !store || !(await isStoreVisible(supabase, store.id))) {
     return res.status(404).send(buildOgHtml({
       title: 'Boutique introuvable',
       description: 'Cette boutique n\'existe plus ou a été désactivée.',
@@ -154,7 +160,8 @@ router.get('/pub/:slug', asyncHandler(async (req, res) => {
     .eq('slug', slug)
     .maybeSingle();
 
-  if (error || !post) {
+  const pubStore = (post?.store as any) || null;
+  if (error || !post || !pubStore || !(await isStoreVisible(supabase, pubStore.id))) {
     return res.status(404).send(buildOgHtml({
       title: 'Publication introuvable',
       description: 'Cette publication n\'existe plus ou a été supprimée.',

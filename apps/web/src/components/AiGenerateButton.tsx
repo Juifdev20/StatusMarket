@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Lock } from 'lucide-react';
 
 export type AiLanguage = 'fr' | 'en' | 'ln' | 'sw';
 
@@ -16,10 +16,26 @@ interface AiGenerateButtonProps {
   generating: boolean;
   onGenerate: (language: AiLanguage) => void;
   disabledTitle?: string;
+  locked?: boolean;
+  lockedReason?: string;
+  onLockedClick?: () => void;
 }
 
-export function AiGenerateButton({ ready, hasResult, generating, onGenerate, disabledTitle }: AiGenerateButtonProps) {
+export function AiGenerateButton({ ready, hasResult, generating, onGenerate, disabledTitle, locked, lockedReason, onLockedClick }: AiGenerateButtonProps) {
   const [language, setLanguage] = useState<AiLanguage>('fr');
+
+  if (locked) {
+    return (
+      <button
+        type="button"
+        onClick={onLockedClick}
+        title={lockedReason}
+        className="btn-outline text-xs flex items-center gap-1 py-1 px-2 border-ambre-pagne/50 text-ambre-pagne whitespace-nowrap"
+      >
+        <Lock size={12} /> Fonctionnalité PRO
+      </button>
+    );
+  }
 
   return (
     <div className="flex items-center gap-1.5">

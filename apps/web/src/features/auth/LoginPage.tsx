@@ -35,7 +35,7 @@ export function LoginPage() {
     return null;
   };
 
-  const usernameError = touched.username ? validateUsername(username) : null;
+  const usernameError = mode === 'register' && touched.username ? validateUsername(username) : null;
   const passwordMatchError = mode === 'register' && touched.confirmPassword && confirmPassword.length > 0 && password !== confirmPassword
     ? t('auth.errors.passwordMismatch')
     : null;
@@ -68,10 +68,12 @@ export function LoginPage() {
     setError(null);
     setTouched({ username: true, confirmPassword: true });
 
-    const usernameErr = validateUsername(username);
-    if (usernameErr) {
-      setError(usernameErr);
-      return;
+    if (mode === 'register') {
+      const usernameErr = validateUsername(username);
+      if (usernameErr) {
+        setError(usernameErr);
+        return;
+      }
     }
 
     setLoading(true);

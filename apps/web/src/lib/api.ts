@@ -18,7 +18,10 @@ async function fetcher(path: string, options: RequestInit = {}) {
   const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || res.statusText);
+    const apiError = new Error(err.error || res.statusText) as Error & { code?: string; limit?: number };
+    if (err.code) apiError.code = err.code;
+    if (err.limit) apiError.limit = err.limit;
+    throw apiError;
   }
   if (res.status === 204) return null;
   const text = await res.text();
@@ -59,8 +62,8 @@ export const api = {
   deleteCategory: (id: string) => fetcher(`/api/categories/${id}`, { method: 'DELETE' }),
 
   // AI generation
-  generateCaption: (body: { imageUrl: string; productNames: string[]; language: string; previousText?: string }) =>
+  generateCaption: (body: { storeId: string; imageUrl: string; productNames: string[]; language: string; previousText?: string }) =>
     fetcher('/api/ai/generate-caption', { method: 'POST', body: JSON.stringify(body) }),
-  generateDescription: (body: { imageUrl: string; name: string; price?: number; currency?: string; language: string; previousText?: string }) =>
+  generateDescription: (body: { storeId: string; imageUrl: string; name: string; price?: number; currency?: string; language: string; previousText?: string }) =>
     fetcher('/api/ai/generate-description', { method: 'POST', body: JSON.stringify(body) }),
 };

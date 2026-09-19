@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { StatusRing } from '../../components/StatusRing';
 import { FollowersListModal } from '../../components/FollowersListModal';
+import { isSubscriptionActive } from '../../utils/subscriptionStatus';
 import type { Store as StoreType, Product, Subscription } from '../../types';
 
 export function SellerDashboard() {
@@ -45,7 +46,7 @@ export function SellerDashboard() {
   const storeFrontRef = useRef<HTMLInputElement>(null);
 
   const loadStats = useCallback(async (storeId: string) => {
-    const [prodRes, viewsRes, postsRes, ordersRes, subRes, ratingRes, sharesRes, followersRes] = await Promise.all([
+    const [prodRes, viewsRes, postsRes, ordersRes, subRes, ratingRes, sharesRes, followersRes, settingsRes] = await Promise.all([
       supabase.from('products').select('*').eq('store_id', storeId).order('created_at', { ascending: false }),
       supabase.from('store_views').select('id', { count: 'exact' }).eq('store_id', storeId),
       supabase.from('status_posts').select('id', { count: 'exact' }).eq('store_id', storeId),
@@ -54,12 +55,25 @@ export function SellerDashboard() {
       supabase.from('store_rating_summary').select('*').eq('store_id', storeId).maybeSingle(),
       supabase.from('product_shares').select('id', { count: 'exact' }).eq('store_id', storeId).gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
       supabase.from('store_follower_counts').select('*').eq('store_id', storeId).maybeSingle(),
+      supabase.from('platform_settings').select('trial_alert_days').eq('id', 1).single(),
     ]);
     if (prodRes.data) setProducts(prodRes.data as Product[]);
     if (viewsRes.count !== null && viewsRes.count !== undefined) setStoreViews(viewsRes.count);
     if (postsRes.count !== null && postsRes.count !== undefined) setPublicationsCount(postsRes.count);
     if (ordersRes.count !== null && ordersRes.count !== undefined) setOrdersCount(ordersRes.count);
-    if (subRes.data && subRes.data.length > 0) setSubscription(subRes.data[0] as Subscription);
+    if (subRes.data && subRes.data.length > 0) {
+      const sub = subRes.data[0] as Subscription;
+      setSubscription(sub);
+      if (!isSubscriptionActive(sub) && sub.status !== 'EXPIRED' && sub.status !== 'CANCELLED') {
+        supabase.from('subscriptions').update({ status: 'EXPIRED' }).eq('id', sub.id).then(() => {});
+      } else if (sub.status === 'TRIAL' && sub.trial_ends_at && !sub.trial_alert_sent) {
+        const alertDays = settingsRes.data?.trial_alert_days ?? 2;
+        const daysLeft = Math.ceil((new Date(sub.trial_ends_at).getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+        if (daysLeft <= alertDays) {
+          supabase.from('subscriptions').update({ trial_alert_sent: true }).eq('id', sub.id).then(() => {});
+        }
+      }
+    }
     setAvgRating(ratingRes.data?.avg_rating ?? null);
     setReviewCount(ratingRes.data?.review_count ?? 0);
     if (sharesRes.count !== null && sharesRes.count !== undefined) setSharesCount(sharesRes.count);
@@ -219,13 +233,18 @@ export function SellerDashboard() {
     );
   }
 
-  const trialProgress = subscription?.trial_ends_at
-    ? Math.min(100, Math.max(0, ((new Date(subscription.trial_ends_at).getTime() - Date.now()) / (7 * 24 * 60 * 60 * 1000)) * 100))
+  const trialTotalSpanMs = subscription?.trial_ends_at
+    ? new Date(subscription.trial_ends_at).getTime() - new Date(subscription.created_at).getTime()
+    : 0;
+  const trialProgress = subscription?.trial_ends_at && trialTotalSpanMs > 0
+    ? Math.min(100, Math.max(0, ((new Date(subscription.trial_ends_at).getTime() - Date.now()) / trialTotalSpanMs) * 100))
     : 0;
 
   const daysLeft = subscription?.trial_ends_at
     ? Math.max(0, Math.ceil((new Date(subscription.trial_ends_at).getTime() - Date.now()) / (24 * 60 * 60 * 1000)))
     : 0;
+
+  const subscriptionActive = isSubscriptionActive(subscription);
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -249,7 +268,7 @@ export function SellerDashboard() {
         </div>
       </div>
 
-      {subscription?.status === 'TRIAL' && (
+      {subscription?.status === 'TRIAL' && subscriptionActive && (
         <div className="card flex flex-col gap-4 p-4 border-corail-alerte/30 lg:flex-row lg:items-center">
           <StatusRing progress={trialProgress} size={56} color="#E2572B">
             <div className="flex h-full w-full items-center justify-center bg-corail-alerte/10 rounded-full">
@@ -261,6 +280,21 @@ export function SellerDashboard() {
             <p className="text-xs text-brume">{t('dashboard.trialDaysLeft', { count: daysLeft })}</p>
           </div>
           <Link to="/vendeur/abonnement" className="btn-cta text-xs">{t('dashboard.upgradeToPro')}</Link>
+        </div>
+      )}
+
+      {subscription && !subscriptionActive && (
+        <div className="card flex flex-col gap-4 p-4 bg-corail-alerte/10 border-corail-alerte/30 lg:flex-row lg:items-center">
+          <div className="flex-1 space-y-2">
+            <p className="text-sm font-semibold text-corail-alerte">{t('dashboard.subscriptionExpiredTitle')}</p>
+            <p className="text-xs text-brume">{t('dashboard.subscriptionExpiredHint')}</p>
+            <ul className="text-xs text-brume list-disc list-inside space-y-0.5">
+              <li>{t('dashboard.blockedFeatureProducts')}</li>
+              <li>{t('dashboard.blockedFeatureStatus')}</li>
+              <li>{t('dashboard.blockedFeatureAi')}</li>
+            </ul>
+          </div>
+          <Link to="/vendeur/abonnement" className="btn-cta text-xs shrink-0">{t('dashboard.upgradeToPro')}</Link>
         </div>
       )}
 

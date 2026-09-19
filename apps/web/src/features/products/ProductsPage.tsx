@@ -1,4 +1,5 @@
 import { useEffect, useState, FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2, X, Package, Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
@@ -6,12 +7,14 @@ import { useAuth } from '../auth/authContext';
 import { ShareDialog } from '../../components/ShareDialog';
 import { api } from '../../lib/api';
 import { AiGenerateButton, type AiLanguage } from '../../components/AiGenerateButton';
-import type { Store, Product, Category, GlobalCategory } from '../../types';
+import { isSubscriptionActive, hasPaidSubscription } from '../../utils/subscriptionStatus';
+import type { Store, Product, Category, GlobalCategory, Subscription } from '../../types';
 
 export function ProductsPage() {
   const { t } = useTranslation();
   const { profile, user } = useAuth();
   const [store, setStore] = useState<Store | null>(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [globalCategories, setGlobalCategories] = useState<GlobalCategory[]>([]);
@@ -46,15 +49,17 @@ export function ProductsPage() {
         const myStore = storeData ? (storeData as Store) : null;
         setStore(myStore);
         if (myStore) {
-          const [prodRes, catRes, gcatRes] = await Promise.all([
+          const [prodRes, catRes, gcatRes, subRes] = await Promise.all([
             supabase.from('products').select('*, category:categories(*), global_category:global_categories(*)').eq('store_id', myStore.id).order('created_at', { ascending: false }),
             supabase.from('categories').select('*').eq('store_id', myStore.id).order('name'),
             supabase.from('global_categories').select('*').eq('is_active', true).order('sort_order'),
+            supabase.from('subscriptions').select('*').eq('seller_id', ownerId).order('created_at', { ascending: false }).limit(1),
           ]);
           if (isMounted) {
             setProducts((prodRes.data || []) as Product[]);
             setCategories((catRes.data || []) as Category[]);
             setGlobalCategories((gcatRes.data || []) as GlobalCategory[]);
+            setSubscription((subRes.data?.[0] as Subscription) ?? null);
           }
         } else {
           setProducts([]);
@@ -110,17 +115,28 @@ export function ProductsPage() {
     );
   }
 
+  const subscriptionActive = isSubscriptionActive(subscription);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="font-serif text-2xl font-bold">{t('products.title')}</h1>
         <button
           onClick={() => { setEditing(null); setShowForm(true); }}
-          className="btn-primary text-xs"
+          disabled={!subscriptionActive}
+          title={!subscriptionActive ? t('products.subscriptionExpiredHint') : undefined}
+          className="btn-primary text-xs disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Plus size={16} /> {t('common.add')}
         </button>
       </div>
+
+      {!subscriptionActive && (
+        <div className="card bg-corail-alerte/10 border-corail-alerte/30 p-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-corail-alerte font-medium">{t('products.subscriptionExpiredHint')}</p>
+          <Link to="/vendeur/abonnement" className="btn-cta text-xs shrink-0">{t('dashboard.upgradeToPro')}</Link>
+        </div>
+      )}
 
       {products.length === 0 ? (
         <div className="flex flex-col items-center py-20 text-center">
@@ -151,7 +167,12 @@ export function ProductsPage() {
                 <button onClick={() => setSharingProduct(p)} className="btn-ghost p-2" title={t('common.share')}>
                   <Share2 size={16} />
                 </button>
-                <button onClick={() => { setEditing(p); setShowForm(true); }} className="btn-ghost p-2">
+                <button
+                  onClick={() => { setEditing(p); setShowForm(true); }}
+                  disabled={!subscriptionActive}
+                  title={!subscriptionActive ? t('products.subscriptionExpiredHint') : undefined}
+                  className="btn-ghost p-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
                   <Pencil size={16} />
                 </button>
                 <button onClick={() => handleDelete(p.id)} className="btn-ghost p-2 text-corail-alerte">
@@ -169,6 +190,7 @@ export function ProductsPage() {
           categories={categories}
           globalCategories={globalCategories}
           product={editing}
+          hasPaidPlan={hasPaidSubscription(subscription)}
           onClose={() => setShowForm(false)}
           onSaved={() => { setShowForm(false); loadProducts(); }}
         />
@@ -188,15 +210,17 @@ export function ProductsPage() {
   );
 }
 
-function ProductForm({ store, categories, globalCategories, product, onClose, onSaved }: {
+function ProductForm({ store, categories, globalCategories, product, hasPaidPlan, onClose, onSaved }: {
   store: Store;
   categories: Category[];
   globalCategories: GlobalCategory[];
   product: Product | null;
+  hasPaidPlan: boolean;
   onClose: () => void;
   onSaved: () => void;
 }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [name, setName] = useState(product?.name ?? '');
   const [description, setDescription] = useState(product?.description ?? '');
   const [price, setPrice] = useState(product?.price?.toString() ?? '');
@@ -231,6 +255,7 @@ function ProductForm({ store, categories, globalCategories, product, onClose, on
     setDescError(null);
     try {
       const result = await api.generateDescription({
+        storeId: store.id,
         imageUrl,
         name: name.trim(),
         price: price ? parseFloat(price) : undefined,
@@ -239,8 +264,12 @@ function ProductForm({ store, categories, globalCategories, product, onClose, on
         previousText: description.trim() || undefined,
       });
       setDescription(result.description);
-    } catch {
-      setDescError(t('ai.genericError'));
+    } catch (err: any) {
+      if (err?.code === 'AI_DAILY_LIMIT_REACHED' || err?.code === 'AI_REQUIRES_PAID_PLAN') {
+        setDescError(err.message);
+      } else {
+        setDescError(t('ai.genericError'));
+      }
     } finally {
       setGeneratingDesc(false);
     }
@@ -294,6 +323,9 @@ function ProductForm({ store, categories, globalCategories, product, onClose, on
                   generating={generatingDesc}
                   onGenerate={handleGenerateDescription}
                   disabledTitle={t('products.aiDisabledHint')}
+                  locked={!hasPaidPlan}
+                  lockedReason={t('ai.paidPlanRequired')}
+                  onLockedClick={() => navigate('/vendeur/abonnement')}
                 />
               </div>
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="input min-h-[80px]" placeholder={t('products.descriptionPlaceholder')} />

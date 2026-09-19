@@ -308,13 +308,15 @@
     }
   },
   "ai": {
-    "genericError": "Génération indisponible pour le moment, réessayez ou écrivez votre propre texte."
+    "genericError": "Génération indisponible pour le moment, réessayez ou écrivez votre propre texte.",
+    "paidPlanRequired": "La génération par IA est réservée aux abonnements payants (PRO/BUSINESS). Cliquez pour voir les plans."
   },
   "products": {
     "title": "Produits",
     "empty": "Aucun produit. Ajoutez votre premier produit !",
     "createShopFirst": "Créez d'abord votre boutique pour gérer vos produits.",
     "retry": "Réessayer",
+    "subscriptionExpiredHint": "Votre période d'essai ou votre abonnement est terminé — renouvelez pour ajouter ou modifier des produits.",
     "confirmDelete": "Supprimer ce produit ?",
     "errors": {
       "loadShop": "Erreur de chargement de la boutique"
@@ -464,6 +466,11 @@
     "trialInProgress": "Essai PRO en cours",
     "trialDaysLeft": "Plus que {{count}} jours d'essai. Passez à PRO pour continuer à profiter de toutes les fonctionnalités.",
     "upgradeToPro": "Passer à PRO",
+    "subscriptionExpiredTitle": "Abonnement expiré",
+    "subscriptionExpiredHint": "Votre période d'essai ou votre abonnement est terminé. Votre boutique n'est plus visible par vos clients tant que vous n'avez pas renouvelé — mais vous gardez un accès complet à votre tableau de bord pour consulter vos données et régulariser votre paiement. Fonctionnalités bloquées en attendant :",
+    "blockedFeatureProducts": "Ajouter ou modifier des produits",
+    "blockedFeatureStatus": "Publier de nouveaux statuts",
+    "blockedFeatureAi": "Générer du texte avec l'IA",
     "shopViews": "Vues boutique",
     "publications": "Publications",
     "avgRating": "Note moyenne",
@@ -494,6 +501,7 @@
     }
   },
   "statusGenerator": {
+    "subscriptionExpiredHint": "Votre période d'essai ou votre abonnement est terminé — renouvelez pour publier de nouveaux statuts.",
     "defaultShareMessage": "Découvrez mes produits sur StatusMarket !",
     "postCreated": "Publication créée !",
     "postCreatedHint": "Votre statut est prêt. Partagez ce lien sur WhatsApp — une photo de couverture accompagnera automatiquement le lien.",
@@ -577,6 +585,8 @@
     "continueShopping": "Continuer mes achats"
   },
   "adminDashboard": {
+    "totalUsers": "Utilisateurs inscrits",
+    "totalViews": "Vues / clics sur les liens",
     "pendingPayments": "Paiements en attente",
     "paymentsAwaitingReview": "Paiements en attente de validation",
     "noPendingPayments": "Aucun paiement en attente.",
@@ -630,10 +640,18 @@
   "adminSettings": {
     "saved": "Enregistré",
     "platformConfig": "Configuration de la plateforme",
-    "trialDuration": "Durée de l'essai (jours)",
-    "trialDurationHint": "Nombre de jours pour la période d'essai gratuite des nouveaux vendeurs.",
+    "trialDuration": "Durée de l'essai",
+    "trialDurationHint": "Durée de la période d'essai gratuite des nouveaux vendeurs, dans l'unité de votre choix.",
+    "units": {
+      "minutes": "minutes",
+      "hours": "heures",
+      "days": "jours",
+      "years": "années"
+    },
     "expiryAlert": "Alerte d'expiration (jours)",
     "expiryAlertHint": "Nombre de jours avant l'expiration de l'essai pour envoyer une alerte.",
+    "aiDailyLimit": "Limite de générations IA par jour",
+    "aiDailyLimitHint": "Nombre maximum de générations IA (légendes/descriptions) par vendeur et par jour, tous abonnements payants confondus.",
     "systemInfo": "Informations système",
     "lastUpdated": "Dernière mise à jour"
   },

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Settings, Save, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
-import type { PlatformSettings } from '../../types';
+import type { PlatformSettings, TrialDurationUnit } from '../../types';
 
 export function AdminSettingsPage() {
   const { t, i18n } = useTranslation();
@@ -10,16 +10,20 @@ export function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [trialDays, setTrialDays] = useState(7);
+  const [trialValue, setTrialValue] = useState(7);
+  const [trialUnit, setTrialUnit] = useState<TrialDurationUnit>('days');
   const [alertDays, setAlertDays] = useState(3);
+  const [aiDailyLimit, setAiDailyLimit] = useState(5);
 
   useEffect(() => {
     (async () => {
       try {
         const data = await api.getAdminSettings();
         setSettings(data);
-        setTrialDays(data.trial_duration_days);
+        setTrialValue(data.trial_duration_value);
+        setTrialUnit(data.trial_duration_unit);
         setAlertDays(data.trial_alert_days);
+        setAiDailyLimit(data.ai_daily_limit);
       } catch {
         // keep defaults
       }
@@ -31,8 +35,10 @@ export function AdminSettingsPage() {
     setSaving(true);
     try {
       const updated = await api.updateAdminSettings({
-        trial_duration_days: trialDays,
+        trial_duration_value: trialValue,
+        trial_duration_unit: trialUnit,
         trial_alert_days: alertDays,
+        ai_daily_limit: aiDailyLimit,
       });
       setSettings(updated);
       setSaved(true);
@@ -68,13 +74,25 @@ export function AdminSettingsPage() {
           <div>
             <label className="text-sm font-medium text-brume">{t('adminSettings.trialDuration')}</label>
             <p className="text-xs text-brume mb-2">{t('adminSettings.trialDurationHint')}</p>
-            <input
-              type="number"
-              min={1}
-              value={trialDays}
-              onChange={(e) => setTrialDays(Number(e.target.value))}
-              className="input"
-            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                min={1}
+                value={trialValue}
+                onChange={(e) => setTrialValue(Number(e.target.value))}
+                className="input flex-1"
+              />
+              <select
+                value={trialUnit}
+                onChange={(e) => setTrialUnit(e.target.value as TrialDurationUnit)}
+                className="input w-auto"
+              >
+                <option value="minutes">{t('adminSettings.units.minutes')}</option>
+                <option value="hours">{t('adminSettings.units.hours')}</option>
+                <option value="days">{t('adminSettings.units.days')}</option>
+                <option value="years">{t('adminSettings.units.years')}</option>
+              </select>
+            </div>
           </div>
 
           <div>
@@ -85,6 +103,18 @@ export function AdminSettingsPage() {
               min={0}
               value={alertDays}
               onChange={(e) => setAlertDays(Number(e.target.value))}
+              className="input"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-brume">{t('adminSettings.aiDailyLimit')}</label>
+            <p className="text-xs text-brume mb-2">{t('adminSettings.aiDailyLimitHint')}</p>
+            <input
+              type="number"
+              min={1}
+              value={aiDailyLimit}
+              onChange={(e) => setAiDailyLimit(Number(e.target.value))}
               className="input"
             />
           </div>

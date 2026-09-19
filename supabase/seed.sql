@@ -82,6 +82,6 @@ AND NOT EXISTS (
 -- ============================================================
 -- 6. Ensure platform_settings row exists
 -- ============================================================
-INSERT INTO platform_settings (id, trial_duration_days, trial_alert_days)
-VALUES (1, 7, 3)
+INSERT INTO platform_settings (id, trial_duration_value, trial_duration_unit, trial_alert_days, ai_daily_limit)
+VALUES (1, 7, 'days', 3, 5)
 ON CONFLICT (id) DO NOTHING;

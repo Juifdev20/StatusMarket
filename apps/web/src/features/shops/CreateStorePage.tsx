@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/authContext';
 import { ArrowLeft, Store, Upload, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { trialDurationToMs } from '../../utils/trialDuration';
+import type { TrialDurationUnit } from '../../types';
 
 export function CreateStorePage() {
   const { t } = useTranslation();
@@ -132,8 +134,16 @@ export function CreateStorePage() {
       .single();
 
     if (planFree) {
-      const trialEnd = new Date();
-      trialEnd.setDate(trialEnd.getDate() + 7);
+      const { data: settings } = await supabase
+        .from('platform_settings')
+        .select('trial_duration_value, trial_duration_unit')
+        .eq('id', 1)
+        .single();
+
+      const durationMs = settings
+        ? trialDurationToMs(settings.trial_duration_value, settings.trial_duration_unit as TrialDurationUnit)
+        : trialDurationToMs(7, 'days');
+      const trialEnd = new Date(Date.now() + durationMs);
 
       await supabase.from('subscriptions').insert({
         seller_id: profile.id,
