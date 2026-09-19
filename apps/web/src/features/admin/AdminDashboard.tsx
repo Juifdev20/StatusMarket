@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Users, UserCircle, Store, Package, CreditCard, Flag, Eye, Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
+import { getSignedProofUrl } from '../../utils/paymentProof';
 import type { Payment, SubscriptionPlan } from '../../types';
 
 export function AdminDashboard() {
@@ -95,9 +96,16 @@ export function AdminDashboard() {
                   <p className="text-xs text-brume">{payment.plan?.name ?? '—'} · {payment.reference ?? 'N/A'}</p>
                 </div>
                 {payment.proof_image_url && (
-                  <a href={payment.proof_image_url} target="_blank" rel="noopener noreferrer" className="text-xs text-vert-marche underline">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const url = await getSignedProofUrl(payment.proof_image_url!);
+                      if (url) window.open(url, '_blank', 'noopener,noreferrer');
+                    }}
+                    className="text-xs text-vert-marche underline"
+                  >
                     {t('adminDashboard.viewProof')}
-                  </a>
+                  </button>
                 )}
                 <div className="flex gap-1">
                   <button onClick={() => handlePayment(payment.id, 'APPROVED')} className="btn-ghost p-2 text-vert-marche">

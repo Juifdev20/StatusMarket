@@ -137,6 +137,7 @@ function PaymentForm({ plan, sellerId, onClose }: {
   const { t } = useTranslation();
   const [reference, setReference] = useState('');
   const [proofUrl, setProofUrl] = useState('');
+  const [proofPreviewUrl, setProofPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -146,8 +147,12 @@ function PaymentForm({ plan, sellerId, onClose }: {
     const fileName = `${sellerId}/${Date.now()}.${file.name.split('.').pop()}`;
     const { error } = await supabase.storage.from('payment-proofs').upload(fileName, file);
     if (!error) {
-      const { data } = supabase.storage.from('payment-proofs').getPublicUrl(fileName);
-      setProofUrl(data.publicUrl);
+      // The payment-proofs bucket is private (proofs are sensitive), so store
+      // the bare path — not a "public" URL, which 404s for a private bucket —
+      // and mint a short-lived signed URL just for this local preview.
+      setProofUrl(fileName);
+      const { data } = await supabase.storage.from('payment-proofs').createSignedUrl(fileName, 3600);
+      setProofPreviewUrl(data?.signedUrl ?? null);
     }
     setUploading(false);
   };
@@ -207,7 +212,7 @@ function PaymentForm({ plan, sellerId, onClose }: {
               <label className="label">{t('subscription.paymentScreenshot')}</label>
               <input type="file" accept="image/*" required onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} className="input" />
               {uploading && <p className="text-xs text-brume mt-1">{t('createStore.uploading')}</p>}
-              {proofUrl && <img src={proofUrl} alt={t('subscription.proof')} className="mt-2 h-20 w-20 rounded-lg object-cover" />}
+              {proofPreviewUrl && <img src={proofPreviewUrl} alt={t('subscription.proof')} className="mt-2 h-20 w-20 rounded-lg object-cover" />}
             </div>
           </div>
           <div className="sticky bottom-0 border-t border-brume/10 bg-inherit p-4 md:p-6 flex gap-2">

@@ -598,6 +598,7 @@
   "adminPayments": {
     "count_one": "{{count}} paiement",
     "count_other": "{{count}} paiements",
+    "proofUnavailable": "Impossible de charger la preuve de paiement.",
     "searchPlaceholder": "Rechercher par vendeur ou référence...",
     "allStatuses": "Tous les statuts",
     "status": {
@@ -658,7 +659,10 @@
   "adminShops": {
     "count_one": "{{count}} boutique",
     "count_other": "{{count}} boutiques",
-    "suspended": "Suspendu"
+    "suspended": "Suspendu",
+    "noSubscription": "Aucun abonnement",
+    "activateSubscription": "Activer",
+    "activateError": "Impossible d'activer l'abonnement."
   },
   "adminSubscriptions": {
     "title": "Abonnements & Plans",

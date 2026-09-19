@@ -38,6 +38,8 @@ export const api = {
   getAdminProducts: () => fetcher('/api/admin/products'),
   updateAdminProduct: (id: string, body: object) => fetcher(`/api/admin/products/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   updateShop: (id: string, body: object) => fetcher(`/api/admin/stores/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  activateStoreSubscription: (storeId: string, planId: string) =>
+    fetcher(`/api/admin/stores/${storeId}/activate-subscription`, { method: 'POST', body: JSON.stringify({ plan_id: planId }) }),
   getPayments: (status?: string) => fetcher(`/api/admin/payments${status ? `?status=${status}` : ''}`),
   reviewPayment: (id: string, body: object) => fetcher(`/api/admin/payments/${id}/review`, { method: 'PATCH', body: JSON.stringify(body) }),
   getPlans: () => fetcher('/api/admin/plans'),

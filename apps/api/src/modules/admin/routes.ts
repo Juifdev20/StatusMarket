@@ -45,10 +45,18 @@ router.get('/stores', asyncHandler(async (_req, res) => {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from('stores')
-    .select('*, owner:profiles(*)')
+    .select('*, owner:profiles(*, subscriptions(status, expires_at, trial_ends_at, created_at, plan:subscription_plans(name)))')
     .order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
+
+  const withLatestSubscription = (data || []).map((store: any) => {
+    const subs = store.owner?.subscriptions || [];
+    const latest = [...subs].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0] || null;
+    const { subscriptions, ...owner } = store.owner || {};
+    return { ...store, owner, subscription: latest };
+  });
+
+  res.json(withLatestSubscription);
 }));
 
 const toggleStoreSchema = z.object({
@@ -69,6 +77,43 @@ router.patch('/stores/:id', asyncHandler(async (req: AuthedRequest, res) => {
     .single();
   if (error) return res.status(400).json({ error: error.message });
   res.json(data);
+}));
+
+const activateSubscriptionSchema = z.object({
+  plan_id: z.string().uuid(),
+});
+
+router.post('/stores/:id/activate-subscription', asyncHandler(async (req: AuthedRequest, res) => {
+  const parsed = activateSubscriptionSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const supabase = getSupabaseAdmin();
+
+  const { data: store } = await supabase.from('stores').select('id, owner_id').eq('id', req.params.id).maybeSingle();
+  if (!store) return res.status(404).json({ error: 'Store not found' });
+
+  const { data: plan } = await supabase.from('subscription_plans').select('id, duration_days').eq('id', parsed.data.plan_id).maybeSingle();
+  if (!plan) return res.status(404).json({ error: 'Plan not found' });
+
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + plan.duration_days * 24 * 60 * 60 * 1000);
+
+  const { data: sub, error: subError } = await supabase
+    .from('subscriptions')
+    .insert({
+      seller_id: store.owner_id,
+      plan_id: plan.id,
+      status: 'ACTIVE',
+      starts_at: now.toISOString(),
+      expires_at: expiresAt.toISOString(),
+    })
+    .select('*, plan:subscription_plans(*)')
+    .single();
+  if (subError) return res.status(400).json({ error: subError.message });
+
+  await supabase.from('profiles').update({ role: 'SELLER' }).eq('id', store.owner_id);
+
+  res.json(sub);
 }));
 
 router.get('/payments', asyncHandler(async (req, res) => {

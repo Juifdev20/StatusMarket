@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { CreditCard, Check, X, Search, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
+import { getSignedProofUrl } from '../../utils/paymentProof';
 import type { Payment } from '../../types';
 
 const statusColors: Record<string, string> = {
@@ -112,14 +113,17 @@ export function AdminPaymentsPage() {
 
                 <div className="flex items-center gap-2">
                   {payment.proof_image_url && (
-                    <a
-                      href={payment.proof_image_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const url = await getSignedProofUrl(payment.proof_image_url!);
+                        if (url) window.open(url, '_blank', 'noopener,noreferrer');
+                        else alert(t('adminPayments.proofUnavailable'));
+                      }}
                       className="btn-ghost text-xs text-vert-marche flex items-center gap-1"
                     >
                       <ExternalLink size={14} /> {t('subscription.proof')}
-                    </a>
+                    </button>
                   )}
                   {payment.status === 'PENDING' && (
                     <div className="flex gap-1">

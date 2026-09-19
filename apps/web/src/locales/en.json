@@ -598,6 +598,7 @@
   "adminPayments": {
     "count_one": "{{count}} payment",
     "count_other": "{{count}} payments",
+    "proofUnavailable": "Could not load the payment proof.",
     "searchPlaceholder": "Search by seller or reference...",
     "allStatuses": "All statuses",
     "status": {
@@ -658,7 +659,10 @@
   "adminShops": {
     "count_one": "{{count}} shop",
     "count_other": "{{count}} shops",
-    "suspended": "Suspended"
+    "suspended": "Suspended",
+    "noSubscription": "No subscription",
+    "activateSubscription": "Activate",
+    "activateError": "Could not activate the subscription."
   },
   "adminSubscriptions": {
     "title": "Subscriptions & Plans",
