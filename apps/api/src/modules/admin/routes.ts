@@ -75,7 +75,7 @@ router.get('/payments', asyncHandler(async (req, res) => {
   const supabase = getSupabaseAdmin();
   let query = supabase
     .from('payments')
-    .select('*, seller:profiles(*), plan:subscription_plans(*)')
+    .select('*, seller:profiles!seller_id(*), plan:subscription_plans(*)')
     .order('created_at', { ascending: false });
   if (req.query.status) {
     query = query.eq('status', req.query.status as string);
